@@ -608,6 +608,83 @@
       color: #ffffff;
     }
 
+    .api-key-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 9px;
+      padding-top: 9px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .api-key-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .api-status-badge {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .api-status-badge.active {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: rgba(16, 185, 129, 0.52);
+      color: #6ee7b7;
+    }
+
+    .api-key-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .api-key-input {
+      flex: 1;
+      min-width: 0;
+      padding: 6px 8px;
+      border-radius: 7px;
+      border: 1px solid var(--border-chrome);
+      background: var(--bg-inset);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      outline: none;
+    }
+
+    .api-key-input:focus {
+      border-color: var(--neon-cyan);
+    }
+
+    .api-key-btn {
+      padding: 6px 9px;
+      border-radius: 7px;
+      border: 1px solid var(--border-cyan);
+      background: rgba(0, 240, 255, 0.16);
+      color: var(--neon-cyan);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .api-key-btn.clear {
+      border-color: rgba(255, 42, 133, 0.55);
+      background: rgba(255, 42, 133, 0.16);
+      color: #ff9ec9;
+    }
+
     .toast-banner {
       position: fixed;
       left: 50%;
@@ -758,6 +835,27 @@
           <div class="eq-toggle-pair" id="eqTogglePair">
             <button type="button" class="eq-btn active" data-eq="tube">Tube</button>
             <button type="button" class="eq-btn" data-eq="crisp">Crisp</button>
+          </div>
+        </div>
+
+        <div class="api-key-bar">
+          <div class="api-key-head">
+            <span class="panel-label">STUDIO API KEY (LOCAL DEVICE ONLY)</span>
+            <span class="api-status-badge" id="apiStatusBadge">LOCAL FALLBACK</span>
+          </div>
+          <div class="api-key-controls">
+            <input
+              type="password"
+              id="apiKeyInput"
+              class="api-key-input"
+              placeholder="Paste Gemini API Key (saved locally)"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+            />
+            <button type="button" class="api-key-btn" id="saveApiKeyBtn">SAVE</button>
+            <button type="button" class="api-key-btn clear hidden" id="clearApiKeyBtn">CLEAR</button>
           </div>
         </div>
       </section>
@@ -1420,6 +1518,40 @@
     let cachedVoices = [];
     let isFetchingBackgroundNews = false;
 
+    const API_KEY_STORAGE_KEY = 'weazel_gemini_api_key';
+    const defaultApiKey = '';
+
+    function getActiveGeminiApiKey() {
+      try {
+        const stored = (localStorage.getItem(API_KEY_STORAGE_KEY) || '').trim();
+        if (stored) return stored;
+      } catch (e) {}
+      return (defaultApiKey || '').trim();
+    }
+
+    function syncApiKeyUi() {
+      const key = getActiveGeminiApiKey();
+      const hasKey = key.length > 0;
+      const badge = document.getElementById('apiStatusBadge');
+      const input = document.getElementById('apiKeyInput');
+      const clearBtn = document.getElementById('clearApiKeyBtn');
+      const saveBtn = document.getElementById('saveApiKeyBtn');
+
+      if (badge) {
+        badge.textContent = hasKey ? 'STUDIO API: ACTIVE' : 'LOCAL FALLBACK';
+        badge.classList.toggle('active', hasKey);
+      }
+      if (input && document.activeElement !== input) {
+        input.value = hasKey ? key : '';
+      }
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', !hasKey);
+      }
+      if (saveBtn) {
+        saveBtn.textContent = hasKey ? 'UPDATE' : 'SAVE';
+      }
+    }
+
     function getCountryProfile() {
       return COUNTRY_CITY_CATALOG[state.countryCode] || COUNTRY_CITY_CATALOG.IE;
     }
@@ -1564,24 +1696,28 @@
         const lang = (v.lang || '').toLowerCase();
         let score = 0;
 
-        if (lang.startsWith('en-us')) score += 60;
-        else if (lang.startsWith('en')) score += 20;
-        else score -= 40;
+        if (lang.startsWith('en-us')) score += 65;
+        else if (lang.startsWith('en-ie') || lang.startsWith('en-gb') || lang.startsWith('en-au')) score += 52;
+        else if (lang.startsWith('en')) score += 35;
+        else score -= 80;
 
-        if (v.localService) score += 15;
-        if (/natural|neural|premium|enhanced|siri|aaron|fred|nicky|allison|samantha|ava|zoe|quinn/i.test(name)) {
-          score += 24;
+        if (v.localService) score += 16;
+        if (/premium|enhanced|natural|neural|siri|aaron|fred|nicky|allison|samantha|ava|zoe|quinn|daniel|moira|serena|oliver|arthur|karen|lee/i.test(name)) {
+          score += 32;
         }
-        if (/zarvox|trinoids|bad news|bells|boing|organ|whisper|robot|espeak|google uk|daniel|moira|serena|kate|oliver|arthur/i.test(name)) {
-          score -= 120;
+        if (/compact/i.test(name)) {
+          score -= 22;
+        }
+        if (/zarvox|trinoids|bad news|bells|boing|organ|whisper|robot|espeak|albert|bahh|bubbles|cellos|deranged|good news|hysterical|jester|junior|kathy|princess|superstar|wobble/i.test(name)) {
+          score -= 160;
         }
 
         if (role === 'male') {
-          if (/fred|aaron|alex|tom|bruce|ralph|jorge|diego|male|man/i.test(name)) score += 32;
-          if (/samantha|victoria|ava|allison|nicky|zoe|quinn|female|woman/i.test(name)) score -= 28;
+          if (/fred|aaron|alex|tom|bruce|ralph|daniel|oliver|arthur|lee|jorge|diego|male|man/i.test(name)) score += 36;
+          if (/samantha|victoria|ava|allison|nicky|zoe|quinn|moira|serena|kate|karen|female|woman/i.test(name)) score -= 32;
         } else {
-          if (/samantha|victoria|ava|allison|nicky|zoe|quinn|female|woman/i.test(name)) score += 34;
-          if (/fred|aaron|alex|tom|bruce|ralph|male|man/i.test(name)) score -= 28;
+          if (/samantha|victoria|ava|allison|nicky|zoe|quinn|moira|serena|kate|karen|female|woman/i.test(name)) score += 38;
+          if (/fred|aaron|alex|tom|bruce|ralph|daniel|oliver|arthur|lee|male|man/i.test(name)) score -= 32;
         }
         return score;
       };
@@ -1595,9 +1731,10 @@
         this.audioCtx = null;
         this.activeBufferSource = null;
         this.activeConsoleNodes = [];
-        this.activeCadenceStop = null;
         this.neuralCache = new Map();
         this.idleSuspendTimer = null;
+        this.activeUtterance = null;
+        this.safariKeepAliveId = null;
       }
 
       cancelIdleSuspend() {
@@ -1610,7 +1747,7 @@
       scheduleIdleSuspend(delayMs = 160) {
         this.cancelIdleSuspend();
         this.idleSuspendTimer = setTimeout(() => {
-          if (state.isSpeaking || state.isBroadcastInFlight || this.activeBufferSource || this.activeCadenceStop) {
+          if (state.isSpeaking || state.isBroadcastInFlight || this.activeBufferSource || this.activeUtterance) {
             return;
           }
           this.teardownConsoleNodes();
@@ -1708,6 +1845,9 @@
       }
 
       async fetchNeuralLineAsset(lineText, role, token = null) {
+        const apiKey = getActiveGeminiApiKey();
+        if (!apiKey) return null;
+
         const isMale = role === 'male';
         const isCaller = role === 'caller';
         const isDrPhil = role === 'drphil';
@@ -1727,8 +1867,7 @@
           return cached;
         }
 
-        const apiKey = '';
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`;
 
         const direction = isMale
           ? 'Deliver in a gruff, older-sounding, aggressive, confident American radio host voice:'
@@ -1757,7 +1896,7 @@
           if (token !== null && !isTokenCurrent(token)) return null;
           try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 850);
+            const timeoutId = setTimeout(() => controller.abort(), 3200);
             const res = await fetch(apiUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1999,161 +2138,28 @@
         });
       }
 
-      startVocalCadenceFallback(text, role, epoch, durationMs, runId = null) {
-        if (!isTokenCurrent(epoch, runId)) return () => {};
-        this.unlockContextSync();
-        const isMale = role === 'male';
-        const isCaller = role === 'caller';
-        const isDrPhil = role === 'drphil';
-        const isUfo = role === 'ufo';
-        let active = true;
-        let beatTimer = null;
-        let endTimer = null;
-        const activeNotes = [];
-
-        const cleanupNote = (entry) => {
-          try { entry.osc.stop(); } catch (e) {}
-          for (const n of entry.nodes) {
-            try { n.disconnect(); } catch (e) {}
-          }
-        };
-
-        const cleanup = () => {
-          active = false;
-          if (beatTimer) {
-            clearInterval(beatTimer);
-            beatTimer = null;
-          }
-          if (endTimer) {
-            clearTimeout(endTimer);
-            endTimer = null;
-          }
-          while (activeNotes.length > 0) {
-            const entry = activeNotes.shift();
-            if (entry) cleanupNote(entry);
-          }
-        };
-
-        this.activeCadenceStop = cleanup;
-
-        if (!this.audioCtx) {
-          endTimer = setTimeout(cleanup, durationMs);
-          return cleanup;
+      stopSafariKeepAlive() {
+        if (this.safariKeepAliveId) {
+          clearInterval(this.safariKeepAliveId);
+          this.safariKeepAliveId = null;
         }
+      }
 
-        const syllables = (text || 'talk')
-          .split(/\s+/)
-          .filter(Boolean)
-          .map((w) => Math.max(1, Math.min(4, Math.ceil(w.length / 3))));
-        const beats = syllables.length > 0 ? syllables : [2, 1, 2, 1];
-        let beatIdx = 0;
-
-        const emitCadenceSyllable = () => {
-          if (!active || !isTokenCurrent(epoch, runId) || !this.audioCtx) {
-            cleanup();
-            return;
-          }
+      startSafariKeepAlive() {
+        this.stopSafariKeepAlive();
+        this.safariKeepAliveId = setInterval(() => {
           try {
-            if (this.audioCtx.state === 'suspended') {
-              this.audioCtx.resume().catch(() => {});
+            if ('speechSynthesis' in window && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+              window.speechSynthesis.pause();
+              window.speechSynthesis.resume();
             }
-            const now = this.audioCtx.currentTime;
-            const stress = beats[beatIdx % beats.length];
-            const cadenceStep = beatIdx % 4;
-            beatIdx++;
-
-            const pitchShiftHz = state.pitchOffset * (isMale
-              ? 55
-              : (isDrPhil ? 45 : (isUfo ? 90 : (isCaller ? 95 : 85))));
-            const drawlDip = isDrPhil && (cadenceStep === 1 || cadenceStep === 3) ? -7 : 0;
-            const ufoRise = isUfo ? cadenceStep * 13 : 0;
-            const f0 = isMale
-              ? (92 + cadenceStep * 6 + ((stress - 1) * 4) + pitchShiftHz)
-              : isDrPhil
-                ? (76 + cadenceStep * 4 + drawlDip + ((stress - 1) * 4) + pitchShiftHz)
-                : isUfo
-                  ? (126 + ufoRise + ((stress - 1) * 6) + pitchShiftHz)
-                  : isCaller
-                    ? (154 + cadenceStep * 15 + ((stress - 1) * 8) + pitchShiftHz)
-                    : (186 + cadenceStep * 11 + ((stress - 1) * 7) + pitchShiftHz);
-
-            const osc = this.audioCtx.createOscillator();
-            osc.type = isMale
-              ? 'sawtooth'
-              : (isDrPhil ? 'sawtooth' : (isUfo ? 'sawtooth' : (isCaller ? 'square' : 'triangle')));
-            osc.frequency.setValueAtTime(Math.max(58, f0), now);
-            osc.frequency.exponentialRampToValueAtTime(
-              Math.max(52, f0 * (isMale
-                ? 0.88
-                : (isDrPhil ? 0.82 : (isUfo ? 1.15 : (isCaller ? 1.12 : 1.06))))),
-              now + 0.115
-            );
-
-            const formant = this.audioCtx.createBiquadFilter();
-            formant.type = 'bandpass';
-            const formantHz = isMale
-              ? (520 + (beatIdx % 3) * 140)
-              : isDrPhil
-                ? (410 + (beatIdx % 3) * 105)
-                : isUfo
-                  ? (920 + (beatIdx % 3) * 230)
-                  : isCaller
-                    ? (1050 + (beatIdx % 3) * 260)
-                    : (840 + (beatIdx % 3) * 210);
-            formant.frequency.setValueAtTime(formantHz, now);
-            formant.frequency.linearRampToValueAtTime(formantHz * 1.16, now + 0.08);
-            formant.Q.value = isMale ? 2.4 : (isDrPhil ? 2.3 : (isUfo ? 2.8 : (isCaller ? 3.2 : 2.0)));
-
-            const eqFilter = this.audioCtx.createBiquadFilter();
-            if (isCaller || isDrPhil || isUfo) {
-              eqFilter.type = 'bandpass';
-              eqFilter.frequency.setValueAtTime(isDrPhil ? 1050 : (isUfo ? 1220 : 1350), now);
-              eqFilter.Q.value = 1.3;
-            } else if (state.eqWarmth === 'tube') {
-              eqFilter.type = 'lowshelf';
-              eqFilter.frequency.setValueAtTime(220, now);
-              eqFilter.gain.setValueAtTime(4.0, now);
-            } else {
-              eqFilter.type = 'highshelf';
-              eqFilter.frequency.setValueAtTime(2400, now);
-              eqFilter.gain.setValueAtTime(3.5, now);
-            }
-
-            const envGain = this.audioCtx.createGain();
-            const peak = isMale ? 0.055 : (isDrPhil ? 0.052 : (isUfo ? 0.046 : (isCaller ? 0.036 : 0.048)));
-            envGain.gain.setValueAtTime(0.0001, now);
-            envGain.gain.linearRampToValueAtTime(peak, now + 0.018);
-            envGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.135);
-
-            osc.connect(formant);
-            formant.connect(eqFilter);
-            eqFilter.connect(envGain);
-            envGain.connect(this.audioCtx.destination);
-
-            const entry = { osc, nodes: [osc, formant, eqFilter, envGain] };
-            activeNotes.push(entry);
-
-            osc.onended = () => {
-              const idx = activeNotes.indexOf(entry);
-              if (idx !== -1) activeNotes.splice(idx, 1);
-              for (const n of entry.nodes) {
-                try { n.disconnect(); } catch (e) {}
-              }
-            };
-
-            osc.start(now);
-            osc.stop(now + 0.142);
           } catch (e) {}
-        };
-
-        emitCadenceSyllable();
-        beatTimer = setInterval(emitCadenceSyllable, isMale ? 132 : (isDrPhil ? 160 : (isUfo ? 120 : (isCaller ? 124 : 162))));
-        endTimer = setTimeout(cleanup, durationMs);
-
-        return cleanup;
+        }, 9500);
       }
 
       stopAllSpeech(suspendWhenIdle = false) {
+        this.stopSafariKeepAlive();
+        this.activeUtterance = null;
         if (this.activeBufferSource) {
           try { this.activeBufferSource.onended = null; } catch (e) {}
           try { this.activeBufferSource.stop(); } catch (e) {}
@@ -2171,11 +2177,6 @@
             djEl.load();
           }
         } catch (e) {}
-        if (typeof this.activeCadenceStop === 'function') {
-          const fn = this.activeCadenceStop;
-          this.activeCadenceStop = null;
-          fn();
-        }
         try {
           if ('speechSynthesis' in window && typeof window.speechSynthesis.cancel === 'function') {
             window.speechSynthesis.cancel();
@@ -2219,104 +2220,95 @@
 
         if (!isTokenCurrent(epoch, runId)) return;
         const hasSpeechSynth = ('speechSynthesis' in window) && typeof window.speechSynthesis.speak === 'function';
+        if (!hasSpeechSynth) {
+          updateEngineReadout(`ENGINE: TELEPROMPTER (${hostLabel})`, '');
+          await new Promise((r) => setTimeout(r, Math.min(2400, estDurationMs)));
+          return;
+        }
 
         return new Promise((resolve) => {
           let finished = false;
-          let synthStarted = false;
-          let cadenceStopper = null;
+          let utter = null;
 
           const finishLine = () => {
             if (finished) return;
             finished = true;
             clearTimeout(maxDurationTimer);
-            clearTimeout(onstartFallbackTimer);
             clearInterval(tokenPollTimer);
-            if (typeof cadenceStopper === 'function') {
-              cadenceStopper();
-              cadenceStopper = null;
+            this.stopSafariKeepAlive();
+            if (utter) {
+              utter.onstart = null;
+              utter.onend = null;
+              utter.onerror = null;
             }
-            if (this.activeCadenceStop) this.activeCadenceStop = null;
+            if (this.activeUtterance === utter) {
+              this.activeUtterance = null;
+            }
             resolve();
           };
 
           const tokenPollTimer = setInterval(() => {
             if (!isTokenCurrent(epoch, runId)) {
               try {
-                if (hasSpeechSynth) window.speechSynthesis.cancel();
+                window.speechSynthesis.cancel();
               } catch (e) {}
               finishLine();
             }
-          }, 50);
+          }, 60);
 
-          const engageCadenceFallback = (reasonTag) => {
-            if (finished || !isTokenCurrent(epoch, runId)) {
-              finishLine();
-              return;
-            }
-            if (!cadenceStopper) {
-              updateEngineReadout(
-                `ENGINE: CADENCE (${hostLabel} • ${reasonTag})`,
-                'active-cadence'
-              );
-              cadenceStopper = this.startVocalCadenceFallback(lineText, role, epoch, estDurationMs, runId);
-            }
-          };
-
-          const maxDurationTimer = setTimeout(finishLine, estDurationMs + 50);
-
-          const onstartFallbackTimer = setTimeout(() => {
-            if (!synthStarted && !finished && isTokenCurrent(epoch, runId)) {
-              try {
-                if (hasSpeechSynth) window.speechSynthesis.cancel();
-              } catch (e) {}
-              engageCadenceFallback('FAST');
-            }
-          }, 210);
-
-          if (hasSpeechSynth) {
+          const maxDurationTimer = setTimeout(() => {
             try {
-              const utter = new SpeechSynthesisUtterance(lineText);
-              const voice = pickBestAmericanVoice((isCaller || isDrPhil || isUfo) ? 'male' : role);
-              if (voice) utter.voice = voice;
-              utter.lang = 'en-US';
+              window.speechSynthesis.cancel();
+            } catch (e) {}
+            finishLine();
+          }, estDurationMs + 2800);
 
-              const baseRate = isMale ? 1.2 : (isDrPhil ? 0.88 : (isUfo ? 1.22 : (isCaller ? 1.28 : 1.02)));
-              const basePitch = isMale ? 0.78 : (isDrPhil ? 0.64 : (isUfo ? 1.14 : (isCaller ? 1.22 : 1.07)));
-              utter.rate = Math.max(0.7, Math.min(1.75, baseRate * state.paceMultiplier));
-              utter.pitch = Math.max(0.55, Math.min(1.45, basePitch + state.pitchOffset));
-              utter.volume = 1.0;
-
-              utter.onstart = () => {
-                if (!isTokenCurrent(epoch, runId)) {
-                  try { window.speechSynthesis.cancel(); } catch (e) {}
-                  finishLine();
-                  return;
-                }
-                synthStarted = true;
-                clearTimeout(onstartFallbackTimer);
-                updateEngineReadout(
-                  `ENGINE: EN-US SYNTH (${hostLabel})`,
-                  'active-synth'
-                );
-              };
-
-              utter.onend = () => {
-                finishLine();
-              };
-
-              utter.onerror = () => {
-                clearTimeout(onstartFallbackTimer);
-                engageCadenceFallback('ERROR');
-              };
-
-              window.speechSynthesis.speak(utter);
-            } catch (e) {
-              clearTimeout(onstartFallbackTimer);
-              engageCadenceFallback('UNAVAILABLE');
+          try {
+            if (window.speechSynthesis.paused) {
+              window.speechSynthesis.resume();
             }
-          } else {
-            clearTimeout(onstartFallbackTimer);
-            engageCadenceFallback('NO SYNTH');
+            utter = new SpeechSynthesisUtterance(lineText);
+            this.activeUtterance = utter;
+
+            const voice = pickBestAmericanVoice((isCaller || isDrPhil || isUfo) ? 'male' : role);
+            if (voice) {
+              utter.voice = voice;
+              utter.lang = voice.lang || 'en-US';
+            } else {
+              utter.lang = 'en-US';
+            }
+
+            const baseRate = isMale ? 1.12 : (isDrPhil ? 0.88 : (isUfo ? 1.15 : (isCaller ? 1.18 : 1.0)));
+            const basePitch = isMale ? 0.82 : (isDrPhil ? 0.68 : (isUfo ? 1.12 : (isCaller ? 1.18 : 1.05)));
+            utter.rate = Math.max(0.7, Math.min(1.6, baseRate * state.paceMultiplier));
+            utter.pitch = Math.max(0.6, Math.min(1.4, basePitch + state.pitchOffset));
+            utter.volume = 1.0;
+
+            utter.onstart = () => {
+              if (!isTokenCurrent(epoch, runId)) {
+                try { window.speechSynthesis.cancel(); } catch (e) {}
+                finishLine();
+                return;
+              }
+              this.startSafariKeepAlive();
+              updateEngineReadout(
+                `ENGINE: DEVICE VOICE (${hostLabel})`,
+                'active-synth'
+              );
+            };
+
+            utter.onend = () => {
+              finishLine();
+            };
+
+            utter.onerror = () => {
+              updateEngineReadout(`ENGINE: STANDBY (${hostLabel})`, '');
+              finishLine();
+            };
+
+            window.speechSynthesis.speak(utter);
+          } catch (e) {
+            finishLine();
           }
         });
       }
@@ -2364,6 +2356,9 @@
 
     async function fetchLiveLocalNewsWire() {
       if (isFetchingBackgroundNews) return;
+      const apiKey = getActiveGeminiApiKey();
+      if (!apiKey) return;
+
       isFetchingBackgroundNews = true;
       const country = getCountryProfile();
       const city = getCityProfile();
@@ -2372,8 +2367,7 @@
         : state.newsScope === 'local'
           ? `local news in ${city.cityName}, ${country.countryName}`
           : `local news in ${city.cityName} and national news across ${country.countryName}`;
-      const apiKey = '';
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
 
       const payload = {
         contents: [{
@@ -2824,6 +2818,33 @@
         });
       });
 
+      document.getElementById('saveApiKeyBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('apiKeyInput');
+        const val = (input ? input.value : '').trim();
+        if (!val) {
+          showToast('Paste a Gemini API key first');
+          return;
+        }
+        try {
+          localStorage.setItem(API_KEY_STORAGE_KEY, val);
+        } catch (e) {}
+        broadcastVoiceEngine.neuralCache.clear();
+        syncApiKeyUi();
+        showToast('Studio API key saved locally');
+        fetchLiveLocalNewsWire();
+      });
+
+      document.getElementById('clearApiKeyBtn')?.addEventListener('click', () => {
+        try {
+          localStorage.removeItem(API_KEY_STORAGE_KEY);
+        } catch (e) {}
+        const input = document.getElementById('apiKeyInput');
+        if (input) input.value = '';
+        broadcastVoiceEngine.neuralCache.clear();
+        syncApiKeyUi();
+        showToast('Local API key cleared');
+      });
+
       document.getElementById('countrySelect')?.addEventListener('change', (ev) => {
         const nextCountry = ev.target.value;
         if (!COUNTRY_CITY_CATALOG[nextCountry]) return;
@@ -2888,6 +2909,7 @@
       } catch (e) {}
       try {
         applyGeoProfileUi();
+        syncApiKeyUi();
         setAudioSessionType('ambient');
         state.currentGain = state.fullGain;
         syncUiState();
