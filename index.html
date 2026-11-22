@@ -1,0 +1,2913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>WEAZEL 13.3 // FM // 80s Retro Co-Pilot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ==========================================================================
+       1. 80s RETRO SYNTHWAVE FM DESIGN TOKENS & CRT SCANLINES
+       ========================================================================== */
+    :root {
+      --bg-void: #09090d;
+      --bg-panel: #11121a;
+      --bg-panel-elevated: #171924;
+      --bg-inset: #08080e;
+      --border-chrome: rgba(255, 255, 255, 0.13);
+      --border-cyan: rgba(0, 240, 255, 0.52);
+      --border-magenta: rgba(255, 42, 133, 0.58);
+      --neon-cyan: #00f0ff;
+      --neon-magenta: #ff2a85;
+      --neon-amber: #ffb800;
+      --neon-emerald: #10b981;
+      --text-primary: #f4f6fb;
+      --text-secondary: #a7aec4;
+      --text-muted: #69708c;
+      --font-display: "Arial Black", Impact, "Segoe UI", system-ui, sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      touch-action: manipulation;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .fm-shell {
+      position: relative;
+      width: 100%;
+      max-width: 540px;
+      height: 100dvh;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(255, 42, 133, 0.22), transparent 55%),
+        radial-gradient(circle at 88% 90%, rgba(0, 240, 255, 0.15), transparent 48%),
+        var(--bg-void);
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      overflow: hidden;
+    }
+
+    /* Subtle 80s CRT scanlines */
+    .fm-shell::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 40;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0) 0px,
+        rgba(255, 255, 255, 0) 2px,
+        rgba(0, 0, 0, 0.22) 3px,
+        rgba(0, 0, 0, 0.22) 4px
+      );
+      opacity: 0.4;
+    }
+
+    /* ==========================================================================
+       2. TOP HUD, FREQUENCY PRESETS & LOCATION / NEWS SCOPE BAR
+       ========================================================================== */
+    .hud-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 12px;
+      background: rgba(17, 18, 26, 0.96);
+      border-bottom: 1px solid var(--border-chrome);
+      z-index: 25;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .air-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-chrome);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.08s ease, all 0.14s ease;
+    }
+
+    .air-toggle-btn:active {
+      transform: scale(0.95);
+    }
+
+    .air-toggle-btn .led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .air-toggle-btn.live {
+      color: #ffffff;
+      border-color: var(--neon-magenta);
+      background: rgba(255, 42, 133, 0.28);
+      box-shadow: 0 0 14px rgba(255, 42, 133, 0.45);
+    }
+
+    .air-toggle-btn.live .led {
+      background: var(--neon-magenta);
+      box-shadow: 0 0 8px var(--neon-magenta);
+      animation: pulseLed 1.1s infinite ease-in-out;
+    }
+
+    @keyframes pulseLed {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.6; }
+    }
+
+    .station-wordmark {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .station-wordmark .hz {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
+    }
+
+    .station-wordmark .slash {
+      color: var(--neon-magenta);
+    }
+
+    .hud-status-cluster {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .hud-pill {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 900;
+      padding: 4px 7px;
+      border-radius: 7px;
+      background: var(--bg-panel-elevated);
+      border: 1px solid var(--border-cyan);
+      color: var(--neon-cyan);
+      white-space: nowrap;
+    }
+
+    .hud-pill.gain {
+      border-color: rgba(255, 184, 0, 0.48);
+      color: var(--neon-amber);
+    }
+
+    /* Frequency Presets Bar ('20s', '40s', '75s', '2m', 'Manual') */
+    .freq-bar {
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      padding: 7px 12px;
+      background: rgba(17, 18, 26, 0.96);
+      border-bottom: 1px solid var(--border-chrome);
+      z-index: 20;
+    }
+
+    .freq-btn {
+      padding: 6px 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border-chrome);
+      background: var(--bg-inset);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 900;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.12s ease;
+    }
+
+    .freq-btn:active {
+      transform: scale(0.95);
+    }
+
+    .freq-btn.active {
+      border-color: var(--neon-cyan);
+      background: rgba(0, 240, 255, 0.22);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    }
+
+    /* Dedicated Location & News Scope Bar directly below frequency presets */
+    .location-scope-bar {
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: 1.05fr 1.2fr 0.9fr;
+      gap: 6px;
+      padding: 7px 12px;
+      background: rgba(14, 15, 23, 0.97);
+      border-bottom: 1px solid var(--border-chrome);
+      z-index: 19;
+    }
+
+    .loc-select {
+      width: 100%;
+      min-width: 0;
+      padding: 6px 7px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 240, 255, 0.36);
+      background: var(--bg-inset);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      cursor: pointer;
+      outline: none;
+      text-overflow: ellipsis;
+    }
+
+    .loc-select:focus {
+      border-color: var(--neon-magenta);
+    }
+
+    /* ==========================================================================
+       3. GLASS PANELS, 16-BAR VU METER, HOST PILLS & TELEPROMPTER
+       ========================================================================== */
+    .deck-viewport {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 10px 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .glass-panel {
+      background: linear-gradient(165deg, rgba(23, 25, 36, 0.94), rgba(17, 18, 26, 0.96));
+      border: 1px solid var(--border-chrome);
+      border-radius: 15px;
+      padding: 11px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.52);
+    }
+
+    .panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .panel-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .panel-tag {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      color: var(--neon-cyan);
+      white-space: nowrap;
+    }
+
+    .vu-meter {
+      width: 100%;
+      height: 46px;
+      border-radius: 11px;
+      background: var(--bg-inset);
+      border: 1px solid var(--border-chrome);
+      padding: 6px 8px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 3px;
+    }
+
+    .vu-bar {
+      flex: 1;
+      height: 15%;
+      min-height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to top, var(--neon-cyan), var(--neon-magenta) 72%, var(--neon-amber));
+      transition: height 0.07s linear;
+    }
+
+    .hosts-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .host-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      background: var(--bg-inset);
+      border: 1px solid var(--border-chrome);
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      transition: all 0.12s ease;
+    }
+
+    .host-pill.active-male {
+      border-color: var(--neon-amber);
+      background: rgba(255, 184, 0, 0.22);
+      color: #fff6cf;
+      box-shadow: 0 0 14px rgba(255, 184, 0, 0.35);
+    }
+
+    .host-pill.active-female {
+      border-color: var(--neon-magenta);
+      background: rgba(255, 42, 133, 0.24);
+      color: #ffd8e9;
+      box-shadow: 0 0 14px rgba(255, 42, 133, 0.38);
+    }
+
+    .gain-strip {
+      margin-top: 8px;
+      padding: 6px 9px;
+      border-radius: 9px;
+      background: var(--bg-inset);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .gain-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .gain-track {
+      width: 100%;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .gain-fill {
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--neon-magenta), var(--neon-cyan));
+      transition: width 0.07s linear;
+    }
+
+    .teleprompter-card {
+      margin-top: 8px;
+      padding: 9px 10px;
+      border-radius: 11px;
+      background: var(--bg-inset);
+      border: 1px solid var(--border-chrome);
+    }
+
+    .teleprompter-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+
+    .segment-badge {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--neon-cyan);
+    }
+
+    .segment-badge.weather {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+    }
+
+    .segment-badge.ad {
+      background: rgba(255, 184, 0, 0.2);
+      color: var(--neon-amber);
+    }
+
+    .segment-badge.news {
+      background: rgba(255, 42, 133, 0.22);
+      color: #ff85bc;
+    }
+
+    .engine-badge {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-secondary);
+    }
+
+    .engine-badge.active-synth {
+      border-color: rgba(16, 185, 129, 0.55);
+      color: #6ee7b7;
+    }
+
+    .engine-badge.active-cadence {
+      border-color: rgba(255, 184, 0, 0.55);
+      color: var(--neon-amber);
+    }
+
+    .cut-mic-btn {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 42, 133, 0.7);
+      background: rgba(255, 42, 133, 0.26);
+      color: #ffd6e8;
+      cursor: pointer;
+    }
+
+    .teleprompter-body {
+      font-size: 12px;
+      line-height: 1.42;
+      color: var(--text-primary);
+      max-height: 122px;
+      overflow-y: auto;
+    }
+
+    /* ==========================================================================
+       4. TRIGGERS & VOICE STUDIO CONTROLS (PITCH, PACE, TUBE VS CRISP EQ)
+       ========================================================================== */
+    .trigger-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .dj-break-btn {
+      padding: 11px 10px;
+      border-radius: 11px;
+      border: 1px solid var(--border-cyan);
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--neon-cyan);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.09s ease;
+    }
+
+    .dj-break-btn:active {
+      transform: scale(0.96);
+    }
+
+    .voice-test-btn {
+      padding: 11px 10px;
+      border-radius: 11px;
+      border: 1px solid var(--border-magenta);
+      background: rgba(255, 42, 133, 0.2);
+      color: #ff9ec9;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.09s ease;
+    }
+
+    .voice-test-btn:active {
+      transform: scale(0.96);
+    }
+
+    .studio-sliders {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 9px;
+    }
+
+    .slider-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-head {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      color: var(--text-secondary);
+    }
+
+    .slider-range {
+      width: 100%;
+      accent-color: var(--neon-cyan);
+      cursor: pointer;
+    }
+
+    .eq-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 9px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .eq-toggle-pair {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      width: 172px;
+    }
+
+    .eq-btn {
+      padding: 5px 8px;
+      border-radius: 7px;
+      border: 1px solid var(--border-chrome);
+      background: var(--bg-inset);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .eq-btn.active {
+      border-color: var(--neon-magenta);
+      background: rgba(255, 42, 133, 0.24);
+      color: #ffffff;
+    }
+
+    .toast-banner {
+      position: fixed;
+      left: 50%;
+      bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%) translateY(14px);
+      background: rgba(17, 18, 26, 0.96);
+      border: 1px solid var(--neon-cyan);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 7px 13px;
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.65);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      z-index: 50;
+      max-width: 92vw;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast-banner.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="fm-shell">
+    <!-- Transient Neural TTS WAV Element (Never Looped) -->
+    <audio id="djVoicePlayer" playsinline webkit-playsinline preload="none"></audio>
+
+    <!-- Top HUD with ON AIR / STANDBY Toggle, Countdown & Gain Badge -->
+    <header class="hud-header">
+      <div class="brand-group">
+        <button type="button" class="air-toggle-btn" id="airToggleBtn" aria-pressed="false">
+          <span class="led"></span>
+          <span id="airToggleLabel">STANDBY</span>
+        </button>
+        <div class="station-wordmark">WEAZEL <span class="hz">13.3</span> <span class="slash">//</span> FM</div>
+      </div>
+      <div class="hud-status-cluster">
+        <span class="hud-pill" id="hudCountdown">40S</span>
+        <span class="hud-pill gain" id="hudGainBadge">GAIN 1.00</span>
+      </div>
+    </header>
+
+    <!-- Frequency Presets ('20s', '40s', '75s', '2m', 'Manual') -->
+    <div class="freq-bar" id="freqBar">
+      <button type="button" class="freq-btn" data-freq="20">20s</button>
+      <button type="button" class="freq-btn active" data-freq="40">40s</button>
+      <button type="button" class="freq-btn" data-freq="75">75s</button>
+      <button type="button" class="freq-btn" data-freq="120">2m</button>
+      <button type="button" class="freq-btn" data-freq="0">Manual</button>
+    </div>
+
+    <!-- Dedicated Location & News Scope Bar Directly Below Frequency Presets -->
+    <div class="location-scope-bar" id="locationScopeBar">
+      <select id="countrySelect" class="loc-select" aria-label="Country">
+        <option value="IE" selected>Ireland</option>
+        <option value="AU">Australia</option>
+        <option value="GB">United Kingdom</option>
+        <option value="US">United States</option>
+      </select>
+      <select id="citySelect" class="loc-select" aria-label="City or Region"></select>
+      <select id="scopeSelect" class="loc-select" aria-label="News Scope">
+        <option value="both" selected>Mixed</option>
+        <option value="local">Local</option>
+        <option value="national">National</option>
+      </select>
+    </div>
+
+    <!-- Main 13.3 // FM Broadcast Deck -->
+    <main class="deck-viewport">
+      <section class="glass-panel">
+        <div class="panel-top">
+          <span class="panel-label">WEAZEL 13.3 // FM // CO-PILOT</span>
+          <span class="panel-tag" id="dublinConditionTag">DUBLIN • 10–11°C • SE BREEZE • DRY</span>
+        </div>
+
+        <div class="vu-meter" id="vuMeter">
+          <div class="vu-bar"></div><div class="vu-bar"></div><div class="vu-bar"></div><div class="vu-bar"></div>
+          <div class="vu-bar"></div><div class="vu-bar"></div><div class="vu-bar"></div><div class="vu-bar"></div>
+          <div class="vu-bar"></div><div class="vu-bar"></div><div class="vu-bar"></div><div class="vu-bar"></div>
+          <div class="vu-bar"></div><div class="vu-bar"></div><div class="vu-bar"></div><div class="vu-bar"></div>
+        </div>
+
+        <div class="hosts-row">
+          <div class="host-pill" id="marcusPill">MARCUS</div>
+          <div class="host-pill" id="donnaPill">DONNA</div>
+        </div>
+
+        <div class="gain-strip">
+          <div class="gain-meta">
+            <span id="sessionModeLabel">SESSION: AMBIENT</span>
+            <span id="gainPercentLabel">GAIN 1.00 (100%)</span>
+          </div>
+          <div class="gain-track">
+            <div class="gain-fill" id="gainFill"></div>
+          </div>
+        </div>
+
+        <div class="teleprompter-card">
+          <div class="teleprompter-head">
+            <span class="segment-badge" id="segmentBadge">13.3 // FM • STANDBY</span>
+            <span class="engine-badge" id="engineReadout">ENGINE: READY</span>
+            <button type="button" class="cut-mic-btn hidden" id="cutMicBtn">■ CUT MIC</button>
+          </div>
+          <div class="teleprompter-body" id="teleprompterBody">
+            <strong>WEAZEL 13.3 // FM</strong> is in <strong>STANDBY</strong>. Toggle <strong>STANDBY</strong> in the header to go <strong>ON AIR</strong>, press <strong>⚡ DJ BREAK NOW</strong> for an immediate segment, or press <strong>🎙️ VOICE TEST</strong> to audition both hosts.
+          </div>
+        </div>
+      </section>
+
+      <section class="glass-panel">
+        <div class="panel-top">
+          <span class="panel-label">Live Triggers &amp; Voice Studio</span>
+          <span class="panel-tag" id="rotationTag">ROTATION #1</span>
+        </div>
+
+        <div class="trigger-row">
+          <button type="button" class="dj-break-btn" id="djBreakNowBtn">⚡ DJ BREAK NOW</button>
+          <button type="button" class="voice-test-btn" id="voiceTestBtn">🎙️ VOICE TEST</button>
+        </div>
+
+        <div class="studio-sliders">
+          <div class="slider-item">
+            <div class="slider-head">
+              <span>PITCH</span>
+              <span id="pitchValue">0.00</span>
+            </div>
+            <input type="range" id="pitchSlider" class="slider-range" min="-0.25" max="0.25" step="0.01" value="0.00" />
+          </div>
+          <div class="slider-item">
+            <div class="slider-head">
+              <span>PACE</span>
+              <span id="paceValue">1.00x</span>
+            </div>
+            <input type="range" id="paceSlider" class="slider-range" min="0.80" max="1.25" step="0.02" value="1.00" />
+          </div>
+        </div>
+
+        <div class="eq-bar">
+          <span class="panel-label">CONSOLE EQ</span>
+          <div class="eq-toggle-pair" id="eqTogglePair">
+            <button type="button" class="eq-btn active" data-eq="tube">Tube</button>
+            <button type="button" class="eq-btn" data-eq="crisp">Crisp</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast-banner" id="toastBanner"></div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. COUNTRY / CITY / REGION CATALOG & BROADCAST SCRIPT BANK:
+          - Suggestive weather read ONLY by Donna tailored to selected city/region
+          - Ridiculous spoof adverts read ONLY by Marcus (alternating sponsors:
+            Maze Bank, Sprunk, Pisswasser, Ammu-Nation, Dynasty 8, Lifeinvader)
+          - Dark-humour local and national news banter tailored to Country,
+            City / Region, and News Scope ('both' Mixed, 'local', 'national')
+          - Rare recurring phone-prank caller routines where Marcus introduces a
+            caller, Donna answers normally, the caller uses the classic phone-prank
+            phrasing ("I'm looking for Mr. Hunt. First name Mike, second name Hunt."
+            and similar) leaving Donna to fall into the trap and say the name on air,
+            and neither host acts like they know him beforehand
+          - Rare daily medical news phone-in segment where Marcus and Donna call
+            up Dr. Chill, a distinct character with a thick Southern drawl
+            giving absurd, clearly insane takes on real-world medical news
+          - Rare UFO / UAP phone-in segment where Marcus announces the segment,
+            Ross Coldheart gives real-world UAP news culminating in aliens
+            finally taking over the world, Donna is awestruck with ridiculous
+            remarks, Ross misunderstands her literally and makes it awkward,
+            Marcus jealously chimes in with varied pushback, and Donna sheepishly
+            thanks Ross, ends the call, and brushes Marcus off
+          - Strictly zero song, track, or artist names
+       ========================================================================== */
+    const COUNTRY_CITY_CATALOG = {
+      IE: {
+        code: 'IE',
+        countryName: 'Ireland',
+        shortCountry: 'IRELAND',
+        defaultCityId: 'dublin',
+        cities: {
+          dublin: {
+            id: 'dublin',
+            cityName: 'Dublin',
+            shortCity: 'DUBLIN',
+            conditionTag: 'DUBLIN • 10–11°C • SE BREEZE • DRY',
+            weatherScripts: [
+              'Mmm, Dublin is sitting right around ten to eleven degrees tonight under partly cloudy skies with a soft southeast breeze pushing eight to fourteen miles an hour and hardly a drop of rain… slow, wet, and sliding right between your sheets when you let me get close enough to tease every inch of you.',
+              'Ten to eleven degrees across Dublin right now, clouds hanging low, a gentle southeast breeze around eight to fourteen miles an hour, and almost no rain in sight… begging to be stripped down layer by layer until you’re panting for just a little more.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • DUBLIN TRIPLE LOCK MARCH',
+                lines: [
+                  { speaker: 'male', text: 'Thousands marched through central Dublin against scrapping the Triple Lock—why did the neutral policy go to therapy? Because it couldn’t pick a side even when its own casket was being nailed shut! Classic Dublin: big marching boots, small oxygen supply, and everyone acting shocked when the curtain drops!' },
+                  { speaker: 'female', text: 'Mmm, nothing makes me want to drop to my knees and beg like that big gruff chest throbbing right in my ear, Marcus… keep flexing like that and I might lose my grip completely.' },
+                  { speaker: 'male', text: 'Damn right it does! Politicians draw big sad maps on paper while the rest of us choke on the smoke and sign the obituary!' },
+                  { speaker: 'female', text: 'Careful, darling—all that hot, heavy breathing might make me slip right out of whatever’s left on me against the studio glass.' }
+                ]
+              },
+              {
+                title: 'LOCAL • DUBLIN AVIVA RUGBY CLASH',
+                lines: [
+                  { speaker: 'male', text: 'Ireland and South Africa went head-to-head at the Aviva like two meat-grinders auditioning for an orthopedist—what do you call a scrum with shattered teeth and zero hope? A dental bill with a whistle! Broken noses, bruised ribs, and whole pubs drinking to numb the emptiness!' },
+                  { speaker: 'female', text: 'Mmm, hard, rough pounding with zero mercy makes me bite my lip so hard I can barely swallow, Marcus.' },
+                  { speaker: 'male', text: 'When the clock hits eighty minutes, everybody bleeds the same miserable red—glory is just pain with better PR!' },
+                  { speaker: 'female', text: 'Mmm, I love how you never pull back a single stroke behind the mic… especially when you slam it home.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • IRELAND HOUSING & LEINSTER HOUSE',
+                lines: [
+                  { speaker: 'male', text: 'Across Ireland, renters pay three grand a month to stare at damp drywall—why did the landlord invite the grim reaper over? Because nobody else could stomach the rent hike! Leinster House calls it a recovery, I call it a slow-motion mugging!' },
+                  { speaker: 'female', text: 'Mmm, big hard thrusts on the national stage and plenty of throbbing tension—tell me how bad you want to take me over the desk, Marcus.' },
+                  { speaker: 'male', text: 'They will build a monument to housing targets right over the grave of your savings account!' },
+                  { speaker: 'female', text: 'Keep working that shaft hot and heavy, Marcus… I am dripping on every word.' }
+                ]
+              }
+            ]
+          },
+          cork: {
+            id: 'cork',
+            cityName: 'Cork',
+            shortCity: 'CORK',
+            conditionTag: 'CORK • 10°C • SE BREEZE • CLOUDY',
+            weatherScripts: [
+              'Mmm, Cork is resting near ten degrees tonight with low clouds, a soft southeast breeze, and barely a spot of rain… cool along the Lee and begging me to slide my slick fingers right where you ache most.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • CORK HARBOUR & LEE QUAYS',
+                lines: [
+                  { speaker: 'male', text: 'Down in Cork, folks stare into the black water along the quays bragging they are the real capital—what’s Cork’s favourite diet? Pure fog and bitter pride until the tide swallows the punchline! Loudest pride in a town drowning in damp regret!' },
+                  { speaker: 'female', text: 'Mmm, nobody gets wet and wild quite like Cork… makes me want to ride that tide until my knees shake, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • IRELAND WINTER ENERGY & GRID',
+                lines: [
+                  { speaker: 'male', text: 'Nationwide across Ireland, families sit in the dark rationing lukewarm tea—why did the electric bill bring a shovel? Because it wanted to bury your pulse right next to your thermostat! Utility bosses toast champagne to record misery!' },
+                  { speaker: 'female', text: 'Mmm, when the lights go out in the dark, I get so wet and naughty you won’t even need a spark, darling.' }
+                ]
+              }
+            ]
+          },
+          galway: {
+            id: 'galway',
+            cityName: 'Galway',
+            shortCity: 'GALWAY',
+            conditionTag: 'GALWAY • 10°C • SE BREEZE • MISTY',
+            weatherScripts: [
+              'Mmm, Galway Bay is sitting near ten degrees tonight with soft mist, a light southeast breeze, and heavy coastal air… damp, throbbing, and pulling me right down onto my knees for you.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • GALWAY PROMENADE & BAY SWELL',
+                lines: [
+                  { speaker: 'male', text: 'Out along Salthill and Galway Bay, wet coats slap against cold stone—why did the Atlantic wave wave back? Because it was checking if anybody had a pulse left! The sea reminds everyone how small and temporary we really are!' },
+                  { speaker: 'female', text: 'Mmm, crashing swells and soaking wet skin always leave me aching to be pinned down hard, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • IRELAND REGIONAL RAIL & ROADS',
+                lines: [
+                  { speaker: 'male', text: 'Across Ireland, drivers rot in bumper-to-bumper purgatory—what’s the difference between a late train and a flatline? At least a flatline doesn’t lie about an arrival time! Purgatory with tail lights!' },
+                  { speaker: 'female', text: 'Mmm, stuck in tight traffic with nowhere to run… sounds like my kind of dirty little backseat game.' }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      AU: {
+        code: 'AU',
+        countryName: 'Australia',
+        shortCountry: 'AUSTRALIA',
+        defaultCityId: 'tasmania',
+        cities: {
+          tasmania: {
+            id: 'tasmania',
+            cityName: 'Tasmania / Hobart',
+            shortCity: 'TASMANIA',
+            conditionTag: 'TASMANIA • 14°C • GUSTY SW • SHOWERS',
+            weatherScripts: [
+              'Mmm, Tasmania is rolling at fourteen degrees tonight with fast-moving showers and a gusty southwest breeze licking across the island… cool, soaking wet, and begging you to grip my hips while the squalls slam into us.',
+              'Fourteen degrees across Tasmania right now, passing coastal showers, and a brisk southwest breeze keeping everyone indoors… plenty of naughty chill if you want to get slick and tangled up with me.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • TASMANIA WHITEMARK & EAST COAST STORMS',
+                lines: [
+                  { speaker: 'male', text: 'Police are working a serious shooting at Whitemark Police Station on Flinders Island while thunder cracks over a soaking east coast—why did the storm cloud bring a coroner’s note? Because lightning never bothers knocking! Nothing says peaceful island paradise like sirens and lightning!' },
+                  { speaker: 'female', text: 'Mmm, wild storms and dangerous island heat make my core throb like crazy, Marcus… tell me how rough you want to get.' },
+                  { speaker: 'male', text: 'Damn straight! When the sky splits open and shots ring out, you learn real fast nobody is coming to save your skin!' },
+                  { speaker: 'female', text: 'Mmm, keep that dirty rumble right here between my thighs where I can feel every pulse.' }
+                ]
+              },
+              {
+                title: 'LOCAL • HOBART MACQUARIE POINT & ZOO CASTLE',
+                lines: [
+                  { speaker: 'male', text: 'Hobart is arguing over Macquarie Point stadium cost caps while a twelve-metre castle goes up at the zoo—what’s a fairy-tale tower worth when the drawbridge leads straight to a soup kitchen? Charities beg for Christmas hampers while politicians play king of the rubble!' },
+                  { speaker: 'female', text: 'Mmm, big towers and tight spaces always get me so wet and breathless, Marcus.' },
+                  { speaker: 'male', text: 'Put a giant toy castle next to a billion-dollar hole and call it civic therapy while people count loose change!' },
+                  { speaker: 'female', text: 'Mmm, come mount this tower properly, Marcus… I’m wide open for you.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • AUSTRALIA COST OF LIVING & CANBERRA',
+                lines: [
+                  { speaker: 'male', text: 'Across Australia, grocery aisles feel like a hostage negotiation—why did the avo toast go to a séance? Because its mortgage outlived the family! Canberra acts like a funeral parlor for common sense!' },
+                  { speaker: 'female', text: 'Mmm, all that raw, desperate tension makes me want to bite your lower lip until you groan, Marcus.' },
+                  { speaker: 'male', text: 'You work forty years just to afford a bag of lettuce and a bitter look from the taxman!' },
+                  { speaker: 'female', text: 'Mmm, always so hard and blunt, darling… don’t stop now.' }
+                ]
+              }
+            ]
+          },
+          launceston: {
+            id: 'launceston',
+            cityName: 'Launceston',
+            shortCity: 'LAUNCESTON',
+            conditionTag: 'LAUNCESTON • 13°C • SW BREEZE • CLOUDY',
+            weatherScripts: [
+              'Mmm, Launceston is sitting around thirteen degrees tonight with low valley cloud and a cool southwest breeze… slick, misty, and begging me to slide right under your skin.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • LAUNCESTON TAMAR VALLEY & RIVERFRONT',
+                lines: [
+                  { speaker: 'male', text: 'Up in Launceston, fog hugs the Tamar like a wet blanket—why did the pothole win mayor for life? Because it swallowed every car that tried to leave town! Bleak jokes over cold coffee till dawn!' },
+                  { speaker: 'female', text: 'Mmm, deep holes and heavy fog… sounds like I need to get swallowed whole tonight, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • AUSTRALIA POWER & HOUSING DEBATE',
+                lines: [
+                  { speaker: 'male', text: 'Right across Australia, power bills bite harder than a cornered dog—how do you spell retirement now? G-R-A-V-E-Y-A-R-D! Politicians recite the same hollow lullabies!' },
+                  { speaker: 'female', text: 'Mmm, biting hard in the dark is my favourite kind of foreplay, Marcus.' }
+                ]
+              }
+            ]
+          },
+          melbourne: {
+            id: 'melbourne',
+            cityName: 'Melbourne',
+            shortCity: 'MELBOURNE',
+            conditionTag: 'MELBOURNE • 16°C • S BREEZE • BREEZY',
+            weatherScripts: [
+              'Mmm, Melbourne is sitting around sixteen degrees tonight with a brisk southerly breeze sweeping through the laneways… wet, teasing, and pulling me right onto your lap.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • MELBOURNE LANES & LATE TRAMS',
+                lines: [
+                  { speaker: 'male', text: 'Melbourne laneways smell like spilled espresso, wet wool, and existential dread—what’s a Melbourne summer? Two minutes of sun before hypothermia files a restraining order! Four seasons in an hour just to keep your blood pressure miserable!' },
+                  { speaker: 'female', text: 'Mmm, hot flashes and sudden wet chills… I’m already soaking just thinking about it, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • AUSTRALIA INFRASTRUCTURE & HOUSING',
+                lines: [
+                  { speaker: 'male', text: 'Right across Australia, every press conference promises affordable homes—what’s a starter home cost now? One soul, lightly scorched! The coffin lid on ownership gets nailed tighter!' },
+                  { speaker: 'female', text: 'Mmm, getting nailed tight in the dark sounds way more fun than buying property, Marcus.' }
+                ]
+              }
+            ]
+          },
+          sydney: {
+            id: 'sydney',
+            cityName: 'Sydney',
+            shortCity: 'SYDNEY',
+            conditionTag: 'SYDNEY • 19°C • E BREEZE • WARM MIST',
+            weatherScripts: [
+              'Mmm, Sydney is holding near nineteen degrees tonight with a warm harbour breeze and soft coastal mist… hot, slick, and sliding right between your legs past midnight.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • SYDNEY HARBOUR & LATE FERRIES',
+                lines: [
+                  { speaker: 'male', text: 'Sydney sparkles on the harbour like a gilded cage—why did the toll road ask for a blood type? Because cash wasn’t draining fast enough! Toll roads bleeding you dry and mortgages lasting longer than most marriages!' },
+                  { speaker: 'female', text: 'Mmm, slow, rhythmic rocking on the water always leaves me begging for more, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • AUSTRALIA NATIONAL BUDGET & RATES',
+                lines: [
+                  { speaker: 'male', text: 'Nationwide across Australia, interest rate whispers make every bank statement read like a bad omen—why did the budget cross the road? To run over your paycheck in reverse!' },
+                  { speaker: 'female', text: 'Mmm, keep whispering naughty things in my ear like that, Marcus… I’m all yours.' }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      GB: {
+        code: 'GB',
+        countryName: 'United Kingdom',
+        shortCountry: 'UK',
+        defaultCityId: 'london',
+        cities: {
+          london: {
+            id: 'london',
+            cityName: 'London',
+            shortCity: 'LONDON',
+            conditionTag: 'LONDON • 11°C • W BREEZE • DAMP',
+            weatherScripts: [
+              'Mmm, London is hovering around eleven degrees tonight under heavy grey cloud with a damp west breeze drifting through the streets… wet, slick, and begging me to arch my back against yours.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • LONDON NIGHT TUBE & COMMUTE',
+                lines: [
+                  { speaker: 'male', text: 'Half of London is stranded on a damp replacement bus staring at the back of someone else’s misery—what’s the Underground’s favourite duet? Signal failure and slow despair! Peak big-city romance!' },
+                  { speaker: 'female', text: 'Mmm, packed tight in the dark with bodies pressing everywhere… I can get very naughty in close quarters, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • UK WESTMINSTER & BILLS SQUEEZE',
+                lines: [
+                  { speaker: 'male', text: 'Across the UK, Westminster balances the books on the backs of people who cannot even afford to turn the radiator up past tepid—why did the energy bill throw a party? Because everybody’s bank account was six feet under!' },
+                  { speaker: 'female', text: 'Mmm, let’s generate a little friction of our own to warm things up, Marcus.' }
+                ]
+              }
+            ]
+          },
+          manchester: {
+            id: 'manchester',
+            cityName: 'Manchester',
+            shortCity: 'MANCHESTER',
+            conditionTag: 'MANCHESTER • 10°C • W BREEZE • DRIZZLE',
+            weatherScripts: [
+              'Mmm, Manchester is sitting near ten degrees tonight with fine drizzle and a cool west breeze rolling across the brick streets… damp, clinging, and making me want to get real close and dirty.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • MANCHESTER TRAMS & NORTHERN STREETS',
+                lines: [
+                  { speaker: 'male', text: 'In Manchester, rain lashes the trams while die-hard fans scream at screens—why did the umbrella quit? Because even it got tired of watching dreams drown! Loud, loyal, and unfiltered all night long!' },
+                  { speaker: 'female', text: 'Mmm, screaming loud and getting drenched all night long… sounds downright sinful, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • UK RAIL & WINTER HOUSEHOLD COSTS',
+                lines: [
+                  { speaker: 'male', text: 'Right across the UK, rail fares climb faster than hope while winter bills turn warm homes into luxury items—how do you survive winter in Britain? Put on three sweaters and pray the grim reaper gets stuck in traffic!' },
+                  { speaker: 'female', text: 'Mmm, strip off those extra layers and come get tangled up with me instead, Marcus.' }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      US: {
+        code: 'US',
+        countryName: 'United States',
+        shortCountry: 'US',
+        defaultCityId: 'new_york',
+        cities: {
+          new_york: {
+            id: 'new_york',
+            cityName: 'New York',
+            shortCity: 'NEW YORK',
+            conditionTag: 'NYC • 9°C • NW GUSTS • CLEAR',
+            weatherScripts: [
+              'Mmm, New York is sitting around nine degrees tonight under crisp clear skies with northwest gusts whipping down the avenues… sharp, electric, and making me ache to press every curve right against you.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • NYC SUBWAY & MIDNIGHT HUSTLE',
+                lines: [
+                  { speaker: 'male', text: 'In New York, trains stall in dark tunnels while eight million strangers pretend their souls are not slowly calcifying—what’s a New York dream? Waking up before the rent and the coroner both ring the bell!' },
+                  { speaker: 'female', text: 'Mmm, dark tunnels and late-night tension make me want to whisper filth right into your mouth, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • US CONGRESS & MARKET VOLATILITY',
+                lines: [
+                  { speaker: 'male', text: 'Nationwide across the US, Capitol theatrics and ticker-tape spasms keep everyone wide awake—why did the bull market visit a grave? To see where the bears buried the middle class!' },
+                  { speaker: 'female', text: 'Mmm, all that throbbing power in the room is driving me wild tonight, Marcus.' }
+                ]
+              }
+            ]
+          },
+          los_angeles: {
+            id: 'los_angeles',
+            cityName: 'Los Angeles',
+            shortCity: 'LOS ANGELES',
+            conditionTag: 'LA • 18°C • W BREEZE • MARINE LAYER',
+            weatherScripts: [
+              'Mmm, Los Angeles is drifting near eighteen degrees tonight with a soft west breeze and cool marine layer rolling in from the coast… smooth, slow, and sliding right over your skin until you beg for more.'
+            ],
+            localNews: [
+              {
+                title: 'LOCAL • LA FREEWAYS & LATE NIGHT TRAFFIC',
+                lines: [
+                  { speaker: 'male', text: 'Out in Los Angeles, everyone sits frozen in six lanes of red brake lights—what’s an LA sunset? Smog lighting a cigarette over a slow-moving funeral procession! Palm trees and smog!' },
+                  { speaker: 'female', text: 'Mmm, slow, heavy grinding in the dark… I can think of much better things to do in the backseat, Marcus.' }
+                ]
+              }
+            ],
+            nationalNews: [
+              {
+                title: 'NATIONAL • US POLICY & COAST-TO-COAST HEADLINES',
+                lines: [
+                  { speaker: 'male', text: 'From coast to coast across the US, Washington sells grand visions while everyday folks patch leaks with duct tape—why did the headline bring a shovel? Because the punchline was already six feet deep!' },
+                  { speaker: 'female', text: 'Mmm, locked in tight with you all night, Marcus… don’t hold back a thing.' }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    };
+
+    const SPOOF_SPONSORS = [
+      {
+        brand: 'Maze Bank',
+        copy: 'Maze Bank! Why did the bank account go to a morgue? Because after fees and interest, it was dead on arrival! Hand us your life savings, watch us build a glass monument to your regret, and get billed a convenience fee when your overdraft flatlines!'
+      },
+      {
+        brand: 'Sprunk',
+        copy: 'Sprunk! What’s green, fizzy, and makes your heart audition for a percussion solo? Sprunk! Toxic lime-green battery acid for overworked corpses trying to outrun burnout, bad decisions, and a looming heart attack!'
+      },
+      {
+        brand: 'Pisswasser',
+        copy: 'Pisswasser! Why did the cheap lager start a bar brawl? Because it had zero taste and a death wish! Gutter-grade import beer for people who mistake loud self-destruction for personality—drink till the hangover feels like an upgrade!'
+      },
+      {
+        brand: 'Ammu-Nation',
+        copy: 'Ammu-Nation! What makes a bad day go out with a bang? Heavy steel and zero apologies! Because nothing says peace of mind like buying serious firepower in a world that seems determined to prove you right!'
+      },
+      {
+        brand: 'Dynasty 8',
+        copy: 'Dynasty 8! Why did the luxury condo come with a coffin? Because you’ll need both to afford the closing costs! Pay a kidney and a soul for a shoebox overlooking a dumpster—we call it prime real estate before the walls cave in!'
+      },
+      {
+        brand: 'Lifeinvader',
+        copy: 'Lifeinvader! Why did the social feed smile at your breakup? Because misery boosts engagement! Feed every lonely thought and bad angle to a cold algorithm that remembers your worst moments long after everyone else forgets!'
+      },
+      {
+        brand: 'Redwood Cigarettes',
+        copy: 'Redwood Cigarettes! Why did the lung go on strike? Because it got tired of coughing up smoke for a billboard! Light up a stick of pure tar and regret—because nothing says healthy lifestyle like inhaling chimney soot until your doctor orders flowers!'
+      },
+      {
+        brand: "Cluckin' Bell",
+        copy: "Cluckin' Bell! What’s deep-fried, mystery-shaped, and makes your arteries cry for mercy? Cluckin' Bell! Gut-bomb poultry slapped between soggy buns for folks who treat a cardiogram like a high score!"
+      },
+      {
+        brand: 'Burger Shot',
+        copy: 'Burger Shot! Why did the grease patty win a medal? Because it clogged three lanes of traffic at once! Double-stack your cholesterol, wash it down with regret, and pray the bathroom is open before the drive-thru line moves!'
+      },
+      {
+        brand: 'Slobby Doggy',
+        copy: 'Slobby Doggy! Why did the chew toy need therapy? Because it saw things no squeaky bone should ever witness! Cheap pet gear for lonely night owls who talk to their dogs because even the stray cats walk away!'
+      },
+      {
+        brand: 'eCola',
+        copy: 'eCola! What’s dark, fizzy, and leaves your enamel begging for an apology? eCola! Liquid caffeine and sugar syrup engineered to turn a tired yawn into a three-hour jaw clench!'
+      }
+    ];
+
+    /* Rare recurring phone-prank caller routines where the punchline is the
+       caller's own name: Marcus introduces the caller, Donna asks for the
+       caller's name, the caller gives parts/first-name setup, and Donna
+       reveals the full punchline name out loud on air without either host
+       acting like they know him beforehand. */
+    const RECURRING_PRANK_CALLER_ROUTINES = [
+      {
+        label: 'CALLER • MIKE HUNT',
+        lines: [
+          { speaker: 'male', text: 'Looks like we’ve got a listener ringing into Weazel Thirteen Three FM—go ahead caller, you’re on the air.' },
+          { speaker: 'female', text: 'Mmm, hello there, caller… Donna’s got you on the line, what’s your name tonight?' },
+          { speaker: 'caller', text: 'My last name is Hunt. First name Mike.' },
+          { speaker: 'female', text: 'Mike Hunt? Hold on a second… wait a minute, are you kidding me?!' },
+          { speaker: 'male', text: 'Oh, you gotta be kidding me! Hang up on that smartass—why do I even let callers through?!' }
+        ]
+      },
+      {
+        label: 'CALLER • SEYMOUR BUTTS',
+        lines: [
+          { speaker: 'male', text: 'We’ve got a caller coming through on the studio line right now—talk to us, caller, what’s on your mind?' },
+          { speaker: 'female', text: 'Mmm, Weazel FM, Donna speaking… slide right onto the line, caller, what’s your name?' },
+          { speaker: 'caller', text: 'Yeah, hi… my last name is Butts.' },
+          { speaker: 'female', text: 'Mmm, Butts… can I get your first name?' },
+          { speaker: 'caller', text: 'Seymour.' },
+          { speaker: 'female', text: 'Seymour Butts? Wait… oh, for crying out loud, really?!' },
+          { speaker: 'male', text: 'Are you serious?! Every single time I pick up the phone, some punk pulls this exact stunt!' }
+        ]
+      },
+      {
+        label: 'CALLER • BEN DOVER',
+        lines: [
+          { speaker: 'male', text: 'Line two just lit up on Weazel Thirteen Three FM—go right ahead, caller, you’re live.' },
+          { speaker: 'female', text: 'Mmm, hi caller, it’s Donna… tell me what your name is tonight.' },
+          { speaker: 'caller', text: 'Hey, my last name is Dover.' },
+          { speaker: 'female', text: 'Mmm, Dover… what’s your first name, caller?' },
+          { speaker: 'caller', text: 'Ben.' },
+          { speaker: 'female', text: 'Ben Dover?! Why did I just read that out loud on live radio?!' },
+          { speaker: 'male', text: 'Son of a—cut his line! Every damn time a caller rings in, it’s this same joker!' }
+        ]
+      },
+      {
+        label: 'CALLER • IVANA TINKLE',
+        lines: [
+          { speaker: 'male', text: 'We’ve got a live listener on line one tonight—speak up, caller, you’re on Thirteen Three FM.' },
+          { speaker: 'female', text: 'Mmm, hello caller, Donna here… who am I talking to, what’s your name?' },
+          { speaker: 'caller', text: 'Hi, my last name is Tinkle.' },
+          { speaker: 'female', text: 'Mmm, Tinkle… and what’s your first name?' },
+          { speaker: 'caller', text: 'Ivana.' },
+          { speaker: 'female', text: 'Ivana Tinkle? Hold on… oh, you little creep!' },
+          { speaker: 'male', text: 'Unbelievable! Why do I fall for a normal phone call every time when it’s the exact same prank?!' }
+        ]
+      },
+      {
+        label: 'CALLER • HUGH JASS',
+        lines: [
+          { speaker: 'male', text: 'Another caller just popped up on Weazel Thirteen Three FM—go ahead, caller, you’re on the air.' },
+          { speaker: 'female', text: 'Mmm, you’ve got Donna on the line, caller… what’s your name?' },
+          { speaker: 'caller', text: 'My last name is Jass. First name Hugh.' },
+          { speaker: 'female', text: 'Hugh Jass?! Oh, you’ve got to be joking with me!' },
+          { speaker: 'male', text: 'Unbelievable! Why do I even answer the damn phone when it’s always this same guy?!' }
+        ]
+      },
+      {
+        label: 'CALLER • ANITA BATH',
+        lines: [
+          { speaker: 'male', text: 'We’ve got a phone caller coming through right now on Thirteen Three FM—talk to us, caller.' },
+          { speaker: 'female', text: 'Mmm, Donna here on Weazel FM… what’s your name on the line?' },
+          { speaker: 'caller', text: 'Yeah, my last name is Bath.' },
+          { speaker: 'female', text: 'Mmm, Bath… what’s your first name?' },
+          { speaker: 'caller', text: 'Anita.' },
+          { speaker: 'female', text: 'Anita Bath?! Oh, damn it, I fell right into that one!' },
+          { speaker: 'male', text: 'Seriously?! Every single time I let a caller through, it’s the exact same routine!' }
+        ]
+      }
+    ];
+
+    /* Rare daily medical news phone-in segment where Marcus and Donna dial up
+       Dr. Chill—a distinct character with a thick Southern drawl giving
+       absurd, clearly insane takes on real-world medical news. */
+    const DR_CHILL_MEDICAL_BANK = [
+      {
+        label: 'DR. CHILL CALL-IN • MRNA & IMMUNOLOGY HOT TAKE',
+        lines: [
+          { speaker: 'male', text: 'Time for our daily medical news check-in on Weazel Thirteen Three FM—let’s ring up Dr. Chill on the phone line and see what crazy medicine he’s cookin’ up today.' },
+          { speaker: 'female', text: 'Mmm, ringing straight through to Dr. Chill now… tell us what’s got your motor runnin’ on the medical wire tonight.' },
+          {
+            speaker: 'drphil',
+            text: 'Well now, listen here, y’all… medical researchers are out there studyin’ mRNA and immune responses like your white blood cells are a bunch of confused mall cops. Now let me ask ya: how’s that workin’ out for ya?! If a virus shows up uninvited, you don’t need no lab coat—you grab a galvanized steel bucket, stick your head right inside it, and holler at your spleen until the germ files for bankruptcy! Get real!'
+          },
+          { speaker: 'female', text: 'Mmm, a galvanized bucket and hollerin’ at your spleen… you always get real dirty right out of the gate, Dr. Chill.' },
+          { speaker: 'male', text: 'Only on Weazel Thirteen Three FM does a medical opinion sound like a restraining order with a moustache!' }
+        ]
+      },
+      {
+        label: 'DR. CHILL CALL-IN • GLP-1 & METABOLIC HOT TAKE',
+        lines: [
+          { speaker: 'male', text: 'Dialing up Dr. Chill on the phone line now for today’s daily medical news bit—Dr. Chill, you’re live on Weazel Thirteen Three FM.' },
+          { speaker: 'female', text: 'Mmm, you’ve got Marcus and Donna right here on the line, Dr. Chill… give us your wild prescription.' },
+          {
+            speaker: 'drphil',
+            text: 'Now let me ask ya somethin’, y’all… scientists are publishin’ whole clinical trials on GLP-1 hormones and appetite pathways while folks are overthinkin’ lunch. And how’s that workin’ out for ya?! Your stomach ain’t broken, it’s just bluffin’! You drink four ounces of lukewarm bacon grease, stare a four-slice toaster dead in the eye for ninety seconds to assert dominance, and show your pancreas who’s boss!'
+          },
+          { speaker: 'female', text: 'Mmm, starin’ down a toaster and drinkin’ warm bacon grease… sounds downright filthy, Dr. Chill.' },
+          { speaker: 'male', text: 'And that’s why nobody with a working brain takes medical advice from a phone call!' }
+        ]
+      },
+      {
+        label: 'DR. CHILL CALL-IN • ANTIBIOTIC RESISTANCE HOT TAKE',
+        lines: [
+          { speaker: 'male', text: 'We’re ringing up Dr. Chill on the studio phone right now for our daily medical news hit—what’s the diagnosis tonight?' },
+          { speaker: 'female', text: 'Mmm, you’re through to the studio, Dr. Chill… don’t hold back a single drop.' },
+          {
+            speaker: 'drphil',
+            text: 'Well now, listen here, y’all… microbiologists are warnin’ about antibiotic resistance and tough bacteria adaptin’ in hospitals. Now let me ask ya: how’s that workin’ out for ya?! You can’t out-negotiate a microscopic freeloader! You rub cold gravy across your forehead, slap your own left kneecap three times on the hour, and dare that stubborn bug to cross a thick Southern drawl!'
+          },
+          { speaker: 'female', text: 'Mmm, cold gravy and slappin’ your kneecap… I’m gettin’ hot just listenin’ to you, Dr. Chill.' },
+          { speaker: 'male', text: 'Pure grade-A medical madness, live on Weazel Thirteen Three FM!' }
+        ]
+      },
+      {
+        label: 'DR. CHILL CALL-IN • CIRCADIAN SLEEP & BRAIN HOT TAKE',
+        lines: [
+          { speaker: 'male', text: 'Calling up Dr. Chill on the phone line for today’s daily medical news segment—talk to us, Dr. Chill.' },
+          { speaker: 'female', text: 'Mmm, you’re live on the air with Donna and Marcus, Dr. Chill… let’s hear your crazy cure.' },
+          {
+            speaker: 'drphil',
+            text: 'Now let me ask ya, y’all… neurologists are talkin’ about circadian rhythms, deep sleep, and brain longevity like nobody’s ever had a bad night’s rest. And how’s that workin’ out for ya?! Half of y’all got a rebellious raccoon squat-livin’ right in your clavicle! You tape a raw turnip to the ceiling fan, howl like a hound at midnight, and wake up sharper than a bowlin’ ball!'
+          },
+          { speaker: 'female', text: 'Mmm, howlin’ like a hound in the dark… sounds like my kind of late-night trouble, Dr. Chill.' },
+          { speaker: 'male', text: 'If your sleep cure involves a turnip and a ceiling fan, you’re already lost!' }
+        ]
+      }
+    ];
+
+    /* Rare UAP phone-in segment pattern:
+       1. Marcus announces the segment
+       2. Ross Coldheart delivers his excited UAP update ending in aliens finally taking over the world
+       3. Donna responds awestruck with ridiculous remarks
+       4. Ross misunderstands her literally and makes it awkward
+       5. Marcus reacts with varied, natural jealous pushback
+       6. Donna sheepishly thanks Ross, ends the call, and brushes Marcus off */
+    const ROSS_COLDHEART_UFO_BANK = [
+      {
+        label: 'ROSS COLDHEART UAP CALL-IN • CONGRESSIONAL UAP HEARINGS',
+        lines: [
+          { speaker: 'male', text: 'Up next on Weazel Thirteen Three FM, we’ve got local UFO guru Ross Coldheart calling in with the latest real-world UAP news.' },
+          { speaker: 'ufo', text: 'Oh man, look at those real-world congressional UAP hearings and whistleblowers testifying about unidentified craft dropping out of high orbit—every single hearing is another step toward the aliens finally taking over the world!' },
+          { speaker: 'female', text: 'Ooh, Ross… I’m completely awestruck by you right now, the way you get so breathless and commanding makes me want to melt right onto the studio floor.' },
+          { speaker: 'ufo', text: 'Uh, thanks, Donna, I guess—though melting on the floor probably isn’t going to stop an atmospheric takeover unless you’re a liquid-metal decoy.' },
+          { speaker: 'male', text: 'Oh spare me, that guy is crazy—why are you gushing over a tin-foil lunatic like he hung the moon?' },
+          { speaker: 'female', text: 'Oh hush, Marcus… thanks for callin’ in, Ross, we’re gonna let you go now—don’t worry, we’ll chat with Ross again soon.' }
+        ]
+      },
+      {
+        label: 'ROSS COLDHEART UAP CALL-IN • MILITARY RADAR & SENSOR TRACKS',
+        lines: [
+          { speaker: 'male', text: 'Let’s bring in local UFO guru Ross Coldheart on the phone line for a real-world UAP update right here on Thirteen Three FM.' },
+          { speaker: 'ufo', text: 'Unbelievable real-world military radar and infrared sensor tracks popping up all over the sky with zero drag—it’s all leading up to the aliens finally taking over the world!' },
+          { speaker: 'female', text: 'Mmm, Ross Coldheart… I am totally spellbound by you, just hearing that urgent rumble in your voice makes me want to beg you to take me.' },
+          { speaker: 'ufo', text: 'Well, uh, I’m not really trying to abduct anybody personally right now, Donna—I’m mostly focused on fleet telemetry and planetary surrender.' },
+          { speaker: 'male', text: 'Give me a break, that guy is completely out of his mind—acting like he’s some big shot while you drool into the mic!' },
+          { speaker: 'female', text: 'Oh stop pouting, Marcus… thank you so much for the update, Ross, I’ll disconnect the line now—we’ll chat with Ross again soon.' }
+        ]
+      },
+      {
+        label: 'ROSS COLDHEART UAP CALL-IN • COMMERCIAL FLIGHT & ORB REPORTS',
+        lines: [
+          { speaker: 'male', text: 'Time for a real-world UAP report on Weazel Thirteen Three FM with local UFO guru Ross Coldheart on the line.' },
+          { speaker: 'ufo', text: 'Commercial pilots and air traffic logs keep reporting glowing orbs moving in tight formation across real-world skies—mark my words, the aliens are finally taking over the world!' },
+          { speaker: 'female', text: 'Oh, Ross… I’m completely starstruck by you tonight, you make total takeover sound so intoxicating I can barely catch my breath.' },
+          { speaker: 'ufo', text: 'Uh, right, well, nobody’s serving drinks on a mothership, Donna—when the invasion starts, it’s strictly tactical.' },
+          { speaker: 'male', text: 'Unbelievable—that guy is crazy, and you’re falling over yourself for a guy yelling at clouds!' },
+          { speaker: 'female', text: 'Oh, relax, Marcus… thanks for ringing in, Ross, we’ll wrap your call there—and we’ll chat with Ross again soon.' }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       2. STATE, SINGLE-FLIGHT LOCK & STRICT FADE-ONLY GAIN CONTROLLER
+          - fadeVolumeOnly(targetGain, durationMs) smoothly ramps gain (1.0 <-> 0.15)
+            over ~240ms without calling pause(), play(), or resume() on any stream.
+          - navigator.audioSession toggles between 'ambient' and 'transient'.
+          - #airToggleBtn clears any stale broadcast/flight lock before toggling
+            between STANDBY and ON AIR so it always responds immediately.
+       ========================================================================== */
+    const state = {
+      isOnAir: false,
+      isSpeaking: false,
+      isBroadcastInFlight: false,
+      broadcastRunId: 0,
+      activeSpeechToken: 0,
+      lastBreakTriggerMs: 0,
+      countryCode: 'IE',
+      cityId: 'dublin',
+      newsScope: 'both',
+      freqSec: 40,
+      countdownSec: 40,
+      fullGain: 1.0,
+      duckedGain: 0.15,
+      currentGain: 1.0,
+      pitchOffset: 0.0,
+      paceMultiplier: 1.0,
+      eqWarmth: 'tube',
+      rotationSequence: [
+        'ad', 'weather', 'ad', 'news', 'caller', 'ad',
+        'weather', 'ad', 'drphil', 'ad', 'news', 'ufo'
+      ],
+      rotationStep: 0,
+      weatherCursor: 0,
+      sponsorCursor: 0,
+      newsCursor: 0,
+      callerCursor: 0,
+      drPhilCursor: 0,
+      ufoCursor: 0
+    };
+
+    let sessionEpoch = 0;
+    let fadeAnimId = null;
+    let clockIntervalId = null;
+    let vuAnimId = null;
+    let cachedVoices = [];
+    let isFetchingBackgroundNews = false;
+
+    function getCountryProfile() {
+      return COUNTRY_CITY_CATALOG[state.countryCode] || COUNTRY_CITY_CATALOG.IE;
+    }
+
+    function getCityProfile() {
+      const country = getCountryProfile();
+      return country.cities[state.cityId] || country.cities[country.defaultCityId];
+    }
+
+    function populateCityDropdown() {
+      const country = getCountryProfile();
+      const citySelect = document.getElementById('citySelect');
+      if (!citySelect) return;
+      const entries = Object.values(country.cities);
+      citySelect.innerHTML = entries
+        .map((c) => `<option value="${c.id}">${c.cityName}</option>`)
+        .join('');
+      if (!country.cities[state.cityId]) {
+        state.cityId = country.defaultCityId;
+      }
+      citySelect.value = state.cityId;
+    }
+
+    function applyGeoProfileUi() {
+      populateCityDropdown();
+      const city = getCityProfile();
+      const condTag = document.getElementById('dublinConditionTag');
+      if (condTag) {
+        condTag.textContent = city.conditionTag;
+      }
+      const countrySelect = document.getElementById('countrySelect');
+      if (countrySelect && countrySelect.value !== state.countryCode) {
+        countrySelect.value = state.countryCode;
+      }
+      const scopeSelect = document.getElementById('scopeSelect');
+      if (scopeSelect && scopeSelect.value !== state.newsScope) {
+        scopeSelect.value = state.newsScope;
+      }
+    }
+
+    function isTokenCurrent(token, runId = null) {
+      if (!state.isOnAir || !state.isSpeaking || token !== state.activeSpeechToken || token !== sessionEpoch) {
+        return false;
+      }
+      if (runId !== null && runId !== state.broadcastRunId) {
+        return false;
+      }
+      return true;
+    }
+
+    function setAudioSessionType(mode) {
+      try {
+        if ('audioSession' in navigator && navigator.audioSession) {
+          navigator.audioSession.type = mode;
+        }
+      } catch (e) {}
+      const lbl = document.getElementById('sessionModeLabel');
+      if (lbl) {
+        lbl.textContent = mode === 'transient' ? 'SESSION: TRANSIENT' : 'SESSION: AMBIENT';
+      }
+    }
+
+    function renderGainUi(gainVal) {
+      const clamped = Math.max(0, Math.min(1, gainVal));
+      const pct = Math.round(clamped * 100);
+      const badge = document.getElementById('hudGainBadge');
+      const fill = document.getElementById('gainFill');
+      const lbl = document.getElementById('gainPercentLabel');
+      if (badge) badge.textContent = `GAIN ${clamped.toFixed(2)}`;
+      if (fill) fill.style.width = `${Math.max(4, pct)}%`;
+      if (lbl) lbl.textContent = `GAIN ${clamped.toFixed(2)} (${pct}%)`;
+    }
+
+    function fadeVolumeOnly(targetGain, durationMs = 240) {
+      const startGain = state.currentGain;
+      const endGain = Math.max(0.0, Math.min(1.0, targetGain));
+      const startTime = performance.now();
+
+      if (fadeAnimId) {
+        cancelAnimationFrame(fadeAnimId);
+        fadeAnimId = null;
+      }
+
+      if (Math.abs(endGain - startGain) < 0.005) {
+        state.currentGain = endGain;
+        renderGainUi(endGain);
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve) => {
+        const step = (now) => {
+          const elapsed = now - startTime;
+          const t = Math.min(1, elapsed / Math.max(80, durationMs));
+          const eased = 1 - Math.pow(1 - t, 3);
+          const nextGain = startGain + (endGain - startGain) * eased;
+          state.currentGain = nextGain;
+          renderGainUi(nextGain);
+
+          if (t < 1) {
+            fadeAnimId = requestAnimationFrame(step);
+          } else {
+            state.currentGain = endGain;
+            renderGainUi(endGain);
+            fadeAnimId = null;
+            resolve();
+          }
+        };
+        fadeAnimId = requestAnimationFrame(step);
+      });
+    }
+
+    function updateEngineReadout(label, modeClass = '') {
+      const el = document.getElementById('engineReadout');
+      if (!el) return;
+      el.textContent = label;
+      el.className = `engine-badge ${modeClass}`.trim();
+    }
+
+    /* ==========================================================================
+       3. 6-STAGE VOICE CONSOLE + NEURAL TTS + EN-US SPEECH + CADENCE FALLBACK
+          - Immediate node teardown & idle AudioContext suspension when idle
+            so there is zero fluttering noise when idle
+       ========================================================================== */
+    function refreshVoicePool() {
+      try {
+        if ('speechSynthesis' in window && typeof window.speechSynthesis.getVoices === 'function') {
+          const list = window.speechSynthesis.getVoices();
+          if (Array.isArray(list) && list.length > 0) {
+            cachedVoices = list;
+          }
+        }
+      } catch (e) {}
+      return cachedVoices;
+    }
+
+    function pickBestAmericanVoice(role) {
+      const voices = refreshVoicePool();
+      if (!voices.length) return null;
+
+      const scoreVoice = (v) => {
+        const name = (v.name || '').toLowerCase();
+        const lang = (v.lang || '').toLowerCase();
+        let score = 0;
+
+        if (lang.startsWith('en-us')) score += 60;
+        else if (lang.startsWith('en')) score += 20;
+        else score -= 40;
+
+        if (v.localService) score += 15;
+        if (/natural|neural|premium|enhanced|siri|aaron|fred|nicky|allison|samantha|ava|zoe|quinn/i.test(name)) {
+          score += 24;
+        }
+        if (/zarvox|trinoids|bad news|bells|boing|organ|whisper|robot|espeak|google uk|daniel|moira|serena|kate|oliver|arthur/i.test(name)) {
+          score -= 120;
+        }
+
+        if (role === 'male') {
+          if (/fred|aaron|alex|tom|bruce|ralph|jorge|diego|male|man/i.test(name)) score += 32;
+          if (/samantha|victoria|ava|allison|nicky|zoe|quinn|female|woman/i.test(name)) score -= 28;
+        } else {
+          if (/samantha|victoria|ava|allison|nicky|zoe|quinn|female|woman/i.test(name)) score += 34;
+          if (/fred|aaron|alex|tom|bruce|ralph|male|man/i.test(name)) score -= 28;
+        }
+        return score;
+      };
+
+      const ranked = [...voices].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+      return ranked[0] || voices[0];
+    }
+
+    class BroadcastVoiceEngine {
+      constructor() {
+        this.audioCtx = null;
+        this.activeBufferSource = null;
+        this.activeConsoleNodes = [];
+        this.activeCadenceStop = null;
+        this.neuralCache = new Map();
+        this.idleSuspendTimer = null;
+      }
+
+      cancelIdleSuspend() {
+        if (this.idleSuspendTimer) {
+          clearTimeout(this.idleSuspendTimer);
+          this.idleSuspendTimer = null;
+        }
+      }
+
+      scheduleIdleSuspend(delayMs = 160) {
+        this.cancelIdleSuspend();
+        this.idleSuspendTimer = setTimeout(() => {
+          if (state.isSpeaking || state.isBroadcastInFlight || this.activeBufferSource || this.activeCadenceStop) {
+            return;
+          }
+          this.teardownConsoleNodes();
+          try {
+            if (this.audioCtx && this.audioCtx.state === 'running') {
+              this.audioCtx.suspend().catch(() => {});
+            }
+          } catch (e) {}
+        }, delayMs);
+      }
+
+      unlockContextSync() {
+        this.cancelIdleSuspend();
+        try {
+          if (!this.audioCtx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              this.audioCtx = new AudioCtx();
+            }
+          }
+          if (this.audioCtx && this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume().catch(() => {});
+          }
+        } catch (e) {}
+      }
+
+      estimateDurationMs(text, role) {
+        const words = (text || '').trim().split(/\s+/).filter(Boolean).length;
+        const baseWpm = role === 'male'
+          ? 168
+          : (role === 'drphil' ? 146 : (role === 'ufo' ? 162 : (role === 'caller' ? 174 : 138)));
+        const effectiveWpm = Math.max(95, baseWpm * state.paceMultiplier);
+        return Math.max(850, Math.round((words / effectiveWpm) * 60000) + 180);
+      }
+
+      trimSilenceSamples(floatSamples, sampleRate = 24000, threshold = 0.004) {
+        if (!floatSamples || floatSamples.length === 0) return new Float32Array(1);
+        let start = 0;
+        let end = floatSamples.length - 1;
+        while (start < end && Math.abs(floatSamples[start]) < threshold) start++;
+        while (end > start && Math.abs(floatSamples[end]) < threshold) end--;
+
+        const padLead = Math.min(start, Math.floor(sampleRate * 0.012));
+        const padTail = Math.min(floatSamples.length - 1 - end, Math.floor(sampleRate * 0.025));
+        const sIdx = Math.max(0, start - padLead);
+        const eIdx = Math.min(floatSamples.length, end + padTail + 1);
+        if (eIdx <= sIdx) return floatSamples.slice(0, Math.min(floatSamples.length, 240));
+        return floatSamples.slice(sIdx, eIdx);
+      }
+
+      pcm16Base64ToTrimmedAssets(base64Pcm, sampleRate = 24000) {
+        const binStr = atob(base64Pcm);
+        const pcmBytes = new Uint8Array(binStr.length);
+        for (let i = 0; i < binStr.length; i++) pcmBytes[i] = binStr.charCodeAt(i);
+        const int16 = new Int16Array(pcmBytes.buffer);
+        const rawFloat = new Float32Array(int16.length);
+        for (let i = 0; i < int16.length; i++) rawFloat[i] = int16[i] / 32768.0;
+
+        const trimmedFloat = this.trimSilenceSamples(rawFloat, sampleRate, 0.004);
+        const trimmedInt16 = new Int16Array(trimmedFloat.length);
+        for (let i = 0; i < trimmedFloat.length; i++) {
+          const s = Math.max(-1, Math.min(1, trimmedFloat[i]));
+          trimmedInt16[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+        }
+        const trimmedBytes = new Uint8Array(trimmedInt16.buffer);
+
+        const wavHeader = new ArrayBuffer(44);
+        const view = new DataView(wavHeader);
+        const writeStr = (offset, str) => {
+          for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+        };
+        writeStr(0, 'RIFF');
+        view.setUint32(4, 36 + trimmedBytes.byteLength, true);
+        writeStr(8, 'WAVE');
+        writeStr(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        writeStr(36, 'data');
+        view.setUint32(40, trimmedBytes.byteLength, true);
+
+        const wavUrl = URL.createObjectURL(new Blob([wavHeader, trimmedBytes], { type: 'audio/wav' }));
+
+        let audioBuffer = null;
+        if (this.audioCtx) {
+          audioBuffer = this.audioCtx.createBuffer(1, trimmedFloat.length, sampleRate);
+          audioBuffer.getChannelData(0).set(trimmedFloat);
+        }
+
+        return { wavUrl, audioBuffer, rawFloat, sampleRate };
+      }
+
+      async fetchNeuralLineAsset(lineText, role, token = null) {
+        const isMale = role === 'male';
+        const isCaller = role === 'caller';
+        const isDrPhil = role === 'drphil';
+        const isUfo = role === 'ufo';
+        const voiceName = isMale
+          ? 'Fenrir'
+          : (isDrPhil ? 'Charon' : (isUfo ? 'Orus' : (isCaller ? 'Puck' : 'Aoede')));
+        const cacheKey = `${role}|${voiceName}|${lineText}`;
+        if (this.neuralCache.has(cacheKey)) {
+          const cached = this.neuralCache.get(cacheKey);
+          if (cached && cached.rawFloat && this.audioCtx && !cached.audioBuffer) {
+            const trimmed = this.trimSilenceSamples(cached.rawFloat, cached.sampleRate || 24000, 0.004);
+            const buf = this.audioCtx.createBuffer(1, trimmed.length, cached.sampleRate || 24000);
+            buf.getChannelData(0).set(trimmed);
+            cached.audioBuffer = buf;
+          }
+          return cached;
+        }
+
+        const apiKey = '';
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+        const direction = isMale
+          ? 'Deliver in a gruff, older-sounding, aggressive, confident American radio host voice:'
+          : isDrPhil
+            ? 'Deliver in a deep, slow, folksy, thick Southern drawl American psychologist phone-in voice:'
+            : isUfo
+              ? 'Deliver in an obsessive, hyped-up, breathless UFO-guru phone-caller voice building with excitement:'
+              : isCaller
+                ? 'Deliver in a cheeky, nasal, mischievous young prankster phone-caller voice:'
+                : 'Deliver in a sultry, flirtatious American female radio presenter voice:';
+
+        const payload = {
+          contents: [{ parts: [{ text: `${direction} ${lineText}` }] }],
+          generationConfig: {
+            responseModalities: ['AUDIO'],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: { voiceName }
+              }
+            }
+          },
+          model: 'gemini-2.5-flash-preview-tts'
+        };
+
+        for (let attempt = 0; attempt < 2; attempt++) {
+          if (token !== null && !isTokenCurrent(token)) return null;
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 850);
+            const res = await fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+              await new Promise((r) => setTimeout(r, 80 * (attempt + 1)));
+              continue;
+            }
+            const data = await res.json();
+            const part = data?.candidates?.[0]?.content?.parts?.[0];
+            const b64 = part?.inlineData?.data;
+            const mime = part?.inlineData?.mimeType || 'audio/L16;rate=24000';
+            if (!b64) return null;
+
+            const rateMatch = mime.match(/rate=(\d+)/);
+            const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+            const decoded = this.pcm16Base64ToTrimmedAssets(b64, sampleRate);
+
+            const asset = {
+              wavUrl: decoded.wavUrl,
+              audioBuffer: decoded.audioBuffer,
+              rawFloat: decoded.rawFloat,
+              sampleRate
+            };
+            this.neuralCache.set(cacheKey, asset);
+            return asset;
+          } catch (e) {
+            if (attempt === 0) await new Promise((r) => setTimeout(r, 60));
+          }
+        }
+        return null;
+      }
+
+      async prefetchAllLinesParallel(lines, epoch, runId) {
+        if (!Array.isArray(lines) || lines.length === 0) return [];
+        const tasks = lines.map(async (item) => {
+          if (!isTokenCurrent(epoch, runId)) return null;
+          return this.fetchNeuralLineAsset(item.text, item.speaker, epoch);
+        });
+        return Promise.all(tasks);
+      }
+
+      teardownConsoleNodes() {
+        const nodes = this.activeConsoleNodes.splice(0, this.activeConsoleNodes.length);
+        for (const node of nodes) {
+          try { node.disconnect(); } catch (e) {}
+        }
+      }
+
+      playThroughSixStageConsole(audioBuffer, role, epoch, runId = null) {
+        if (!isTokenCurrent(epoch, runId)) return Promise.resolve(false);
+        this.unlockContextSync();
+        if (!this.audioCtx || !audioBuffer) return Promise.resolve(false);
+
+        const isMale = role === 'male';
+        const isCaller = role === 'caller';
+        const isDrPhil = role === 'drphil';
+        const isUfo = role === 'ufo';
+        const hostLabel = isMale
+          ? 'MARCUS'
+          : (isDrPhil ? 'DR. CHILL' : (isUfo ? 'ROSS COLDHEART' : (isCaller ? 'CALLER' : 'DONNA')));
+
+        return new Promise((resolve) => {
+          let settled = false;
+          let src = null;
+          const chainNodes = [];
+
+          const finish = (ok) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(safetyTimer);
+            if (src) {
+              try { src.onended = null; } catch (e) {}
+              try { src.stop(); } catch (e) {}
+              try { src.disconnect(); } catch (e) {}
+            }
+            for (const n of chainNodes) {
+              try { n.disconnect(); } catch (e) {}
+            }
+            this.activeConsoleNodes = this.activeConsoleNodes.filter((n) => !chainNodes.includes(n));
+            if (this.activeBufferSource === src) {
+              this.activeBufferSource = null;
+            }
+            resolve(ok);
+          };
+
+          const pitchFactor = Math.pow(2, state.pitchOffset * 0.65);
+          const roleShift = isMale
+            ? 0.94
+            : (isDrPhil ? 0.85 : (isUfo ? 1.09 : (isCaller ? 1.16 : 1.04)));
+          const rate = Math.max(0.65, Math.min(1.65, state.paceMultiplier * pitchFactor * roleShift));
+
+          const actualDurMs = (audioBuffer.duration * 1000) / Math.max(0.75, rate);
+          const safetyTimer = setTimeout(() => finish(true), Math.max(200, actualDurMs + 65));
+
+          try {
+            if (!isTokenCurrent(epoch, runId)) {
+              finish(false);
+              return;
+            }
+
+            src = this.audioCtx.createBufferSource();
+            src.buffer = audioBuffer;
+            src.playbackRate.value = rate;
+
+            // Stage 1: 85Hz high-pass filter (telephone band-pass for phone-in guests)
+            const isPhoneLine = isCaller || isDrPhil || isUfo;
+            const hpf85 = this.audioCtx.createBiquadFilter();
+            hpf85.type = 'highpass';
+            hpf85.frequency.value = isPhoneLine ? 320 : 85;
+            hpf85.Q.value = isPhoneLine ? 1.05 : 0.7;
+
+            // Stage 2: 180Hz studio warmth low-shelf
+            const warmth180 = this.audioCtx.createBiquadFilter();
+            warmth180.type = 'lowshelf';
+            warmth180.frequency.value = 180;
+            warmth180.gain.value = isCaller ? -2.0 : (isDrPhil ? 5.0 : (state.eqWarmth === 'tube'
+              ? (isMale ? 5.2 : 3.6)
+              : 1.2));
+
+            // Stage 3: 2.8kHz notch filter
+            const notch2k8 = this.audioCtx.createBiquadFilter();
+            notch2k8.type = 'peaking';
+            notch2k8.frequency.value = 2800;
+            notch2k8.Q.value = 2.4;
+            notch2k8.gain.value = -3.0;
+
+            // Stage 4: 10kHz air high-shelf (telephone low-pass for phone-in)
+            const air10k = this.audioCtx.createBiquadFilter();
+            air10k.type = isPhoneLine ? 'lowpass' : 'highshelf';
+            air10k.frequency.value = isPhoneLine ? 3250 : 10000;
+            air10k.gain.value = isPhoneLine ? 0.0 : (state.eqWarmth === 'crisp' ? 4.2 : 2.2);
+
+            // Stage 5: Tube saturation
+            const tubeShaper = this.audioCtx.createWaveShaper();
+            const samples = 1024;
+            const curve = new Float32Array(samples);
+            const drive = isPhoneLine ? 1.85 : (state.eqWarmth === 'tube' ? (isMale ? 1.85 : 1.45) : 1.1);
+            for (let i = 0; i < samples; i++) {
+              const x = (i * 2) / samples - 1;
+              curve[i] = Math.tanh(x * drive) / Math.tanh(drive);
+            }
+            tubeShaper.curve = curve;
+            tubeShaper.oversample = '2x';
+
+            // Stage 6: Dynamics compressor
+            const compressor = this.audioCtx.createDynamicsCompressor();
+            compressor.threshold.value = -17;
+            compressor.knee.value = 10;
+            compressor.ratio.value = 4.2;
+            compressor.attack.value = 0.003;
+            compressor.release.value = 0.14;
+
+            chainNodes.push(hpf85, warmth180, notch2k8, air10k, tubeShaper, compressor);
+            this.activeConsoleNodes.push(...chainNodes);
+
+            src.connect(hpf85);
+            hpf85.connect(warmth180);
+            warmth180.connect(notch2k8);
+            notch2k8.connect(air10k);
+            air10k.connect(tubeShaper);
+            tubeShaper.connect(compressor);
+            compressor.connect(this.audioCtx.destination);
+
+            this.activeBufferSource = src;
+            src.onended = () => {
+              if (!isTokenCurrent(epoch, runId)) {
+                finish(false);
+                return;
+              }
+              finish(true);
+            };
+
+            updateEngineReadout(`ENGINE: 6-STAGE NEURAL (${hostLabel})`, 'active-synth');
+            src.start(0);
+          } catch (e) {
+            finish(false);
+          }
+        });
+      }
+
+      playWavTransient(wavUrl, role, epoch, expectedDurSec = 2.4, runId = null) {
+        if (!isTokenCurrent(epoch, runId)) return Promise.resolve(false);
+        const djEl = document.getElementById('djVoicePlayer');
+        if (!djEl || !wavUrl) return Promise.resolve(false);
+        const isMale = role === 'male';
+        const isCaller = role === 'caller';
+        const isDrPhil = role === 'drphil';
+        const isUfo = role === 'ufo';
+        const hostLabel = isMale
+          ? 'MARCUS'
+          : (isDrPhil ? 'DR. CHILL' : (isUfo ? 'ROSS COLDHEART' : (isCaller ? 'CALLER' : 'DONNA')));
+
+        return new Promise((resolve) => {
+          let settled = false;
+          const finish = (ok) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(safetyTimer);
+            djEl.onended = null;
+            djEl.onerror = null;
+            try {
+              djEl.pause();
+              djEl.removeAttribute('src');
+              djEl.load();
+            } catch (e) {}
+            resolve(ok);
+          };
+
+          const rate = Math.max(0.7, Math.min(1.5, state.paceMultiplier * (isMale
+            ? 1.08
+            : (isDrPhil ? 0.88 : (isUfo ? 1.12 : (isCaller ? 1.14 : 0.98))))));
+          const safetyTimer = setTimeout(() => finish(true), Math.max(250, (expectedDurSec * 1000) / rate + 70));
+
+          try {
+            if (!isTokenCurrent(epoch, runId)) {
+              finish(false);
+              return;
+            }
+            djEl.src = wavUrl;
+            djEl.playbackRate = rate;
+            djEl.volume = 1.0;
+
+            djEl.onended = () => finish(isTokenCurrent(epoch, runId));
+            djEl.onerror = () => finish(false);
+
+            updateEngineReadout(`ENGINE: WAV TRANSIENT (${hostLabel})`, 'active-synth');
+            const p = djEl.play();
+            if (p && typeof p.then === 'function') {
+              p.catch(() => finish(false));
+            }
+          } catch (e) {
+            finish(false);
+          }
+        });
+      }
+
+      startVocalCadenceFallback(text, role, epoch, durationMs, runId = null) {
+        if (!isTokenCurrent(epoch, runId)) return () => {};
+        this.unlockContextSync();
+        const isMale = role === 'male';
+        const isCaller = role === 'caller';
+        const isDrPhil = role === 'drphil';
+        const isUfo = role === 'ufo';
+        let active = true;
+        let beatTimer = null;
+        let endTimer = null;
+        const activeNotes = [];
+
+        const cleanupNote = (entry) => {
+          try { entry.osc.stop(); } catch (e) {}
+          for (const n of entry.nodes) {
+            try { n.disconnect(); } catch (e) {}
+          }
+        };
+
+        const cleanup = () => {
+          active = false;
+          if (beatTimer) {
+            clearInterval(beatTimer);
+            beatTimer = null;
+          }
+          if (endTimer) {
+            clearTimeout(endTimer);
+            endTimer = null;
+          }
+          while (activeNotes.length > 0) {
+            const entry = activeNotes.shift();
+            if (entry) cleanupNote(entry);
+          }
+        };
+
+        this.activeCadenceStop = cleanup;
+
+        if (!this.audioCtx) {
+          endTimer = setTimeout(cleanup, durationMs);
+          return cleanup;
+        }
+
+        const syllables = (text || 'talk')
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((w) => Math.max(1, Math.min(4, Math.ceil(w.length / 3))));
+        const beats = syllables.length > 0 ? syllables : [2, 1, 2, 1];
+        let beatIdx = 0;
+
+        const emitCadenceSyllable = () => {
+          if (!active || !isTokenCurrent(epoch, runId) || !this.audioCtx) {
+            cleanup();
+            return;
+          }
+          try {
+            if (this.audioCtx.state === 'suspended') {
+              this.audioCtx.resume().catch(() => {});
+            }
+            const now = this.audioCtx.currentTime;
+            const stress = beats[beatIdx % beats.length];
+            const cadenceStep = beatIdx % 4;
+            beatIdx++;
+
+            const pitchShiftHz = state.pitchOffset * (isMale
+              ? 55
+              : (isDrPhil ? 45 : (isUfo ? 90 : (isCaller ? 95 : 85))));
+            const drawlDip = isDrPhil && (cadenceStep === 1 || cadenceStep === 3) ? -7 : 0;
+            const ufoRise = isUfo ? cadenceStep * 13 : 0;
+            const f0 = isMale
+              ? (92 + cadenceStep * 6 + ((stress - 1) * 4) + pitchShiftHz)
+              : isDrPhil
+                ? (76 + cadenceStep * 4 + drawlDip + ((stress - 1) * 4) + pitchShiftHz)
+                : isUfo
+                  ? (126 + ufoRise + ((stress - 1) * 6) + pitchShiftHz)
+                  : isCaller
+                    ? (154 + cadenceStep * 15 + ((stress - 1) * 8) + pitchShiftHz)
+                    : (186 + cadenceStep * 11 + ((stress - 1) * 7) + pitchShiftHz);
+
+            const osc = this.audioCtx.createOscillator();
+            osc.type = isMale
+              ? 'sawtooth'
+              : (isDrPhil ? 'sawtooth' : (isUfo ? 'sawtooth' : (isCaller ? 'square' : 'triangle')));
+            osc.frequency.setValueAtTime(Math.max(58, f0), now);
+            osc.frequency.exponentialRampToValueAtTime(
+              Math.max(52, f0 * (isMale
+                ? 0.88
+                : (isDrPhil ? 0.82 : (isUfo ? 1.15 : (isCaller ? 1.12 : 1.06))))),
+              now + 0.115
+            );
+
+            const formant = this.audioCtx.createBiquadFilter();
+            formant.type = 'bandpass';
+            const formantHz = isMale
+              ? (520 + (beatIdx % 3) * 140)
+              : isDrPhil
+                ? (410 + (beatIdx % 3) * 105)
+                : isUfo
+                  ? (920 + (beatIdx % 3) * 230)
+                  : isCaller
+                    ? (1050 + (beatIdx % 3) * 260)
+                    : (840 + (beatIdx % 3) * 210);
+            formant.frequency.setValueAtTime(formantHz, now);
+            formant.frequency.linearRampToValueAtTime(formantHz * 1.16, now + 0.08);
+            formant.Q.value = isMale ? 2.4 : (isDrPhil ? 2.3 : (isUfo ? 2.8 : (isCaller ? 3.2 : 2.0)));
+
+            const eqFilter = this.audioCtx.createBiquadFilter();
+            if (isCaller || isDrPhil || isUfo) {
+              eqFilter.type = 'bandpass';
+              eqFilter.frequency.setValueAtTime(isDrPhil ? 1050 : (isUfo ? 1220 : 1350), now);
+              eqFilter.Q.value = 1.3;
+            } else if (state.eqWarmth === 'tube') {
+              eqFilter.type = 'lowshelf';
+              eqFilter.frequency.setValueAtTime(220, now);
+              eqFilter.gain.setValueAtTime(4.0, now);
+            } else {
+              eqFilter.type = 'highshelf';
+              eqFilter.frequency.setValueAtTime(2400, now);
+              eqFilter.gain.setValueAtTime(3.5, now);
+            }
+
+            const envGain = this.audioCtx.createGain();
+            const peak = isMale ? 0.055 : (isDrPhil ? 0.052 : (isUfo ? 0.046 : (isCaller ? 0.036 : 0.048)));
+            envGain.gain.setValueAtTime(0.0001, now);
+            envGain.gain.linearRampToValueAtTime(peak, now + 0.018);
+            envGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.135);
+
+            osc.connect(formant);
+            formant.connect(eqFilter);
+            eqFilter.connect(envGain);
+            envGain.connect(this.audioCtx.destination);
+
+            const entry = { osc, nodes: [osc, formant, eqFilter, envGain] };
+            activeNotes.push(entry);
+
+            osc.onended = () => {
+              const idx = activeNotes.indexOf(entry);
+              if (idx !== -1) activeNotes.splice(idx, 1);
+              for (const n of entry.nodes) {
+                try { n.disconnect(); } catch (e) {}
+              }
+            };
+
+            osc.start(now);
+            osc.stop(now + 0.142);
+          } catch (e) {}
+        };
+
+        emitCadenceSyllable();
+        beatTimer = setInterval(emitCadenceSyllable, isMale ? 132 : (isDrPhil ? 160 : (isUfo ? 120 : (isCaller ? 124 : 162))));
+        endTimer = setTimeout(cleanup, durationMs);
+
+        return cleanup;
+      }
+
+      stopAllSpeech(suspendWhenIdle = false) {
+        if (this.activeBufferSource) {
+          try { this.activeBufferSource.onended = null; } catch (e) {}
+          try { this.activeBufferSource.stop(); } catch (e) {}
+          try { this.activeBufferSource.disconnect(); } catch (e) {}
+          this.activeBufferSource = null;
+        }
+        this.teardownConsoleNodes();
+        try {
+          const djEl = document.getElementById('djVoicePlayer');
+          if (djEl) {
+            djEl.onended = null;
+            djEl.onerror = null;
+            djEl.pause();
+            djEl.removeAttribute('src');
+            djEl.load();
+          }
+        } catch (e) {}
+        if (typeof this.activeCadenceStop === 'function') {
+          const fn = this.activeCadenceStop;
+          this.activeCadenceStop = null;
+          fn();
+        }
+        try {
+          if ('speechSynthesis' in window && typeof window.speechSynthesis.cancel === 'function') {
+            window.speechSynthesis.cancel();
+          }
+        } catch (e) {}
+        if (suspendWhenIdle) {
+          this.scheduleIdleSuspend(160);
+        }
+      }
+
+      async speakLineGuaranteed(lineText, role, epoch, prefetchedAsset = null, runId = null) {
+        if (!isTokenCurrent(epoch, runId)) return;
+        this.stopAllSpeech(false);
+        if (!isTokenCurrent(epoch, runId)) return;
+
+        const isMale = role === 'male';
+        const isCaller = role === 'caller';
+        const isDrPhil = role === 'drphil';
+        const isUfo = role === 'ufo';
+        const hostLabel = isMale
+          ? 'MARCUS'
+          : (isDrPhil ? 'DR. CHILL' : (isUfo ? 'ROSS COLDHEART' : (isCaller ? 'CALLER' : 'DONNA')));
+        const estDurationMs = this.estimateDurationMs(lineText, role);
+
+        const neuralAsset = prefetchedAsset !== undefined
+          ? prefetchedAsset
+          : await this.fetchNeuralLineAsset(lineText, role, epoch);
+        if (!isTokenCurrent(epoch, runId)) return;
+
+        if (neuralAsset) {
+          if (neuralAsset.audioBuffer) {
+            const playedConsole = await this.playThroughSixStageConsole(neuralAsset.audioBuffer, role, epoch, runId);
+            if (playedConsole || !isTokenCurrent(epoch, runId)) return;
+          }
+          if (neuralAsset.wavUrl) {
+            const durSec = neuralAsset.audioBuffer ? neuralAsset.audioBuffer.duration : estDurationMs / 1000;
+            const playedWav = await this.playWavTransient(neuralAsset.wavUrl, role, epoch, durSec, runId);
+            if (playedWav || !isTokenCurrent(epoch, runId)) return;
+          }
+        }
+
+        if (!isTokenCurrent(epoch, runId)) return;
+        const hasSpeechSynth = ('speechSynthesis' in window) && typeof window.speechSynthesis.speak === 'function';
+
+        return new Promise((resolve) => {
+          let finished = false;
+          let synthStarted = false;
+          let cadenceStopper = null;
+
+          const finishLine = () => {
+            if (finished) return;
+            finished = true;
+            clearTimeout(maxDurationTimer);
+            clearTimeout(onstartFallbackTimer);
+            clearInterval(tokenPollTimer);
+            if (typeof cadenceStopper === 'function') {
+              cadenceStopper();
+              cadenceStopper = null;
+            }
+            if (this.activeCadenceStop) this.activeCadenceStop = null;
+            resolve();
+          };
+
+          const tokenPollTimer = setInterval(() => {
+            if (!isTokenCurrent(epoch, runId)) {
+              try {
+                if (hasSpeechSynth) window.speechSynthesis.cancel();
+              } catch (e) {}
+              finishLine();
+            }
+          }, 50);
+
+          const engageCadenceFallback = (reasonTag) => {
+            if (finished || !isTokenCurrent(epoch, runId)) {
+              finishLine();
+              return;
+            }
+            if (!cadenceStopper) {
+              updateEngineReadout(
+                `ENGINE: CADENCE (${hostLabel} • ${reasonTag})`,
+                'active-cadence'
+              );
+              cadenceStopper = this.startVocalCadenceFallback(lineText, role, epoch, estDurationMs, runId);
+            }
+          };
+
+          const maxDurationTimer = setTimeout(finishLine, estDurationMs + 50);
+
+          const onstartFallbackTimer = setTimeout(() => {
+            if (!synthStarted && !finished && isTokenCurrent(epoch, runId)) {
+              try {
+                if (hasSpeechSynth) window.speechSynthesis.cancel();
+              } catch (e) {}
+              engageCadenceFallback('FAST');
+            }
+          }, 210);
+
+          if (hasSpeechSynth) {
+            try {
+              const utter = new SpeechSynthesisUtterance(lineText);
+              const voice = pickBestAmericanVoice((isCaller || isDrPhil || isUfo) ? 'male' : role);
+              if (voice) utter.voice = voice;
+              utter.lang = 'en-US';
+
+              const baseRate = isMale ? 1.2 : (isDrPhil ? 0.88 : (isUfo ? 1.22 : (isCaller ? 1.28 : 1.02)));
+              const basePitch = isMale ? 0.78 : (isDrPhil ? 0.64 : (isUfo ? 1.14 : (isCaller ? 1.22 : 1.07)));
+              utter.rate = Math.max(0.7, Math.min(1.75, baseRate * state.paceMultiplier));
+              utter.pitch = Math.max(0.55, Math.min(1.45, basePitch + state.pitchOffset));
+              utter.volume = 1.0;
+
+              utter.onstart = () => {
+                if (!isTokenCurrent(epoch, runId)) {
+                  try { window.speechSynthesis.cancel(); } catch (e) {}
+                  finishLine();
+                  return;
+                }
+                synthStarted = true;
+                clearTimeout(onstartFallbackTimer);
+                updateEngineReadout(
+                  `ENGINE: EN-US SYNTH (${hostLabel})`,
+                  'active-synth'
+                );
+              };
+
+              utter.onend = () => {
+                finishLine();
+              };
+
+              utter.onerror = () => {
+                clearTimeout(onstartFallbackTimer);
+                engageCadenceFallback('ERROR');
+              };
+
+              window.speechSynthesis.speak(utter);
+            } catch (e) {
+              clearTimeout(onstartFallbackTimer);
+              engageCadenceFallback('UNAVAILABLE');
+            }
+          } else {
+            clearTimeout(onstartFallbackTimer);
+            engageCadenceFallback('NO SYNTH');
+          }
+        });
+      }
+    }
+
+    const broadcastVoiceEngine = new BroadcastVoiceEngine();
+
+    /* ==========================================================================
+       4. LOCATION-AWARE NEWS WIRE, ROTATION & SINGLE-FLIGHT RUNNER
+       ========================================================================== */
+    function getNewsPoolForCurrentSelection() {
+      const city = getCityProfile();
+      const localItems = Array.isArray(city.localNews) ? city.localNews : [];
+      const nationalItems = Array.isArray(city.nationalNews) ? city.nationalNews : [];
+
+      if (state.newsScope === 'local') {
+        return localItems.length ? localItems : nationalItems;
+      }
+      if (state.newsScope === 'national') {
+        return nationalItems.length ? nationalItems : localItems;
+      }
+      return [...localItems, ...nationalItems];
+    }
+
+    function appendUniqueNewsStories(stories) {
+      if (!Array.isArray(stories) || stories.length === 0) return;
+      const city = getCityProfile();
+      const targetBank = state.newsScope === 'national' ? city.nationalNews : city.localNews;
+      if (!Array.isArray(targetBank)) return;
+      const seen = new Set(targetBank.map((s) => (s.title || '').toLowerCase()));
+      stories.forEach((story) => {
+        if (!story || !Array.isArray(story.lines) || story.lines.length === 0) return;
+        const prefix = state.newsScope === 'national' ? 'NATIONAL' : 'LOCAL';
+        const cleanTitle = String(story.title || `${prefix} • ${city.shortCity} WIRE`).trim();
+        if (seen.has(cleanTitle.toLowerCase())) return;
+        seen.add(cleanTitle.toLowerCase());
+        targetBank.push({
+          title: cleanTitle,
+          lines: story.lines
+            .filter((l) => l && l.text && (l.speaker === 'male' || l.speaker === 'female'))
+            .map((l) => ({ speaker: l.speaker, text: String(l.text).trim() }))
+        });
+      });
+    }
+
+    async function fetchLiveLocalNewsWire() {
+      if (isFetchingBackgroundNews) return;
+      isFetchingBackgroundNews = true;
+      const country = getCountryProfile();
+      const city = getCityProfile();
+      const scopeDesc = state.newsScope === 'national'
+        ? `national news across ${country.countryName}`
+        : state.newsScope === 'local'
+          ? `local news in ${city.cityName}, ${country.countryName}`
+          : `local news in ${city.cityName} and national news across ${country.countryName}`;
+      const apiKey = '';
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const payload = {
+        contents: [{
+          parts: [{
+            text:
+              `Find 2 real current news stories covering ${scopeDesc} from today or this week. ` +
+              `Return ONLY a JSON array of 2 items, each with "title" and "lines" (array of 4 objects with "speaker": "male" or "female" and dark-humour radio banter "text" with zero song/track/artist names).`
+          }]
+        }],
+        tools: [{ google_search: {} }]
+      };
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3200);
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          const match = raw.match(/\[[\s\S]*\]/);
+          if (match) {
+            appendUniqueNewsStories(JSON.parse(match[0]));
+          }
+        }
+      } catch (e) {
+      } finally {
+        isFetchingBackgroundNews = false;
+      }
+    }
+
+    function buildSegment(forcedType = null) {
+      const city = getCityProfile();
+      let kind = forcedType;
+      if (!kind) {
+        kind = state.rotationSequence[state.rotationStep % state.rotationSequence.length];
+        state.rotationStep++;
+      }
+
+      if (kind === 'weather') {
+        const scripts = city.weatherScripts && city.weatherScripts.length
+          ? city.weatherScripts
+          : COUNTRY_CITY_CATALOG.IE.cities.dublin.weatherScripts;
+        const text = scripts[state.weatherCursor % scripts.length];
+        state.weatherCursor++;
+        return {
+          kind: 'weather',
+          pillClass: 'weather',
+          pillText: `13.3 // FM • ${city.shortCity} WEATHER (DONNA)`,
+          lines: [{ speaker: 'female', text }]
+        };
+      }
+
+      if (kind === 'ad') {
+        const sponsor = SPOOF_SPONSORS[state.sponsorCursor % SPOOF_SPONSORS.length];
+        state.sponsorCursor++;
+        return {
+          kind: 'ad',
+          pillClass: 'ad',
+          pillText: `13.3 // FM • ${sponsor.brand.toUpperCase()} (MARCUS)`,
+          lines: [{ speaker: 'male', text: sponsor.copy }]
+        };
+      }
+
+      if (kind === 'caller') {
+        const routine = RECURRING_PRANK_CALLER_ROUTINES[state.callerCursor % RECURRING_PRANK_CALLER_ROUTINES.length];
+        state.callerCursor++;
+        return {
+          kind: 'caller',
+          pillClass: 'news',
+          pillText: `13.3 // FM • ${routine.label}`,
+          lines: routine.lines
+        };
+      }
+
+      if (kind === 'drphil') {
+        const take = DR_CHILL_MEDICAL_BANK[state.drPhilCursor % DR_CHILL_MEDICAL_BANK.length];
+        state.drPhilCursor++;
+        return {
+          kind: 'drphil',
+          pillClass: 'news',
+          pillText: '13.3 // FM • DR. CHILL DAILY MEDICAL CALL-IN',
+          lines: take.lines
+        };
+      }
+
+      if (kind === 'ufo') {
+        const uapBit = ROSS_COLDHEART_UFO_BANK[state.ufoCursor % ROSS_COLDHEART_UFO_BANK.length];
+        state.ufoCursor++;
+        return {
+          kind: 'ufo',
+          pillClass: 'news',
+          pillText: `13.3 // FM • ${uapBit.label}`,
+          lines: uapBit.lines
+        };
+      }
+
+      const bank = getNewsPoolForCurrentSelection();
+      const story = bank[state.newsCursor % bank.length];
+      state.newsCursor++;
+      return {
+        kind: 'news',
+        pillClass: 'news',
+        pillText: `13.3 // FM • ${story.title}`,
+        lines: story.lines
+      };
+    }
+
+    function buildVoiceTestSegment() {
+      const city = getCityProfile();
+      return {
+        kind: 'news',
+        pillClass: 'news',
+        pillText: `13.3 // FM • VOICE TEST (${city.shortCity})`,
+        lines: [
+          {
+            speaker: 'male',
+            text: `Weazel Thirteen Three FM mic check—why did the microphone sound so bitter? Because it heard every lie on the air before breakfast! Gruff, cynical, and wide awake in ${city.shortCity} while the rest of the world sleepwalks into the dark!`
+          },
+          {
+            speaker: 'female',
+            text: 'Mmm, right here with you, Marcus… dripping wet, throbbing, and ready to get real messy whenever you take me.'
+          }
+        ]
+      };
+    }
+
+    function setActiveHostPill(speaker) {
+      const mEl = document.getElementById('marcusPill');
+      const dEl = document.getElementById('donnaPill');
+      if (mEl) mEl.classList.toggle('active-male', speaker === 'male' || speaker === 'drphil');
+      if (dEl) dEl.classList.toggle('active-female', speaker === 'female' || speaker === 'caller' || speaker === 'ufo');
+    }
+
+    async function runBroadcastSegment(forcedType = null, customSegment = null) {
+      const nowMs = Date.now();
+      if (nowMs - state.lastBreakTriggerMs < 140) {
+        return;
+      }
+      state.lastBreakTriggerMs = nowMs;
+
+      broadcastVoiceEngine.unlockContextSync();
+      refreshVoicePool();
+
+      const runId = ++state.broadcastRunId;
+      const epoch = ++sessionEpoch;
+      state.activeSpeechToken = epoch;
+      state.isBroadcastInFlight = true;
+      state.isSpeaking = true;
+
+      broadcastVoiceEngine.stopAllSpeech(false);
+      setActiveHostPill(null);
+
+      const seg = customSegment || buildSegment(forcedType);
+      state.countdownSec = state.freqSec > 0 ? state.freqSec : 0;
+      setAudioSessionType('transient');
+      syncUiState();
+
+      const rotTag = document.getElementById('rotationTag');
+      if (rotTag) rotTag.textContent = `ROTATION #${Math.max(1, state.rotationStep)}`;
+
+      const pillEl = document.getElementById('segmentBadge');
+      const bodyEl = document.getElementById('teleprompterBody');
+      if (pillEl) {
+        pillEl.textContent = seg.pillText;
+        pillEl.className = `segment-badge ${seg.pillClass}`;
+      }
+      if (bodyEl) {
+        bodyEl.innerHTML = seg.lines
+          .map((item) => {
+            const who = item.speaker === 'male'
+              ? 'MARCUS'
+              : (item.speaker === 'drphil'
+                ? 'DR. CHILL'
+                : (item.speaker === 'ufo'
+                  ? 'ROSS COLDHEART'
+                  : (item.speaker === 'caller' ? 'CALLER' : 'DONNA')));
+            const col = item.speaker === 'male'
+              ? '#ffb800'
+              : (item.speaker === 'drphil'
+                ? '#10b981'
+                : (item.speaker === 'ufo'
+                  ? '#a78bfa'
+                  : (item.speaker === 'caller' ? '#00f0ff' : '#ff62a8')));
+            return `<div style="margin-bottom:4px;"><strong style="color:${col};">${who}:</strong> ${item.text}</div>`;
+          })
+          .join('');
+      }
+
+      try {
+        await fadeVolumeOnly(state.duckedGain, 240);
+        if (!state.isOnAir || !isTokenCurrent(epoch, runId)) return;
+
+        const prefetchedAssets = await broadcastVoiceEngine.prefetchAllLinesParallel(seg.lines, epoch, runId);
+        if (!state.isOnAir || !isTokenCurrent(epoch, runId)) return;
+
+        for (let i = 0; i < seg.lines.length; i++) {
+          if (!state.isOnAir || !isTokenCurrent(epoch, runId)) break;
+          const line = seg.lines[i];
+          setActiveHostPill(line.speaker);
+          await broadcastVoiceEngine.speakLineGuaranteed(
+            line.text,
+            line.speaker,
+            epoch,
+            prefetchedAssets[i],
+            runId
+          );
+
+          if (!state.isOnAir || !isTokenCurrent(epoch, runId)) break;
+
+          if (i < seg.lines.length - 1) {
+            await new Promise((r) => setTimeout(r, 25));
+          }
+        }
+      } finally {
+        if (epoch === sessionEpoch && runId === state.broadcastRunId) {
+          state.isSpeaking = false;
+          state.isBroadcastInFlight = false;
+          setActiveHostPill(null);
+          broadcastVoiceEngine.stopAllSpeech(true);
+          if (state.isOnAir) {
+            setAudioSessionType('ambient');
+            updateEngineReadout('ENGINE: IDLE / READY', '');
+            await fadeVolumeOnly(state.fullGain, 240);
+          } else {
+            setAudioSessionType('ambient');
+            updateEngineReadout('ENGINE: STANDBY', '');
+          }
+          syncUiState();
+        }
+      }
+    }
+
+    function enterStandbyImmediate(silent = false) {
+      state.isOnAir = false;
+      state.isSpeaking = false;
+      state.isBroadcastInFlight = false;
+      state.broadcastRunId++;
+      sessionEpoch++;
+      state.activeSpeechToken = sessionEpoch;
+      state.lastBreakTriggerMs = 0;
+
+      setActiveHostPill(null);
+      broadcastVoiceEngine.stopAllSpeech(true);
+      setAudioSessionType('ambient');
+      updateEngineReadout('ENGINE: STANDBY', '');
+      fadeVolumeOnly(state.fullGain, 240);
+      syncUiState();
+      if (!silent) showToast('WEAZEL 13.3 // FM STANDBY');
+    }
+
+    function enterOnAirImmediate() {
+      state.isOnAir = true;
+      state.isSpeaking = false;
+      state.isBroadcastInFlight = false;
+      state.lastBreakTriggerMs = 0;
+      state.countdownSec = state.freqSec > 0 ? state.freqSec : 0;
+
+      broadcastVoiceEngine.unlockContextSync();
+      refreshVoicePool();
+      setAudioSessionType('ambient');
+      updateEngineReadout('ENGINE: ON AIR', 'active-synth');
+      syncUiState();
+      showToast('WEAZEL 13.3 // FM ON AIR');
+      runBroadcastSegment(null);
+    }
+
+    function cutMicImmediate(silent = false) {
+      state.broadcastRunId++;
+      sessionEpoch++;
+      state.activeSpeechToken = sessionEpoch;
+      state.isSpeaking = false;
+      state.isBroadcastInFlight = false;
+      setActiveHostPill(null);
+      broadcastVoiceEngine.stopAllSpeech(true);
+      setAudioSessionType('ambient');
+      updateEngineReadout('ENGINE: CUT', '');
+      fadeVolumeOnly(state.fullGain, 240);
+      syncUiState();
+      if (!silent) showToast('Mic cut • gain 1.00');
+    }
+
+    /* ==========================================================================
+       5. CONTROLS, MASTER TIMER, VU METER & DIRECT EVENT HANDLERS
+       ========================================================================== */
+    function showToast(msg) {
+      const el = document.getElementById('toastBanner');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('visible');
+      clearTimeout(showToast._tid);
+      showToast._tid = setTimeout(() => el.classList.remove('visible'), 2000);
+    }
+
+    function syncUiState() {
+      const airBtn = document.getElementById('airToggleBtn');
+      const airLabel = document.getElementById('airToggleLabel');
+      const countdownEl = document.getElementById('hudCountdown');
+      const cutBtn = document.getElementById('cutMicBtn');
+      const djNowBtn = document.getElementById('djBreakNowBtn');
+
+      if (airBtn) {
+        airBtn.classList.toggle('live', state.isOnAir);
+        airBtn.setAttribute('aria-pressed', state.isOnAir ? 'true' : 'false');
+      }
+      if (airLabel) airLabel.textContent = state.isOnAir ? 'ON AIR' : 'STANDBY';
+
+      if (countdownEl) {
+        if (!state.isOnAir) countdownEl.textContent = 'STBY';
+        else if (state.isSpeaking || state.isBroadcastInFlight) countdownEl.textContent = 'LIVE';
+        else if (state.freqSec <= 0) countdownEl.textContent = 'MAN';
+        else countdownEl.textContent = `${Math.max(0, state.countdownSec)}S`;
+      }
+
+      if (cutBtn) cutBtn.classList.toggle('hidden', !state.isSpeaking && !state.isBroadcastInFlight);
+      if (djNowBtn) djNowBtn.setAttribute('aria-busy', state.isBroadcastInFlight ? 'true' : 'false');
+
+      document.querySelectorAll('#freqBar .freq-btn').forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.freq) === state.freqSec);
+      });
+
+      document.querySelectorAll('#eqTogglePair .eq-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.eq === state.eqWarmth);
+      });
+
+      const scopeSelect = document.getElementById('scopeSelect');
+      if (scopeSelect && scopeSelect.value !== state.newsScope) {
+        scopeSelect.value = state.newsScope;
+      }
+
+      const pitchLbl = document.getElementById('pitchValue');
+      const paceLbl = document.getElementById('paceValue');
+      if (pitchLbl) {
+        const sign = state.pitchOffset > 0 ? '+' : '';
+        pitchLbl.textContent = `${sign}${state.pitchOffset.toFixed(2)}`;
+      }
+      if (paceLbl) {
+        paceLbl.textContent = `${state.paceMultiplier.toFixed(2)}x`;
+      }
+
+      renderGainUi(state.currentGain);
+    }
+
+    function handleAirToggle() {
+      if (state.isOnAir) {
+        enterStandbyImmediate(false);
+      } else {
+        enterOnAirImmediate();
+      }
+    }
+
+    function startMasterTimer() {
+      if (clockIntervalId) clearInterval(clockIntervalId);
+      clockIntervalId = setInterval(() => {
+        if (!state.isOnAir || state.isSpeaking || state.isBroadcastInFlight || state.freqSec <= 0) {
+          syncUiState();
+          return;
+        }
+        state.countdownSec--;
+        syncUiState();
+        if (state.countdownSec <= 0) {
+          state.countdownSec = state.freqSec;
+          runBroadcastSegment(null);
+        }
+      }, 1000);
+    }
+
+    function startVuAnimation() {
+      const bars = document.querySelectorAll('#vuMeter .vu-bar');
+      const step = () => {
+        const t = performance.now();
+        bars.forEach((bar, idx) => {
+          let h = 14;
+          if (state.isSpeaking || state.isBroadcastInFlight) {
+            h = 28 + Math.abs(Math.sin(t * 0.016 + idx * 0.65)) * 68;
+          } else if (state.isOnAir) {
+            h = 16 + Math.abs(Math.sin(t * 0.004 + idx * 0.45)) * 20;
+          }
+          bar.style.height = `${Math.round(h)}%`;
+        });
+        vuAnimId = requestAnimationFrame(step);
+      };
+      if (vuAnimId) cancelAnimationFrame(vuAnimId);
+      vuAnimId = requestAnimationFrame(step);
+    }
+
+    function bindDirectListeners() {
+      const airBtn = document.getElementById('airToggleBtn');
+      if (airBtn) {
+        airBtn.addEventListener('click', () => {
+          handleAirToggle();
+        });
+      }
+
+      document.querySelectorAll('#freqBar .freq-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          broadcastVoiceEngine.unlockContextSync();
+          state.freqSec = Number(btn.dataset.freq);
+          state.countdownSec = state.freqSec > 0 ? state.freqSec : 0;
+          syncUiState();
+          const label = state.freqSec > 0 ? `${state.freqSec}s` : 'Manual';
+          showToast(`Preset: ${label}`);
+        });
+      });
+
+      document.getElementById('djBreakNowBtn')?.addEventListener('click', () => {
+        state.lastBreakTriggerMs = 0;
+        broadcastVoiceEngine.unlockContextSync();
+        if (!state.isOnAir) {
+          state.isOnAir = true;
+        }
+        syncUiState();
+        runBroadcastSegment(null);
+      });
+
+      document.getElementById('voiceTestBtn')?.addEventListener('click', () => {
+        state.lastBreakTriggerMs = 0;
+        broadcastVoiceEngine.unlockContextSync();
+        refreshVoicePool();
+        runBroadcastSegment(null, buildVoiceTestSegment());
+      });
+
+      document.getElementById('cutMicBtn')?.addEventListener('click', () => {
+        cutMicImmediate(false);
+      });
+
+      document.getElementById('pitchSlider')?.addEventListener('input', (ev) => {
+        state.pitchOffset = parseFloat(ev.target.value) || 0.0;
+        syncUiState();
+      });
+
+      document.getElementById('paceSlider')?.addEventListener('input', (ev) => {
+        state.paceMultiplier = parseFloat(ev.target.value) || 1.0;
+        syncUiState();
+      });
+
+      document.querySelectorAll('#eqTogglePair .eq-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          broadcastVoiceEngine.unlockContextSync();
+          state.eqWarmth = btn.dataset.eq === 'crisp' ? 'crisp' : 'tube';
+          syncUiState();
+          showToast(`Console EQ: ${state.eqWarmth === 'tube' ? 'Tube' : 'Crisp'}`);
+        });
+      });
+
+      document.getElementById('countrySelect')?.addEventListener('change', (ev) => {
+        const nextCountry = ev.target.value;
+        if (!COUNTRY_CITY_CATALOG[nextCountry]) return;
+        broadcastVoiceEngine.unlockContextSync();
+        state.countryCode = nextCountry;
+        state.cityId = COUNTRY_CITY_CATALOG[nextCountry].defaultCityId;
+        state.weatherCursor = 0;
+        state.newsCursor = 0;
+        applyGeoProfileUi();
+        syncUiState();
+        const city = getCityProfile();
+        showToast(`${COUNTRY_CITY_CATALOG[nextCountry].countryName} • ${city.cityName}`);
+        fetchLiveLocalNewsWire();
+        if (state.isOnAir && (state.isSpeaking || state.isBroadcastInFlight)) {
+          runBroadcastSegment(null);
+        }
+      });
+
+      document.getElementById('citySelect')?.addEventListener('change', (ev) => {
+        const country = getCountryProfile();
+        const nextCity = ev.target.value;
+        if (!country.cities[nextCity]) return;
+        broadcastVoiceEngine.unlockContextSync();
+        state.cityId = nextCity;
+        state.weatherCursor = 0;
+        state.newsCursor = 0;
+        applyGeoProfileUi();
+        syncUiState();
+        const city = getCityProfile();
+        showToast(`City / Region: ${city.cityName}`);
+        fetchLiveLocalNewsWire();
+        if (state.isOnAir && (state.isSpeaking || state.isBroadcastInFlight)) {
+          runBroadcastSegment(null);
+        }
+      });
+
+      document.getElementById('scopeSelect')?.addEventListener('change', (ev) => {
+        const scope = ev.target.value;
+        if (!['both', 'local', 'national'].includes(scope)) return;
+        broadcastVoiceEngine.unlockContextSync();
+        state.newsScope = scope;
+        state.newsCursor = 0;
+        syncUiState();
+        const label = scope === 'both' ? 'Mixed' : scope === 'local' ? 'Local' : 'National';
+        showToast(`News Scope: ${label}`);
+        fetchLiveLocalNewsWire();
+        if (state.isOnAir && (state.isSpeaking || state.isBroadcastInFlight)) {
+          runBroadcastSegment('news');
+        }
+      });
+    }
+
+    function initAppSafely() {
+      try {
+        bindDirectListeners();
+      } catch (e) {}
+      try {
+        refreshVoicePool();
+        if ('speechSynthesis' in window && typeof window.speechSynthesis.addEventListener === 'function') {
+          window.speechSynthesis.addEventListener('voiceschanged', refreshVoicePool);
+        }
+      } catch (e) {}
+      try {
+        applyGeoProfileUi();
+        setAudioSessionType('ambient');
+        state.currentGain = state.fullGain;
+        syncUiState();
+      } catch (e) {}
+      try {
+        startMasterTimer();
+      } catch (e) {}
+      try {
+        startVuAnimation();
+      } catch (e) {}
+      try {
+        fetchLiveLocalNewsWire();
+      } catch (e) {}
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', initAppSafely);
+    } else {
+      initAppSafely();
+    }
+  </script>
+</body>
+</html>
