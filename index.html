@@ -9,7 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     /* ========================================================================
-       DESIGN TOKENS & SELF-CONTAINED STYLING (ZERO EXTERNAL CSS DEPENDENCY)
+       SELF-CONTAINED DARK DOUBLE-DIN BROADCAST DECK STYLESHEET
+       Zero dependency on external CSS files; ensures immediate dark rendering.
        ======================================================================== */
     :root {
       --mca-face-hi: #2b3038;
@@ -21,38 +22,34 @@
       --vfd-amber-glow: rgba(255, 176, 32, 0.36);
       --vfd-crimson: #ff334b;
       --vfd-cyan: #38e8ff;
-      --font-display: 'Chakra Petch', 'Inter', sans-serif;
-      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Chakra Petch', 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --font-ui: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
       box-sizing: border-box;
       -webkit-tap-highlight-color: rgba(41, 240, 137, 0.22);
     }
 
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       width: 100%;
+      min-height: 100vh;
       min-height: 100dvh;
-      background: radial-gradient(circle at 50% 0%, #161d26 0%, #07090d 76%);
+      background: #07090d radial-gradient(circle at 50% 0%, #161d26 0%, #06080b 75%);
       color: #eef3f8;
       font-family: var(--font-ui);
       overflow-x: hidden;
-      line-height: 1.4;
     }
 
     .decorative-layer,
     .scanlines,
     .glass-reflection,
     .bezel-screws,
-    .pull-rail,
-    .hidden-modal {
-      pointer-events: none !important;
+    .pull-rail {
+      pointer-events: none;
     }
 
     .scanlines {
@@ -68,7 +65,7 @@
     input,
     .mca-btn,
     .standby-rocker {
-      pointer-events: auto !important;
+      pointer-events: auto;
       cursor: pointer;
       position: relative;
       z-index: 60;
@@ -78,7 +75,7 @@
     button *,
     .mca-btn *,
     .standby-rocker * {
-      pointer-events: none !important;
+      pointer-events: none;
     }
 
     input[type="password"],
@@ -86,125 +83,12 @@
       cursor: text;
     }
 
-    /* Layout & Spacing Utilities */
     .deck-shell {
-      width: 100%;
       max-width: 860px;
       margin: 0 auto;
       padding: 14px 10px 36px;
     }
 
-    .flex { display: flex; }
-    .grid { display: grid; }
-    .block { display: block; }
-    .flex-col { flex-direction: column; }
-    .flex-wrap { flex-wrap: wrap; }
-    .items-center { align-items: center; }
-    .justify-between { justify-content: space-between; }
-    .justify-center { justify-content: center; }
-    .flex-1 { flex: 1 1 0%; }
-    .shrink-0 { flex-shrink: 0; }
-    .min-w-0 { min-width: 0; }
-    .min-w-key { min-width: 160px; }
-    .w-full { width: 100%; }
-    .truncate {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .break-words {
-      overflow-wrap: break-word;
-      word-break: break-word;
-    }
-    .text-center { text-align: center; }
-    .leading-none { line-height: 1; }
-    .leading-snug { line-height: 1.375; }
-    .tracking-wider { letter-spacing: 0.05em; }
-    .tracking-widest { letter-spacing: 0.1em; }
-    .tracking-mca { letter-spacing: 0.22em; }
-    .select-none { user-select: none; }
-
-    .gap-1-5 { gap: 6px; }
-    .gap-2 { gap: 8px; }
-    .gap-2-5 { gap: 10px; }
-    .gap-3 { gap: 12px; }
-
-    .p-2-5 { padding: 10px; }
-    .p-3 { padding: 12px; }
-    .p-4 { padding: 16px; }
-    .px-2 { padding-left: 8px; padding-right: 8px; }
-    .px-3-5 { padding-left: 14px; padding-right: 14px; }
-    .px-4 { padding-left: 16px; padding-right: 16px; }
-    .py-0-5 { padding-top: 2px; padding-bottom: 2px; }
-    .py-1-5 { padding-top: 6px; padding-bottom: 6px; }
-    .py-2 { padding-top: 8px; padding-bottom: 8px; }
-    .py-2-5 { padding-top: 10px; padding-bottom: 10px; }
-    .pb-2-5 { padding-bottom: 10px; }
-    .mb-0-5 { margin-bottom: 2px; }
-    .mb-1 { margin-bottom: 4px; }
-    .mb-2 { margin-bottom: 8px; }
-    .mt-0-5 { margin-top: 2px; }
-
-    .rounded { border-radius: 6px; }
-    .rounded-md { border-radius: 7px; }
-    .border { border: 1px solid rgba(255, 255, 255, 0.12); }
-    .border-2 { border: 2px solid rgba(255, 255, 255, 0.35); }
-    .border-b { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-    .border-white-10 { border-color: rgba(255, 255, 255, 0.1); }
-    .border-white-12 { border-color: rgba(255, 255, 255, 0.12); }
-    .border-white-15 { border-color: rgba(255, 255, 255, 0.15); }
-    .border-white-35 { border-color: rgba(255, 255, 255, 0.35); }
-    .border-emerald-40 { border-color: rgba(52, 211, 153, 0.4); }
-    .border-emerald-45 { border-color: rgba(52, 211, 153, 0.45); }
-    .border-emerald-55 { border-color: rgba(52, 211, 153, 0.55); }
-    .border-amber-40 { border-color: rgba(251, 191, 36, 0.4); }
-
-    .bg-black-25 { background-color: rgba(0, 0, 0, 0.25); }
-    .bg-black-30 { background-color: rgba(0, 0, 0, 0.3); }
-    .bg-black-40 { background-color: rgba(0, 0, 0, 0.4); }
-    .bg-black-45 { background-color: rgba(0, 0, 0, 0.45); }
-    .bg-black-65 { background-color: rgba(0, 0, 0, 0.65); }
-    .bg-emerald-30 { background-color: rgba(2, 44, 34, 0.32); }
-    .bg-emerald-60 { background-color: rgba(2, 44, 34, 0.62); }
-    .bg-amber-30 { background-color: rgba(69, 26, 3, 0.32); }
-
-    .text-white { color: #ffffff; }
-    .text-slate-100 { color: #f1f5f9; }
-    .text-slate-300 { color: #cbd5e1; }
-    .text-slate-400 { color: #94a3b8; }
-    .text-emerald-100 { color: #d1fae5; }
-    .text-emerald-200 { color: #a7f3d0; }
-    .text-emerald-300 { color: #6ee7b7; }
-    .text-amber-300 { color: #fcd34d; }
-    .text-amber-400 { color: #fbbf24; }
-
-    .text-9px { font-size: 9px; }
-    .text-10px { font-size: 10px; }
-    .text-11px { font-size: 11px; }
-    .text-12px { font-size: 12px; }
-    .text-14px { font-size: 14px; }
-    .text-24px { font-size: 24px; }
-    .font-bold { font-weight: 700; }
-    .font-extrabold { font-weight: 800; }
-
-    .font-display { font-family: var(--font-display); }
-    .font-mono { font-family: var(--font-mono); }
-
-    .glow-clock { box-shadow: 0 0 10px rgba(41, 240, 137, 0.28); }
-    .glow-badge { box-shadow: 0 0 16px rgba(255, 255, 255, 0.14); }
-
-    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
-    @media (min-width: 640px) {
-      .sm-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .sm-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .sm-flex-nowrap { flex-wrap: nowrap; }
-      .sm-text-14px { font-size: 14px; }
-      .sm-text-30px { font-size: 30px; }
-    }
-
-    /* Double-DIN MCA Broadcast Chassis */
     .double-din-chassis {
       position: relative;
       display: grid;
@@ -253,12 +137,49 @@
       border-radius: 3px;
     }
 
+    .din-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
     .din-unit {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       background: linear-gradient(180deg, #21262f 0%, #14181e 55%, #0d1015 100%);
       border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 9px;
       padding: 12px;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 20px rgba(0, 0, 0, 0.65);
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+
+    .mca-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      background: rgba(0, 0, 0, 0.65);
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.14);
+      line-height: 1;
+      user-select: none;
     }
 
     .standby-rocker {
@@ -307,6 +228,10 @@
     }
 
     .mca-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       min-height: 40px;
       padding: 7px 10px;
       border-radius: 7px;
@@ -346,7 +271,6 @@
       color: #67e8f9;
     }
 
-    /* Vacuum Fluorescent Display (VFD) */
     .vfd-bezel {
       position: relative;
       border-radius: 8px;
@@ -363,6 +287,15 @@
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 40%);
     }
 
+    .vfd-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
     .vfd-station-title {
       font-family: var(--font-display);
       font-size: 21px;
@@ -371,6 +304,38 @@
       color: var(--vfd-green);
       text-shadow: 0 0 10px var(--vfd-green-glow);
       line-height: 1.1;
+    }
+
+    .vfd-station-title .freq-white {
+      color: #ffffff;
+    }
+
+    .vfd-station-title .region-tag {
+      font-size: 12px;
+      color: #6ee7b7;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-left: 4px;
+    }
+
+    .vfd-pills-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .vfd-clock {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      background: rgba(6, 78, 59, 0.55);
+      color: #6ee7b7;
+      box-shadow: 0 0 10px rgba(41, 240, 137, 0.25);
     }
 
     .vfd-pill {
@@ -382,6 +347,7 @@
       border: 1px solid rgba(41, 240, 137, 0.35);
       background: rgba(41, 240, 137, 0.1);
       color: var(--vfd-green);
+      white-space: nowrap;
     }
 
     .vfd-pill.amber {
@@ -396,6 +362,31 @@
       color: #fda4af;
     }
 
+    .vfd-pill.cyan {
+      border-color: rgba(56, 232, 255, 0.45);
+      background: rgba(56, 232, 255, 0.12);
+      color: #67e8f9;
+    }
+
+    .vfd-segment-line {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      color: #fcd34d;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .vfd-status-line {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: #a7f3d0;
+      overflow-wrap: anywhere;
+    }
+
     .vfd-teleprompter-box {
       margin-top: 8px;
       padding: 8px 10px;
@@ -405,7 +396,51 @@
     }
 
     .vfd-teleprompter-box.hidden-idle {
-      display: none !important;
+      display: none;
+    }
+
+    .teleprompter-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .teleprompter-speaker {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--vfd-amber);
+    }
+
+    .teleprompter-text {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: #d1fae5;
+      line-height: 1.4;
+    }
+
+    .selectors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .selectors-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .field-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      color: #cbd5e1;
+      margin-bottom: 4px;
     }
 
     .mca-input,
@@ -428,6 +463,53 @@
       border-color: var(--vfd-green);
     }
 
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    @media (max-width: 600px) {
+      .controls-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .key-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .key-row .mca-input {
+      flex: 1 1 180px;
+      min-width: 0;
+    }
+
+    .api-telemetry-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 6px 9px;
+      border-radius: 6px;
+      background: rgba(5, 8, 12, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+
+    .api-telemetry-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
     .mca-toast {
       position: fixed;
       bottom: 14px;
@@ -443,7 +525,7 @@
       padding: 8px 16px;
       border-radius: 999px;
       opacity: 0;
-      pointer-events: none !important;
+      pointer-events: none;
       transition: opacity 0.16s ease, transform 0.16s ease;
       max-width: 92vw;
       text-align: center;
@@ -463,17 +545,16 @@
       align-items: center;
       justify-content: center;
       padding: 12px;
-      pointer-events: auto !important;
     }
 
     .mca-modal-backdrop.hidden-modal {
-      display: none !important;
-      pointer-events: none !important;
+      display: none;
     }
 
     .mca-modal-card {
       width: 100%;
       max-width: 680px;
+      max-height: 84vh;
       max-height: 84dvh;
       display: flex;
       flex-direction: column;
@@ -482,7 +563,199 @@
       border: 1px solid rgba(41, 240, 137, 0.35);
       box-shadow: 0 24px 64px rgba(0, 0, 0, 0.92);
       overflow: hidden;
-      pointer-events: auto !important;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .modal-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--vfd-amber);
+    }
+
+    .modal-title.emerald {
+      color: var(--vfd-green);
+    }
+
+    .modal-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #94a3b8;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .modal-banner-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 560px) {
+      .modal-banner-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .banner-card-green {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      background: rgba(6, 78, 59, 0.3);
+    }
+
+    .banner-card-amber {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      background: rgba(120, 53, 15, 0.25);
+    }
+
+    .banner-label-green {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      color: #6ee7b7;
+    }
+
+    .banner-label-amber {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      color: #fcd34d;
+    }
+
+    .banner-val {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+
+    .modal-body-scroll {
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 8px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .slot-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .slot-row.active-slot {
+      border-color: rgba(52, 211, 153, 0.55);
+      background: rgba(6, 78, 59, 0.3);
+    }
+
+    .slot-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .slot-time {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      color: #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    .slot-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .slot-status {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      color: #fcd34d;
+      flex-shrink: 0;
+    }
+
+    .slot-status.active {
+      color: #6ee7b7;
+    }
+
+    .vault-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .vault-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: #f1f5f9;
+      overflow-wrap: anywhere;
+    }
+
+    .vault-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .vault-empty {
+      padding: 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.4);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
     }
   </style>
 </head>
@@ -498,20 +771,19 @@
 
       <div class="pull-rail decorative-layer" aria-hidden="true"><div class="pull-rail-ribs"></div></div>
 
-      <div class="flex flex-col gap-3 min-w-0">
+      <div class="din-stack">
         <!-- =====================================================================
-             1. TOP BAR: STANDALONE MCA BADGE + STANDBY / ON AIR ROCKER
+             1. TOP BAR: MCA BADGE + STANDBY / ON AIR ROCKER
              ===================================================================== -->
-        <section class="din-unit flex flex-col gap-3" aria-label="MCA Broadcast Deck">
-          <div class="flex items-center justify-between gap-2 flex-wrap border-b border-white-10 pb-2-5">
-            <span class="px-4 py-1-5 rounded-md border-2 border-white-35 bg-black-65 text-24px sm-text-30px font-extrabold tracking-mca text-white glow-badge leading-none select-none font-display">MCA</span>
+        <section class="din-unit" aria-label="MCA Broadcast Deck">
+          <div class="top-bar">
+            <span class="mca-badge">MCA</span>
 
             <button
               type="button"
               id="standbyBtn"
               class="standby-rocker"
               aria-pressed="false"
-              onclick="window.__weazelToggleStandby&&window.__weazelToggleStandby()"
             >
               <span class="rocker-led" aria-hidden="true"></span>
               <span id="standbyBtnLabel">STANDBY</span>
@@ -519,79 +791,76 @@
           </div>
 
           <!-- ===================================================================
-               2. VFD DISPLAY: WEAZEL 13.3 FM + REGION + CLOCK + WEATHER
+               2. VFD SCREEN: WEAZEL 13.3 FM + REGION + CLOCK + WEATHER
                =================================================================== -->
           <div class="vfd-bezel">
             <div class="glass-reflection decorative-layer" aria-hidden="true"></div>
 
-            <div class="flex items-center justify-between gap-2 flex-wrap mb-2">
+            <div class="vfd-header-row">
               <div class="vfd-station-title">
-                WEAZEL <span class="text-white">13.3</span> FM
-                <span id="vfdRegionReadout" class="text-12px sm-text-14px text-emerald-300 font-bold tracking-wider">// DUBLIN, IE</span>
+                WEAZEL <span class="freq-white">13.3</span> FM
+                <span id="vfdRegionReadout" class="region-tag">// DUBLIN, IE</span>
               </div>
 
-              <div class="flex items-center gap-1-5 flex-wrap">
-                <span id="vfdClockReadout" class="text-12px sm-text-14px font-extrabold tracking-widest px-2 py-0-5 rounded border border-emerald-45 bg-emerald-60 text-emerald-300 glow-clock font-mono">--:--:--</span>
+              <div class="vfd-pills-wrap">
+                <span id="vfdClockReadout" class="vfd-clock">--:--:--</span>
                 <span id="vfdWeatherReadout" class="vfd-pill amber">11°C · BREEZY</span>
                 <span id="vfdAirStatusPill" class="vfd-pill amber">STANDBY</span>
                 <span id="vfdDuckPill" class="vfd-pill">BED MUTED</span>
-                <span id="vfdQueuePill" class="vfd-pill">QUEUE: 0</span>
+                <span id="vfdQueuePill" class="vfd-pill">RETRY: 0</span>
               </div>
             </div>
 
-            <div id="vfdSegmentLine" class="text-10px font-extrabold text-amber-300 mb-0-5 truncate font-mono">
+            <div id="vfdSegmentLine" class="vfd-segment-line">
               PROGRAM: IDLE // AWAITING CARRIER ENGAGE
             </div>
 
-            <div id="vfdStatusLine" class="text-11px font-bold text-emerald-200 break-words font-mono">
-              SLOGAN WAVS: UNBAKED • VAULT 0/24 • DUBLIN WIRE
+            <div id="vfdStatusLine" class="vfd-status-line">
+              SLOGAN WAVS: 0/2 • VAULT 0/24 • DUBLIN WIRE
             </div>
 
-            <!-- Live Teleprompter -->
+            <!-- Live Teleprompter (Hidden when idle, visible during active broadcast) -->
             <div id="vfdTeleprompterBox" class="vfd-teleprompter-box hidden-idle" role="region" aria-live="polite" aria-label="Live Broadcast Teleprompter">
-              <div class="flex items-center justify-between gap-2 mb-0-5">
+              <div class="teleprompter-meta">
                 <span id="teleprompterBadge" class="vfd-pill">ON AIR</span>
-                <span id="teleprompterSpeaker" class="text-9px font-extrabold text-amber-400 font-mono">STUDIO</span>
+                <span id="teleprompterSpeaker" class="teleprompter-speaker">STUDIO</span>
               </div>
-              <div id="teleprompterText" class="text-12px sm-text-14px font-bold text-emerald-100 leading-snug font-mono"></div>
+              <div id="teleprompterText" class="teleprompter-text"></div>
             </div>
           </div>
 
           <!-- ===================================================================
                3. CONNECTED COUNTRY & CITY / REGION SELECTORS
                =================================================================== -->
-          <div class="grid grid-cols-1 sm-grid-cols-2 gap-2">
+          <div class="selectors-grid">
             <div>
-              <label for="countrySelect" class="block text-9px font-extrabold text-slate-300 mb-1 font-mono">COUNTRY</label>
+              <label for="countrySelect" class="field-label">COUNTRY</label>
               <select
                 id="countrySelect"
                 class="mca-select"
                 aria-label="Country"
-                onchange="window.__weazelCountryChange&&window.__weazelCountryChange(this.value)"
               ></select>
             </div>
             <div>
-              <label for="citySelect" class="block text-9px font-extrabold text-slate-300 mb-1 font-mono">CITY / REGION</label>
+              <label for="citySelect" class="field-label">CITY / REGION</label>
               <select
                 id="citySelect"
                 class="mca-select"
                 aria-label="City / Region"
-                onchange="window.__weazelCityChange&&window.__weazelCityChange(this.value)"
               ></select>
             </div>
           </div>
         </section>
 
         <!-- =====================================================================
-             4. DECK CONTROLS & GEMINI API KEY VAULT
+             4. DECK CONTROLS, GEMINI API KEY VAULT & API TELEMETRY STRIP
              ===================================================================== -->
-        <section class="din-unit flex flex-col gap-2-5" aria-label="MCA Broadcast Controls and API Key Vault">
-          <div id="deckControlsGrid" class="grid grid-cols-2 sm-grid-cols-4 gap-1-5">
+        <section class="din-unit" aria-label="MCA Broadcast Controls and API Key Vault">
+          <div id="deckControlsGrid" class="controls-grid">
             <button
               type="button"
               id="bedToggleBtn"
               class="mca-btn"
-              onclick="window.__weazelToggleBed&&window.__weazelToggleBed()"
             >
               <span id="bedToggleBtnText">BED: OFF</span>
             </button>
@@ -599,7 +868,6 @@
               type="button"
               id="cutMicBtn"
               class="mca-btn lit-crimson"
-              onclick="window.__weazelCutMic&&window.__weazelCutMic()"
             >
               <span>CUT MIC</span>
             </button>
@@ -607,7 +875,6 @@
               type="button"
               id="scheduleBtn"
               class="mca-btn lit-amber"
-              onclick="window.__weazelOpenSchedule&&window.__weazelOpenSchedule()"
             >
               <span id="scheduleBtnText">PROGRAM</span>
             </button>
@@ -615,27 +882,24 @@
               type="button"
               id="cachedWavsBtn"
               class="mca-btn lit-cyan"
-              onclick="window.__weazelOpenVault&&window.__weazelOpenVault()"
             >
               <span id="cachedWavsBtnText">CACHED WAVS (0/24)</span>
             </button>
           </div>
 
-          <div class="flex gap-1-5 items-center flex-wrap sm-flex-nowrap">
+          <div class="key-row">
             <input
               type="password"
               id="apiKeyInput"
-              class="mca-input flex-1 min-w-key"
-              placeholder="Gemini API Key (AIza...) — powers character TTS, slogan WAVs & sponsor/caller cache"
+              class="mca-input"
+              placeholder="Gemini API Key (AIza...) — powers character TTS, dual slogan WAVs & vault cache"
               autocomplete="off"
               spellcheck="false"
-              onkeydown="if(event.key==='Enter'){event.preventDefault();window.__weazelSaveKey&&window.__weazelSaveKey();}"
             />
             <button
               type="button"
               id="toggleKeyVisBtn"
               class="mca-btn lit-cyan"
-              onclick="window.__weazelToggleKeyVis&&window.__weazelToggleKeyVis()"
             >
               <span id="toggleKeyVisText">SHOW</span>
             </button>
@@ -643,7 +907,6 @@
               type="button"
               id="saveKeyBtn"
               class="mca-btn lit-green"
-              onclick="window.__weazelSaveKey&&window.__weazelSaveKey()"
             >
               <span>SAVE KEY</span>
             </button>
@@ -651,21 +914,21 @@
               type="button"
               id="clearKeyBtn"
               class="mca-btn lit-crimson"
-              onclick="window.__weazelClearKey&&window.__weazelClearKey()"
             >
               <span>CLEAR</span>
             </button>
           </div>
 
-          <div id="apiTelemetryStrip" class="flex items-center justify-between gap-2 flex-wrap px-2 py-1-5 rounded border border-white-10 bg-black-40 text-10px font-mono">
-            <div class="flex items-center gap-1-5 flex-wrap min-w-0">
-              <span id="apiKeyStatePill" class="vfd-pill amber">KEY: MISSING</span>
-              <span id="apiConnStatusPill" class="vfd-pill">API: IDLE</span>
-              <span id="apiCooldownText" class="text-amber-300 font-bold"></span>
+          <div class="api-telemetry-strip" aria-label="Gemini API Connection and Cooldown Status">
+            <div class="api-telemetry-group">
+              <span id="apiKeyBadge" class="vfd-pill amber">NO KEY</span>
+              <span id="apiConnStatus" class="vfd-pill">API: IDLE</span>
+              <span id="apiCooldownBadge" class="vfd-pill">COOLDOWN: READY</span>
             </div>
-            <div class="flex items-center gap-2 text-slate-300 font-bold shrink-0">
+            <div class="api-telemetry-group">
               <span id="apiCallsCounter">CALLS: 0</span>
-              <span id="apiLatencyReadout">RTT: --</span>
+              <span>•</span>
+              <span id="apiLastRtt">RTT: --</span>
             </div>
           </div>
         </section>
@@ -682,30 +945,28 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="scheduleModalTitle"
-    onclick="if(event.target===this&&window.__weazelCloseSchedule){window.__weazelCloseSchedule();}"
   >
     <div class="mca-modal-card">
-      <div class="flex items-center justify-between gap-2 px-3-5 py-2-5 border-b border-white-10 bg-black-45">
-        <div class="min-w-0">
-          <div id="scheduleModalTitle" class="text-12px font-extrabold tracking-wider text-amber-300 font-mono">
-            UPCOMING BROADCAST SCHEDULE // SLOGAN-ANCHORED 5-MIN CADENCE
+      <div class="modal-header">
+        <div style="min-width: 0;">
+          <div id="scheduleModalTitle" class="modal-title">
+            UPCOMING BROADCAST PROGRAM // SLOGAN-ANCHORED 5M CADENCE
           </div>
-          <div id="scheduleModalSummary" class="text-10px text-slate-400 truncate font-mono">
-            ENGAGE ON AIR TO ANCHOR SLOGAN & START 5-MINUTE SCHEDULE
+          <div id="scheduleModalSummary" class="modal-sub">
+            ENGAGE ON AIR TO ANCHOR SLOGAN &amp; START 5-MINUTE PROGRAM CADENCE
           </div>
         </div>
         <button
           type="button"
           id="closeScheduleModalBtn"
           class="mca-btn lit-crimson"
-          onclick="window.__weazelCloseSchedule&&window.__weazelCloseSchedule()"
         >
           <span>CLOSE</span>
         </button>
       </div>
 
-      <div id="scheduleNextBanner" class="px-3-5 py-2-5 border-b border-white-10 bg-black-30 grid grid-cols-1 sm-grid-cols-2 gap-2"></div>
-      <div id="scheduleSlotsList" class="p-3 overflow-y-auto flex flex-col gap-2"></div>
+      <div id="scheduleNextBanner" class="modal-banner-grid"></div>
+      <div id="scheduleSlotsList" class="modal-body-scroll"></div>
     </div>
   </div>
 
@@ -716,41 +977,38 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="cachedWavsTitle"
-    onclick="if(event.target===this&&window.__weazelCloseVault){window.__weazelCloseVault();}"
   >
     <div class="mca-modal-card">
-      <div class="flex items-center justify-between gap-2 px-3-5 py-2-5 border-b border-white-10 bg-black-45">
-        <div class="min-w-0">
-          <div id="cachedWavsTitle" class="text-12px font-extrabold tracking-wider text-emerald-300 font-mono">
+      <div class="modal-header">
+        <div style="min-width: 0;">
+          <div id="cachedWavsTitle" class="modal-title emerald">
             CACHED WAV VAULT (INDEXEDDB)
           </div>
-          <div id="cachedWavsSummary" class="text-10px text-slate-400 truncate font-mono">
-            0/24 CLIPS • MARCUS & DONNA SLOGAN WAVS, SPONSOR MESSAGES & CALLERS
+          <div id="cachedWavsSummary" class="modal-sub">
+            0/24 CLIPS • SLOGANS, SPONSOR MESSAGES &amp; CALLERS
           </div>
         </div>
         <button
           type="button"
           id="closeCacheDrawerBtn"
           class="mca-btn lit-crimson"
-          onclick="window.__weazelCloseVault&&window.__weazelCloseVault()"
         >
           <span>CLOSE</span>
         </button>
       </div>
 
-      <div class="flex items-center justify-between gap-2 flex-wrap px-3-5 py-2 border-b border-white-10 bg-black-25">
+      <div class="modal-toolbar">
         <button
           type="button"
           id="stopPreviewBtn"
           class="mca-btn lit-amber"
-          onclick="window.__weazelStopPreview&&window.__weazelStopPreview()"
         >
           <span>STOP PREVIEW</span>
         </button>
-        <span class="text-10px text-slate-400 font-mono">PLAYS VIA AUDIOBUFFER WITH LIVE BED DUCKING</span>
+        <span class="modal-sub">PLAYS VIA AUDIOBUFFER TO MIX OVER MUSIC</span>
       </div>
 
-      <div id="cachedWavsList" class="p-3 overflow-y-auto flex flex-col gap-2"></div>
+      <div id="cachedWavsList" class="modal-body-scroll"></div>
     </div>
   </div>
 
@@ -761,40 +1019,29 @@
       "use strict";
 
       /* ======================================================================
-         1. CONSTANTS & SAFE STORAGE + FAULT GUARD
+         1. CONSTANTS & RESILIENT STORAGE
          ====================================================================== */
       const STORAGE_KEY_NAME = "weazel_gemini_api_key";
-      const LS_LOC_STATE = "weazel_mca_regional_v3";
+      const LS_LOC_STATE = "weazel_mca_regional_v4";
       const IDB_NAME = "weazel_mca_vault_v5";
       const IDB_STORE = "wav_clips";
       const SLOGAN_MARCUS_SLOT_KEY = "weazel_slogan_marcus_wav_v1";
       const SLOGAN_DONNA_SLOT_KEY = "weazel_slogan_donna_wav_v1";
       const VAULT_LIST_KEY = "weazel_vault_list_v1";
 
-      const SLOGAN_MARCUS_TITLE = "Weazel 13.3 FM Slogan — Marcus";
-      const SLOGAN_DONNA_TITLE = "Weazel 13.3 FM Slogan — Donna";
-
       const MAX_VAULT_CLIPS = 24;
-      const SCHEDULE_SLOT_MS = 300000; // 5 minutes
-      const SLOGAN_REPEAT_MS = 300000; // 5 minutes
-      const MAX_ITEM_RETRIES = 3;
+      const PROGRAM_INTERVAL_MS = 300000;  // 5 minutes between scheduled program items
+      const SLOGAN_REPEAT_MS = 900000;    // 15 minutes between alternating single-voice slogans
+      const MAX_ITEM_RETRIES = 3;         // Max retry push-backs before advancing past a stuck item
+      const RATE_LIMIT_COOLDOWN_MS = 120000;
+      const ERROR_COOLDOWN_MS = 45000;
+      const CONSECUTIVE_ERROR_TRIP_THRESHOLD = 2;
 
       const BED_CRUISE_GAIN = 0.36;
-      const BED_SLOGAN_DUCK_GAIN = Number((BED_CRUISE_GAIN * 0.90).toFixed(4)); // -10% drop
-      const BED_SPEECH_DUCK_GAIN = Number((BED_CRUISE_GAIN * 0.08).toFixed(4)); // -92% duck
+      const BED_SLOGAN_DUCK_GAIN = Number((BED_CRUISE_GAIN * 0.90).toFixed(4));
+      const BED_SPEECH_DUCK_GAIN = 0.05;
 
       const memoryStore = new Map();
-
-      function safeCall(fn, label = "op") {
-        try {
-          return fn();
-        } catch (err) {
-          try {
-            console.error(`WEAZEL 13.3 FM [${label}]:`, err);
-          } catch (e) {}
-          return undefined;
-        }
-      }
 
       function getStore(key) {
         try {
@@ -1022,20 +1269,20 @@
       };
 
       /* ======================================================================
-         3. CHARACTER ROSTER & WILD DUAL-CHARACTER SLOGAN + PROGRAM SCRIPTS
+         3. CHARACTER ROSTER, DUAL SLOGAN SCRIPTS & PROGRAM SCRIPTS
          ====================================================================== */
       const ROSTER_VOICES = {
         Marcus: {
           voiceName: "Charon",
-          style: "Deep, commanding, resonant masculine baritone FM anchor. Deliver with unhinged deadpan intensity, chest resonance, punchy authority, and classic broadcast gravitas."
+          style: "Deep, unhinged, resonant masculine baritone FM anchor delivering wild satire with high-voltage broadcast authority."
         },
         Donna: {
           voiceName: "Aoede",
-          style: "Bubbly, deadpan-innocent FM co-host who delivers every remark as an outrageous, winking classic FM double-entendre."
+          style: "Bubbly, deadpan-innocent FM co-host delivering outrageous, winking classic FM double-entendres with effortless charm."
         },
         CallerPuck: {
           voiceName: "Puck",
-          style: "Completely deadpan, polite, sincere everyday caller phoning into the radio studio with zero awareness of the prank."
+          style: "Completely deadpan, polite, sincere everyday caller phoning into the radio studio."
         },
         CallerFenrir: {
           voiceName: "Fenrir",
@@ -1047,16 +1294,19 @@
         }
       };
 
-      const SLOGAN_SCRIPT = {
+      // Two separate character slogan WAVs:
+      // - Going ON AIR plays Marcus first, then Donna.
+      // - Subsequent slogan plays alternate one character at a time (Marcus <-> Donna) every 15 mins.
+      const SLOGAN_CHARACTER_SCRIPTS = {
         Marcus: {
           speaker: "Marcus",
-          title: SLOGAN_MARCUS_TITLE,
-          text: "Welcome to Weazel Thirteen-Point-Three FM—broadcasting straight out of a burning server rack in the back of a haunted car wash! Your brakes are glowing orange, your boss just invented a new mandatory meeting for Sunday, and the guy in the lane next to you is eating a whole rotisserie chicken with his bare hands! Keep it locked right here—because sanity is a scam and our transmitter is held together with duct tape and spite!"
+          title: "Weazel 13.3 FM Slogan — Marcus",
+          text: "Welcome to Weazel Thirteen-Point-Three FM — broadcasting straight out of a burning server rack in the back of a haunted car wash! Your brakes are glowing orange, your boss just invented a new mandatory meeting for Sunday, and the guy in the lane next to you is eating a whole rotisserie chicken with his bare hands! Keep it locked right here — because sanity is a scam and our transmitter is held together with duct tape and spite!"
         },
         Donna: {
           speaker: "Donna",
-          title: SLOGAN_DONNA_TITLE,
-          text: "Mmm, slide your fingers right across that frequency dial, baby—Weazel Thirteen-Point-Three stays hot, sticky, wet, and throbbing all night long until the fuses blow and somebody calls the fire brigade!"
+          title: "Weazel 13.3 FM Slogan — Donna",
+          text: "Mmm, slide your fingers right across that frequency dial, baby — Weazel Thirteen-Point-Three stays hot, sticky, wet, and throbbing all night long until the fuses blow and somebody calls the fire brigade!"
         }
       };
 
@@ -1111,157 +1361,62 @@
         {
           title: "Caller — Mr. Hunt",
           lines: [
-            {
-              speaker: "Donna",
-              text: "Line one is flashing on the board! Welcome to Weazel Thirteen-Point-Three FM, sweetheart — what is your name?"
-            },
-            {
-              speaker: "CallerPuck",
-              text: "Evening Donna. It's Mr. Hunt."
-            },
-            {
-              speaker: "Donna",
-              text: "Do you have a first name, Mr. Hunt?"
-            },
-            {
-              speaker: "CallerPuck",
-              text: "Mike."
-            },
-            {
-              speaker: "Donna",
-              text: "Well, will everyone give a nice warm welcome to Mike Hunt here on Weazel Thirteen-Point-Three FM!"
-            },
-            {
-              speaker: "Marcus",
-              text: "Oh, you have got to be kidding me — drop that line right now! Cut him off, Donna, we are not doing this on drive-time radio!"
-            }
+            { speaker: "Donna", text: "Line one is flashing on the board! Welcome to Weazel Thirteen-Point-Three FM, sweetheart — what is your name?" },
+            { speaker: "CallerPuck", text: "Evening Donna. It's Mr. Hunt." },
+            { speaker: "Donna", text: "Do you have a first name, Mr. Hunt?" },
+            { speaker: "CallerPuck", text: "Mike." },
+            { speaker: "Donna", text: "Well, will everyone give a nice warm welcome to Mike Hunt here on Weazel Thirteen-Point-Three FM!" },
+            { speaker: "Marcus", text: "Oh, you have got to be kidding me — drop that line right now! Cut him off, Donna, we are not doing this on drive-time radio!" }
           ]
         },
         {
           title: "Caller — Mr. Dover",
           lines: [
-            {
-              speaker: "Donna",
-              text: "Ooh, another listener sliding onto line two! Tell the studio your name, darling."
-            },
-            {
-              speaker: "CallerFenrir",
-              text: "Hi there. It's Mr. Dover."
-            },
-            {
-              speaker: "Donna",
-              text: "Do you have a first name, Mr. Dover?"
-            },
-            {
-              speaker: "CallerFenrir",
-              text: "Ben."
-            },
-            {
-              speaker: "Donna",
-              text: "Well, will everyone give a nice warm welcome to Ben Dover here on Weazel Thirteen-Point-Three FM!"
-            },
-            {
-              speaker: "Marcus",
-              text: "Dump the call! Kill the fader! Every single night with these juveniles — hang up on him!"
-            }
+            { speaker: "Donna", text: "Ooh, another listener sliding onto line two! Tell the studio your name, darling." },
+            { speaker: "CallerFenrir", text: "Hi there. It's Mr. Dover." },
+            { speaker: "Donna", text: "Do you have a first name, Mr. Dover?" },
+            { speaker: "CallerFenrir", text: "Ben." },
+            { speaker: "Donna", text: "Well, will everyone give a nice warm welcome to Ben Dover here on Weazel Thirteen-Point-Three FM!" },
+            { speaker: "Marcus", text: "Dump the call! Kill the fader! Every single night with these juveniles — hang up on him!" }
           ]
         },
         {
           title: "Caller — Mr. Rotch",
           lines: [
-            {
-              speaker: "Donna",
-              text: "You are live on Weazel Thirteen-Point-Three FM, honey — who do I have the pleasure of speaking with?"
-            },
-            {
-              speaker: "CallerPuck",
-              text: "Good evening. It's Mr. Rotch."
-            },
-            {
-              speaker: "Donna",
-              text: "Do you have a first name, Mr. Rotch?"
-            },
-            {
-              speaker: "CallerPuck",
-              text: "Mike."
-            },
-            {
-              speaker: "Donna",
-              text: "Well, will everyone give a nice warm welcome to Mike Rotch here on Weazel Thirteen-Point-Three FM!"
-            },
-            {
-              speaker: "Marcus",
-              text: "Are you serious right now?! Disconnect that caller immediately — get him off the switchboard!"
-            }
+            { speaker: "Donna", text: "You are live on Weazel Thirteen-Point-Three FM, honey — who do I have the pleasure of speaking with?" },
+            { speaker: "CallerPuck", text: "Good evening. It's Mr. Rotch." },
+            { speaker: "Donna", text: "Do you have a first name, Mr. Rotch?" },
+            { speaker: "CallerPuck", text: "Mike." },
+            { speaker: "Donna", text: "Well, will everyone give a nice warm welcome to Mike Rotch here on Weazel Thirteen-Point-Three FM!" },
+            { speaker: "Marcus", text: "Are you serious right now?! Disconnect that caller immediately — get him off the switchboard!" }
           ]
         },
         {
           title: "Caller — Mr. Hawk",
           lines: [
-            {
-              speaker: "Donna",
-              text: "Line three is wide open and throbbing! What is your name, caller?"
-            },
-            {
-              speaker: "CallerFenrir",
-              text: "Hello studio. It's Mr. Hawk."
-            },
-            {
-              speaker: "Donna",
-              text: "Do you have a first name, Mr. Hawk?"
-            },
-            {
-              speaker: "CallerFenrir",
-              text: "Mike."
-            },
-            {
-              speaker: "Donna",
-              text: "Well, will everyone give a nice warm welcome to Mike Hawk here on Weazel Thirteen-Point-Three FM!"
-            },
-            {
-              speaker: "Marcus",
-              text: "No! No, no, no — kill the line! Somebody screen these calls before the FCC revokes our transmitter!"
-            }
+            { speaker: "Donna", text: "Line three is wide open and throbbing! What is your name, caller?" },
+            { speaker: "CallerFenrir", text: "Hello studio. It's Mr. Hawk." },
+            { speaker: "Donna", text: "Do you have a first name, Mr. Hawk?" },
+            { speaker: "CallerFenrir", text: "Mike." },
+            { speaker: "Donna", text: "Well, will everyone give a nice warm welcome to Mike Hawk here on Weazel Thirteen-Point-Three FM!" },
+            { speaker: "Marcus", text: "No! No, no, no — kill the line! Somebody screen these calls before the FCC revokes our transmitter!" }
           ]
         },
         {
           title: "Caller — Ms. Oxlong",
           lines: [
-            {
-              speaker: "Donna",
-              text: "Weazel Thirteen-Point-Three FM, you are live on the air — tell me your name, sugar!"
-            },
-            {
-              speaker: "CallerZephyr",
-              text: "Hi Donna. It's Ms. Oxlong."
-            },
-            {
-              speaker: "Donna",
-              text: "Do you have a first name, Ms. Oxlong?"
-            },
-            {
-              speaker: "CallerZephyr",
-              text: "Anita."
-            },
-            {
-              speaker: "Donna",
-              text: "Well, will everyone give a nice warm welcome to Anita Oxlong here on Weazel Thirteen-Point-Three FM!"
-            },
-            {
-              speaker: "Marcus",
-              text: "Cut the line! Hang up! Do not put another caller through until you check their ID, Donna!"
-            }
+            { speaker: "Donna", text: "Weazel Thirteen-Point-Three FM, you are live on the air — tell me your name, sugar!" },
+            { speaker: "CallerZephyr", text: "Hi Donna. It's Ms. Oxlong." },
+            { speaker: "Donna", text: "Do you have a first name, Ms. Oxlong?" },
+            { speaker: "CallerZephyr", text: "Anita." },
+            { speaker: "Donna", text: "Well, will everyone give a nice warm welcome to Anita Oxlong here on Weazel Thirteen-Point-Three FM!" },
+            { speaker: "Marcus", text: "Cut the line! Hang up! Do not put another caller through until you check their ID, Donna!" }
           ]
         }
       ];
 
-      // Program sequence after the initial slogan anchor:
-      // 1st slot (5 mins after slogan) = SPONSOR advert; then SPONSOR, NEWS, WEATHER, CALLER
+      // First item after slogan anchor is SPONSOR (advert) at +5 mins, followed by NEWS, WEATHER, CALLER, repeating
       const PROGRAM_SEQUENCE = [
-        { type: "SPONSOR", title: "Message from Sponsor" },
-        { type: "NEWS", title: "Weazel News Wire" },
-        { type: "WEATHER", title: "Weather & Traffic" },
-        { type: "CALLER", title: "Live Studio Caller" },
         { type: "SPONSOR", title: "Message from Sponsor" },
         { type: "NEWS", title: "Weazel News Wire" },
         { type: "WEATHER", title: "Weather & Traffic" },
@@ -1269,7 +1424,7 @@
       ];
 
       /* ======================================================================
-         4. APPLICATION STATE & DOM REFERENCES
+         4. STATE & DOM REFERENCES
          ====================================================================== */
       const savedLoc = (() => {
         try {
@@ -1288,7 +1443,7 @@
         musicBedOn: false,
         isSpeaking: false,
         activeIsSlogan: false,
-        activeRunnerType: null, // "SLOGAN" | "PROGRAM" | null
+        activeRunnerType: "NONE", // "NONE" | "SLOGAN" | "PROGRAM"
         activeProgramTitle: "IDLE // AWAITING CARRIER ENGAGE",
         playToken: 0,
         activeSpeechSource: null,
@@ -1303,66 +1458,85 @@
         sloganAnchorTimeMs: 0,
         nextSloganDueAtMs: 0,
         nextProgramDueAtMs: 0,
-        sloganLeadIndex: 0, // 0 => Marcus leads first; alternates 0 <-> 1 across plays
+        sloganNextSingleChar: "Marcus", // After opening dual start (Marcus + Donna), alternates Marcus <-> Donna
         scheduleCursorIndex: 0,
-        pendingRetryItem: null, // { type, title, retries }
-        lastSloganCycleId: "",
+        pendingRetryItem: null, // { type, title, retries } pushed back on slogan fallback
         lastSponsorId: "",
         lastCallerTitle: "",
-        apiStatus: "IDLE", // IDLE | READY | BAKING | CACHED HIT | 429 RATE LIMIT | QUOTA/KEY ERR | TIMEOUT/ERR | COOLDOWN
+        vaultClips: [],
         apiCallsCount: 0,
         apiConsecutiveErrors: 0,
         apiCooldownUntilMs: 0,
-        apiLastLatencyMs: null,
-        apiInFlightKeys: [],
-        vaultClips: [], // [{ id, category, title, wavBlob, createdAt, sizeBytes }]
-        speechQueue: [], // [{ id, kind, priority, isSlogan, category, title, programSpec, run }]
+        apiStatus: "IDLE",
+        apiLastRttMs: null,
+        inFlightSynthesis: new Map(),
         schedulerTimer: null,
         clockTimer: null,
         scheduleOpen: false,
         vaultOpen: false
       };
 
-      const el = {};
-
-      function refreshDomRefs() {
-        const ids = [
-          "apiKeyInput", "toggleKeyVisBtn", "toggleKeyVisText", "saveKeyBtn", "clearKeyBtn",
-          "apiKeyStatePill", "apiConnStatusPill", "apiCooldownText", "apiCallsCounter", "apiLatencyReadout",
-          "vfdClockReadout", "vfdRegionReadout", "vfdWeatherReadout", "vfdAirStatusPill",
-          "vfdDuckPill", "vfdQueuePill", "vfdSegmentLine", "vfdStatusLine",
-          "vfdTeleprompterBox", "teleprompterBadge", "teleprompterSpeaker", "teleprompterText",
-          "countrySelect", "citySelect", "standbyBtn", "standbyBtnLabel",
-          "bedToggleBtn", "bedToggleBtnText", "cutMicBtn", "scheduleBtn", "scheduleBtnText",
-          "cachedWavsBtn", "cachedWavsBtnText", "scheduleModal", "scheduleModalSummary",
-          "scheduleNextBanner", "scheduleSlotsList", "closeScheduleModalBtn",
-          "cachedWavsModal", "cachedWavsSummary", "cachedWavsList", "closeCacheDrawerBtn",
-          "stopPreviewBtn", "mcaToast"
-        ];
-        ids.forEach((id) => {
-          el[id] = document.getElementById(id) || null;
-        });
-      }
-
-      refreshDomRefs();
+      const el = {
+        apiKeyInput: document.getElementById("apiKeyInput"),
+        toggleKeyVisBtn: document.getElementById("toggleKeyVisBtn"),
+        toggleKeyVisText: document.getElementById("toggleKeyVisText"),
+        saveKeyBtn: document.getElementById("saveKeyBtn"),
+        clearKeyBtn: document.getElementById("clearKeyBtn"),
+        apiKeyBadge: document.getElementById("apiKeyBadge"),
+        apiConnStatus: document.getElementById("apiConnStatus"),
+        apiCooldownBadge: document.getElementById("apiCooldownBadge"),
+        apiCallsCounter: document.getElementById("apiCallsCounter"),
+        apiLastRtt: document.getElementById("apiLastRtt"),
+        vfdClockReadout: document.getElementById("vfdClockReadout"),
+        vfdRegionReadout: document.getElementById("vfdRegionReadout"),
+        vfdWeatherReadout: document.getElementById("vfdWeatherReadout"),
+        vfdAirStatusPill: document.getElementById("vfdAirStatusPill"),
+        vfdDuckPill: document.getElementById("vfdDuckPill"),
+        vfdQueuePill: document.getElementById("vfdQueuePill"),
+        vfdSegmentLine: document.getElementById("vfdSegmentLine"),
+        vfdStatusLine: document.getElementById("vfdStatusLine"),
+        vfdTeleprompterBox: document.getElementById("vfdTeleprompterBox"),
+        teleprompterBadge: document.getElementById("teleprompterBadge"),
+        teleprompterSpeaker: document.getElementById("teleprompterSpeaker"),
+        teleprompterText: document.getElementById("teleprompterText"),
+        countrySelect: document.getElementById("countrySelect"),
+        citySelect: document.getElementById("citySelect"),
+        standbyBtn: document.getElementById("standbyBtn"),
+        standbyBtnLabel: document.getElementById("standbyBtnLabel"),
+        bedToggleBtn: document.getElementById("bedToggleBtn"),
+        bedToggleBtnText: document.getElementById("bedToggleBtnText"),
+        cutMicBtn: document.getElementById("cutMicBtn"),
+        scheduleBtn: document.getElementById("scheduleBtn"),
+        scheduleBtnText: document.getElementById("scheduleBtnText"),
+        cachedWavsBtn: document.getElementById("cachedWavsBtn"),
+        cachedWavsBtnText: document.getElementById("cachedWavsBtnText"),
+        scheduleModal: document.getElementById("scheduleModal"),
+        closeScheduleModalBtn: document.getElementById("closeScheduleModalBtn"),
+        scheduleModalSummary: document.getElementById("scheduleModalSummary"),
+        scheduleNextBanner: document.getElementById("scheduleNextBanner"),
+        scheduleSlotsList: document.getElementById("scheduleSlotsList"),
+        cachedWavsModal: document.getElementById("cachedWavsModal"),
+        closeCacheDrawerBtn: document.getElementById("closeCacheDrawerBtn"),
+        stopPreviewBtn: document.getElementById("stopPreviewBtn"),
+        cachedWavsSummary: document.getElementById("cachedWavsSummary"),
+        cachedWavsList: document.getElementById("cachedWavsList"),
+        mcaToast: document.getElementById("mcaToast")
+      };
 
       /* ======================================================================
-         5. UI HELPERS, CLOCK & TELEPROMPTER
+         5. UI HELPERS, API TELEMETRY & CLOCK
          ====================================================================== */
       let toastTimeout = null;
       function showToast(msg) {
-        safeCall(() => {
-          refreshDomRefs();
+        try {
           if (!el.mcaToast) return;
-          el.mcaToast.textContent = String(msg || "");
+          el.mcaToast.textContent = msg;
           el.mcaToast.classList.add("show");
           if (toastTimeout) clearTimeout(toastTimeout);
           toastTimeout = setTimeout(() => {
-            safeCall(() => {
-              if (el.mcaToast) el.mcaToast.classList.remove("show");
-            }, "toastHide");
+            if (el.mcaToast) el.mcaToast.classList.remove("show");
           }, 2600);
-        }, "showToast");
+        } catch (e) {}
       }
 
       function formatMmSs(ms) {
@@ -1426,119 +1600,133 @@
         }
       }
 
-      function syncUiState() {
-        safeCall(() => {
-          refreshDomRefs();
-          const reg = getCurrentCityRecord();
-          if (el.vfdRegionReadout) {
-            el.vfdRegionReadout.textContent = `// ${reg.cityName.toUpperCase()}, ${reg.countryCode}`;
-          }
-          if (el.vfdWeatherReadout) {
-            el.vfdWeatherReadout.textContent = state.weatherSummary;
-          }
-          if (el.vfdAirStatusPill) {
-            el.vfdAirStatusPill.textContent = state.isOnAir ? "ON AIR" : "STANDBY";
-            el.vfdAirStatusPill.className = `vfd-pill ${state.isOnAir ? "crimson" : "amber"}`;
-          }
-          if (el.standbyBtn) {
-            el.standbyBtn.classList.toggle("on-air", state.isOnAir);
-            el.standbyBtn.setAttribute("aria-pressed", state.isOnAir ? "true" : "false");
-          }
-          if (el.standbyBtnLabel) {
-            el.standbyBtnLabel.textContent = state.isOnAir ? "ON AIR" : "STANDBY";
-          }
-          if (el.bedToggleBtnText) {
-            el.bedToggleBtnText.textContent = state.musicBedOn ? "BED: ON" : "BED: OFF";
-          }
-          if (el.bedToggleBtn) {
-            el.bedToggleBtn.classList.toggle("lit-green", state.musicBedOn);
-          }
-          if (el.cachedWavsBtnText) {
-            el.cachedWavsBtnText.textContent = `CACHED WAVS (${state.vaultClips.length}/${MAX_VAULT_CLIPS})`;
-          }
-          if (el.vfdQueuePill) {
-            el.vfdQueuePill.textContent = `QUEUE: ${state.speechQueue.length}`;
-          }
-          if (el.vfdStatusLine) {
-            const mReady = Boolean(state.sloganMarcusWavBlob);
-            const dReady = Boolean(state.sloganDonnaWavBlob);
-            const sloganState = (mReady && dReady)
-              ? "M+D CACHED"
-              : ((mReady || dReady)
-                ? "PARTIAL WAV"
-                : (state.sloganBakeInProgress ? "BAKING M+D..." : "UNBAKED"));
-            const retryNote = state.pendingRetryItem
-              ? ` • RETRY: ${state.pendingRetryItem.type}`
-              : "";
-            el.vfdStatusLine.textContent = `SLOGAN WAVS: ${sloganState} • VAULT ${state.vaultClips.length}/${MAX_VAULT_CLIPS} • ${reg.cityName.toUpperCase()} WIRE${retryNote}`;
-          }
-          syncApiTelemetryUi();
-        }, "syncUiState");
+      function isApiCoolingDown() {
+        return Date.now() < state.apiCooldownUntilMs;
+      }
+
+      function tripApiCooldown(durationMs, statusLabel) {
+        const now = Date.now();
+        state.apiCooldownUntilMs = Math.max(state.apiCooldownUntilMs, now + durationMs);
+        state.apiStatus = statusLabel;
+        syncApiTelemetryUi();
       }
 
       function syncApiTelemetryUi() {
-        const nowMs = Date.now();
-        const cooldownLeftMs = Math.max(0, state.apiCooldownUntilMs - nowMs);
         const keyPresent = hasApiKey();
+        const now = Date.now();
+        const remCooldownMs = Math.max(0, state.apiCooldownUntilMs - now);
 
-        if (el.apiKeyStatePill) {
-          el.apiKeyStatePill.textContent = keyPresent ? "KEY: SAVED" : "KEY: MISSING";
-          el.apiKeyStatePill.className = `vfd-pill ${keyPresent ? "" : "amber"}`;
+        if (el.apiKeyBadge) {
+          if (!keyPresent) {
+            el.apiKeyBadge.textContent = "NO KEY";
+            el.apiKeyBadge.className = "vfd-pill amber";
+          } else {
+            const rawKey = getApiKey();
+            const suffix = rawKey.slice(-4);
+            el.apiKeyBadge.textContent = `KEY ••••${suffix}`;
+            el.apiKeyBadge.className = "vfd-pill";
+          }
         }
 
-        let effectiveStatus = state.apiStatus;
-        if (cooldownLeftMs > 0) {
-          effectiveStatus = "COOLDOWN";
-        } else if (state.apiStatus === "COOLDOWN") {
-          effectiveStatus = keyPresent ? "READY" : "IDLE";
-          state.apiStatus = effectiveStatus;
+        if (el.apiConnStatus) {
+          let st = state.apiStatus;
+          if (!keyPresent) st = "NO KEY";
+          else if (remCooldownMs > 0 && st === "READY") st = "COOLDOWN";
+          el.apiConnStatus.textContent = `API: ${st}`;
+          el.apiConnStatus.className = "vfd-pill " + (
+            st.includes("429") || st.includes("ERR") || st.includes("QUOTA") ? "crimson" :
+            st === "COOLDOWN" || st === "BAKING" ? "amber" :
+            st === "CACHED HIT" ? "cyan" : ""
+          );
         }
 
-        if (el.apiConnStatusPill) {
-          el.apiConnStatusPill.textContent = `API: ${effectiveStatus}`;
-          const isErr = effectiveStatus === "429 RATE LIMIT" || effectiveStatus === "QUOTA/KEY ERR" || effectiveStatus === "TIMEOUT/ERR";
-          const isWarn = effectiveStatus === "COOLDOWN" || effectiveStatus === "BAKING";
-          el.apiConnStatusPill.className = `vfd-pill ${isErr ? "crimson" : (isWarn ? "amber" : "")}`;
-        }
-
-        if (el.apiCooldownText) {
-          el.apiCooldownText.textContent = cooldownLeftMs > 0 ? `PAUSE ${formatMmSs(cooldownLeftMs)}` : "";
+        if (el.apiCooldownBadge) {
+          if (remCooldownMs > 0) {
+            el.apiCooldownBadge.textContent = `PAUSE ${formatMmSs(remCooldownMs)}`;
+            el.apiCooldownBadge.className = "vfd-pill amber";
+          } else {
+            el.apiCooldownBadge.textContent = keyPresent ? "COOLDOWN: READY" : "COOLDOWN: N/A";
+            el.apiCooldownBadge.className = "vfd-pill";
+          }
         }
 
         if (el.apiCallsCounter) {
           el.apiCallsCounter.textContent = `CALLS: ${state.apiCallsCount}`;
         }
 
-        if (el.apiLatencyReadout) {
-          el.apiLatencyReadout.textContent = state.apiLastLatencyMs !== null
-            ? `RTT: ${(state.apiLastLatencyMs / 1000).toFixed(1)}s`
-            : "RTT: --";
+        if (el.apiLastRtt) {
+          el.apiLastRtt.textContent = state.apiLastRttMs !== null ? `RTT: ${state.apiLastRttMs}ms` : "RTT: --";
         }
       }
 
+      function syncUiState() {
+        const reg = getCurrentCityRecord();
+        const sloganCount = (state.sloganMarcusWavBlob ? 1 : 0) + (state.sloganDonnaWavBlob ? 1 : 0);
+        const retryCount = state.pendingRetryItem ? 1 : 0;
+
+        if (el.vfdRegionReadout) {
+          el.vfdRegionReadout.textContent = `// ${reg.cityName.toUpperCase()}, ${reg.countryCode}`;
+        }
+        if (el.vfdWeatherReadout) {
+          el.vfdWeatherReadout.textContent = state.weatherSummary;
+        }
+        if (el.vfdAirStatusPill) {
+          el.vfdAirStatusPill.textContent = state.isOnAir ? "ON AIR" : "STANDBY";
+          el.vfdAirStatusPill.className = `vfd-pill ${state.isOnAir ? "crimson" : "amber"}`;
+        }
+        if (el.standbyBtn) {
+          el.standbyBtn.classList.toggle("on-air", state.isOnAir);
+          el.standbyBtn.setAttribute("aria-pressed", state.isOnAir ? "true" : "false");
+        }
+        if (el.standbyBtnLabel) {
+          el.standbyBtnLabel.textContent = state.isOnAir ? "ON AIR" : "STANDBY";
+        }
+        if (el.bedToggleBtnText) {
+          el.bedToggleBtnText.textContent = state.musicBedOn ? "BED: ON" : "BED: OFF";
+        }
+        if (el.bedToggleBtn) {
+          el.bedToggleBtn.classList.toggle("lit-green", state.musicBedOn);
+        }
+        if (el.cachedWavsBtnText) {
+          el.cachedWavsBtnText.textContent = `CACHED WAVS (${state.vaultClips.length}/${MAX_VAULT_CLIPS})`;
+        }
+        if (el.vfdQueuePill) {
+          el.vfdQueuePill.textContent = `RETRY: ${retryCount}`;
+          el.vfdQueuePill.className = `vfd-pill ${retryCount > 0 ? "amber" : ""}`;
+        }
+        if (el.vfdStatusLine) {
+          const bakeNote = state.sloganBakeInProgress ? " • BAKING" : "";
+          el.vfdStatusLine.textContent = `SLOGAN WAVS: ${sloganCount}/2 (${state.sloganNextSingleChar.toUpperCase()} NEXT) • VAULT ${state.vaultClips.length}/${MAX_VAULT_CLIPS}${bakeNote} • ${reg.cityName.toUpperCase()} WIRE`;
+        }
+        syncApiTelemetryUi();
+      }
+
       function updateClockAndCountdowns() {
-        safeCall(() => {
-          refreshDomRefs();
-          const now = new Date();
-          const nowMs = now.getTime();
-          if (el.vfdClockReadout) {
-            el.vfdClockReadout.textContent = now.toTimeString().slice(0, 8);
+        const now = new Date();
+        const nowMs = now.getTime();
+
+        if (el.vfdClockReadout) {
+          el.vfdClockReadout.textContent = now.toTimeString().slice(0, 8);
+        }
+
+        if (el.scheduleBtnText) {
+          if (!state.isOnAir) {
+            el.scheduleBtnText.textContent = "PROGRAM";
+          } else if (!state.sloganInitialCompleted) {
+            el.scheduleBtnText.textContent = "SLOGAN...";
+          } else {
+            const remProg = Math.max(0, state.nextProgramDueAtMs - nowMs);
+            el.scheduleBtnText.textContent = `NEXT ${formatMmSs(remProg)}`;
           }
-          if (el.scheduleBtnText) {
-            if (!state.isOnAir) {
-              el.scheduleBtnText.textContent = "PROGRAM";
-            } else if (!state.sloganInitialCompleted) {
-              el.scheduleBtnText.textContent = "SLOGAN INIT";
-            } else {
-              const remMs = Math.max(0, state.nextProgramDueAtMs - nowMs);
-              el.scheduleBtnText.textContent = `NEXT ${formatMmSs(remMs)}`;
-            }
-          }
+        }
+
+        if (isApiCoolingDown() || el.apiCooldownBadge) {
           syncApiTelemetryUi();
-          if (state.scheduleOpen) {
-            renderScheduleDrawer();
-          }
-        }, "updateClockAndCountdowns");
+        }
+
+        if (state.scheduleOpen) {
+          renderScheduleDrawer();
+        }
       }
 
       /* ======================================================================
@@ -1551,54 +1739,33 @@
         }));
       }
 
-      function populateCountryDropdownSync() {
-        safeCall(() => {
-          refreshDomRefs();
-          if (!el.countrySelect) return;
-          if (!REGION_CATALOG[state.country]) state.country = "IE";
-          el.countrySelect.innerHTML = "";
-          Object.values(REGION_CATALOG).forEach((country) => {
-            const opt = document.createElement("option");
-            opt.value = country.code;
-            opt.textContent = `${country.name} (${country.code})`;
-            if (country.code === state.country) opt.selected = true;
-            el.countrySelect.appendChild(opt);
-          });
-          el.countrySelect.value = state.country;
-        }, "populateCountryDropdownSync");
+      function populateCountryDropdown() {
+        if (!el.countrySelect) return;
+        el.countrySelect.innerHTML = "";
+        Object.values(REGION_CATALOG).forEach((country) => {
+          const opt = document.createElement("option");
+          opt.value = country.code;
+          opt.textContent = `${country.name} (${country.code})`;
+          if (country.code === state.country) opt.selected = true;
+          el.countrySelect.appendChild(opt);
+        });
       }
 
-      function populateCityDropdownSync() {
-        safeCall(() => {
-          refreshDomRefs();
-          if (!el.citySelect) return;
-          const countryObj = REGION_CATALOG[state.country] || REGION_CATALOG.IE;
-          const cities = countryObj.cities;
-          if (!cities[state.city]) {
-            state.city = Object.keys(cities)[0];
-          }
-          el.citySelect.innerHTML = "";
-          Object.entries(cities).forEach(([cityKey, cityObj]) => {
-            const opt = document.createElement("option");
-            opt.value = cityKey;
-            opt.textContent = `${cityObj.name} (${cityObj.corridors[0]})`;
-            if (cityKey === state.city) opt.selected = true;
-            el.citySelect.appendChild(opt);
-          });
-          el.citySelect.value = state.city;
-        }, "populateCityDropdownSync");
-      }
-
-      function ensureLocationDropdownsPopulated() {
-        safeCall(() => {
-          refreshDomRefs();
-          if (!el.countrySelect || el.countrySelect.options.length === 0) {
-            populateCountryDropdownSync();
-          }
-          if (!el.citySelect || el.citySelect.options.length === 0) {
-            populateCityDropdownSync();
-          }
-        }, "ensureLocationDropdownsPopulated");
+      function populateCityDropdown() {
+        if (!el.citySelect) return;
+        const countryObj = REGION_CATALOG[state.country] || REGION_CATALOG.IE;
+        const cities = countryObj.cities;
+        if (!cities[state.city]) {
+          state.city = Object.keys(cities)[0];
+        }
+        el.citySelect.innerHTML = "";
+        Object.entries(cities).forEach(([cityKey, cityObj]) => {
+          const opt = document.createElement("option");
+          opt.value = cityKey;
+          opt.textContent = `${cityObj.name} (${cityObj.corridors[0]})`;
+          if (cityKey === state.city) opt.selected = true;
+          el.citySelect.appendChild(opt);
+        });
       }
 
       async function refreshLiveRegionalWeather() {
@@ -1638,8 +1805,9 @@
         } catch (e) {}
       }
 
-      populateCountryDropdownSync();
-      populateCityDropdownSync();
+      // Populate dropdowns synchronously on parse so options exist immediately
+      populateCountryDropdown();
+      populateCityDropdown();
 
       /* ======================================================================
          7. INDEXEDDB CACHED WAV VAULT (UP TO 24 CLIPS, EXCLUDING NEWS/WEATHER)
@@ -1654,6 +1822,7 @@
               return;
             }
             const req = window.indexedDB.open(IDB_NAME, 1);
+            const guardTimer = setTimeout(() => resolve(null), 2500);
             req.onupgradeneeded = () => {
               try {
                 const db = req.result;
@@ -1662,9 +1831,18 @@
                 }
               } catch (e) {}
             };
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => resolve(null);
-            req.onblocked = () => resolve(null);
+            req.onsuccess = () => {
+              clearTimeout(guardTimer);
+              resolve(req.result);
+            };
+            req.onerror = () => {
+              clearTimeout(guardTimer);
+              resolve(null);
+            };
+            req.onblocked = () => {
+              clearTimeout(guardTimer);
+              resolve(null);
+            };
           } catch (e) {
             resolve(null);
           }
@@ -1677,24 +1855,13 @@
           const db = await openVaultDb();
           if (!db) return null;
           return await new Promise((resolve) => {
-            let settled = false;
-            const finish = (val) => {
-              if (!settled) {
-                settled = true;
-                resolve(val);
-              }
-            };
-            const guard = setTimeout(() => finish(null), 2500);
             try {
               const tx = db.transaction(IDB_STORE, "readonly");
-              tx.onabort = () => { clearTimeout(guard); finish(null); };
-              tx.onerror = () => { clearTimeout(guard); finish(null); };
               const req = tx.objectStore(IDB_STORE).get(key);
-              req.onsuccess = () => { clearTimeout(guard); finish(req.result || null); };
-              req.onerror = () => { clearTimeout(guard); finish(null); };
+              req.onsuccess = () => resolve(req.result || null);
+              req.onerror = () => resolve(null);
             } catch (e) {
-              clearTimeout(guard);
-              finish(null);
+              resolve(null);
             }
           });
         } catch (e) {
@@ -1707,23 +1874,13 @@
           const db = await openVaultDb();
           if (!db) return;
           await new Promise((resolve) => {
-            let settled = false;
-            const finish = () => {
-              if (!settled) {
-                settled = true;
-                resolve();
-              }
-            };
-            const guard = setTimeout(finish, 2500);
             try {
               const tx = db.transaction(IDB_STORE, "readwrite");
               tx.objectStore(IDB_STORE).put(val, key);
-              tx.oncomplete = () => { clearTimeout(guard); finish(); };
-              tx.onabort = () => { clearTimeout(guard); finish(); };
-              tx.onerror = () => { clearTimeout(guard); finish(); };
+              tx.oncomplete = () => resolve();
+              tx.onerror = () => resolve();
             } catch (e) {
-              clearTimeout(guard);
-              finish();
+              resolve();
             }
           });
         } catch (e) {}
@@ -1731,32 +1888,19 @@
 
       async function loadPersistedVault() {
         try {
-          const [marcusRec, donnaRec, list] = await Promise.all([
-            idbGet(SLOGAN_MARCUS_SLOT_KEY),
-            idbGet(SLOGAN_DONNA_SLOT_KEY),
-            idbGet(VAULT_LIST_KEY)
-          ]);
-
+          const marcusRec = await idbGet(SLOGAN_MARCUS_SLOT_KEY);
           if (marcusRec && marcusRec.wavBlob instanceof Blob) {
             state.sloganMarcusWavBlob = marcusRec.wavBlob;
           }
+          const donnaRec = await idbGet(SLOGAN_DONNA_SLOT_KEY);
           if (donnaRec && donnaRec.wavBlob instanceof Blob) {
             state.sloganDonnaWavBlob = donnaRec.wavBlob;
           }
-
+          const list = await idbGet(VAULT_LIST_KEY);
           if (Array.isArray(list)) {
             state.vaultClips = list
               .filter((c) => c && c.wavBlob instanceof Blob && c.category !== "NEWS" && c.category !== "WEATHER")
               .slice(0, MAX_VAULT_CLIPS);
-          }
-
-          if (!state.sloganMarcusWavBlob) {
-            const mVault = state.vaultClips.find((c) => c.category === "SLOGAN" && c.title === SLOGAN_MARCUS_TITLE);
-            if (mVault) state.sloganMarcusWavBlob = mVault.wavBlob;
-          }
-          if (!state.sloganDonnaWavBlob) {
-            const dVault = state.vaultClips.find((c) => c.category === "SLOGAN" && c.title === SLOGAN_DONNA_TITLE);
-            if (dVault) state.sloganDonnaWavBlob = dVault.wavBlob;
           }
         } catch (e) {}
         syncUiState();
@@ -1767,27 +1911,29 @@
         if (upperCat === "NEWS" || upperCat === "WEATHER") return;
         if (!(wavBlob instanceof Blob) || wavBlob.size < 100) return;
 
-        const existingIdx = state.vaultClips.findIndex((c) => c.title === title && c.category === upperCat);
-        const entry = {
-          id: existingIdx >= 0 ? state.vaultClips[existingIdx].id : `wav_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-          category: upperCat,
-          title,
-          wavBlob,
-          createdAt: Date.now(),
-          sizeBytes: wavBlob.size
-        };
+        try {
+          const existingIdx = state.vaultClips.findIndex((c) => c.title === title && c.category === upperCat);
+          const entry = {
+            id: existingIdx >= 0 ? state.vaultClips[existingIdx].id : `wav_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            category: upperCat,
+            title,
+            wavBlob,
+            createdAt: Date.now(),
+            sizeBytes: wavBlob.size
+          };
 
-        if (existingIdx >= 0) {
-          state.vaultClips.splice(existingIdx, 1);
-        }
-        state.vaultClips.unshift(entry);
-        if (state.vaultClips.length > MAX_VAULT_CLIPS) {
-          state.vaultClips = state.vaultClips.slice(0, MAX_VAULT_CLIPS);
-        }
+          if (existingIdx >= 0) {
+            state.vaultClips.splice(existingIdx, 1);
+          }
+          state.vaultClips.unshift(entry);
+          if (state.vaultClips.length > MAX_VAULT_CLIPS) {
+            state.vaultClips = state.vaultClips.slice(0, MAX_VAULT_CLIPS);
+          }
 
-        await idbSet(VAULT_LIST_KEY, state.vaultClips);
-        syncUiState();
-        if (state.vaultOpen) renderVaultList();
+          await idbSet(VAULT_LIST_KEY, state.vaultClips);
+          syncUiState();
+          if (state.vaultOpen) renderVaultList();
+        } catch (e) {}
       }
 
       let previewAudioSource = null;
@@ -1856,10 +2002,10 @@
         const target = state.vaultClips.find((c) => c.id === clipId);
         state.vaultClips = state.vaultClips.filter((c) => c.id !== clipId);
         if (target && target.category === "SLOGAN") {
-          if (target.title === SLOGAN_MARCUS_TITLE) {
+          if (target.title.includes("Marcus")) {
             state.sloganMarcusWavBlob = null;
             await idbSet(SLOGAN_MARCUS_SLOT_KEY, null);
-          } else if (target.title === SLOGAN_DONNA_TITLE) {
+          } else if (target.title.includes("Donna")) {
             state.sloganDonnaWavBlob = null;
             await idbSet(SLOGAN_DONNA_SLOT_KEY, null);
           }
@@ -1871,29 +2017,28 @@
       }
 
       function renderVaultList() {
-        refreshDomRefs();
         if (!el.cachedWavsList) return;
         if (el.cachedWavsSummary) {
-          el.cachedWavsSummary.textContent = `${state.vaultClips.length}/${MAX_VAULT_CLIPS} CLIPS • MARCUS & DONNA SLOGAN WAVS, SPONSOR MESSAGES & CALLERS`;
+          el.cachedWavsSummary.textContent = `${state.vaultClips.length}/${MAX_VAULT_CLIPS} CLIPS • SLOGANS, SPONSOR MESSAGES & CALLERS`;
         }
         if (state.vaultClips.length === 0) {
-          el.cachedWavsList.innerHTML = `<div class="p-4 rounded border border-white-15 bg-black-40 text-12px text-slate-400 text-center font-mono">NO CACHED WAVS YET — ENTER GEMINI API KEY & GO ON AIR TO CACHE SLOGAN WAVS, SPONSOR MESSAGES & CALLERS</div>`;
+          el.cachedWavsList.innerHTML = `<div class="vault-empty">NO CACHED WAVS YET — ENTER GEMINI API KEY &amp; GO ON AIR TO CACHE SLOGANS, SPONSOR MESSAGES &amp; CALLERS</div>`;
           return;
         }
         el.cachedWavsList.innerHTML = "";
         state.vaultClips.forEach((clip) => {
           const row = document.createElement("div");
-          row.className = "flex items-center justify-between gap-2 flex-wrap p-2-5 rounded border border-white-15 bg-black-45";
+          row.className = "vault-row";
           const kb = Math.max(1, Math.round((clip.sizeBytes || 0) / 1024));
           row.innerHTML = `
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-1-5 flex-wrap">
+            <div style="min-width: 0; flex: 1;">
+              <div class="vfd-pills-wrap">
                 <span class="vfd-pill ${clip.category === "SLOGAN" ? "" : "amber"}">${clip.category}</span>
-                <span class="text-12px font-bold text-slate-100 truncate font-mono">${clip.title}</span>
+                <span class="vault-title">${clip.title}</span>
               </div>
-              <div class="text-10px text-slate-400 mt-0-5 font-mono">${kb} KB • WAV PCM</div>
+              <div class="vault-meta">${kb} KB • WAV PCM</div>
             </div>
-            <div class="flex items-center gap-1-5">
+            <div class="vfd-pills-wrap">
               <button type="button" data-action="play" class="mca-btn lit-cyan"><span>PLAY</span></button>
               <button type="button" data-action="delete" class="mca-btn lit-crimson"><span>DELETE</span></button>
             </div>
@@ -1905,63 +2050,8 @@
       }
 
       /* ======================================================================
-         8. GEMINI TTS PIPELINE, WAV ENCODER & SEPARATE SLOGAN WAV BAKING
+         8. GEMINI TTS PIPELINE (WITH ANTI-OVERLOAD DEDUP & COOLDOWN)
          ====================================================================== */
-      const SLOGAN_BAKE_COOLDOWN_MS = 90000;
-      const RATE_LIMIT_COOLDOWN_MS = 120000;
-      const QUOTA_ERR_COOLDOWN_MS = 180000;
-      const TRANSIENT_ERR_COOLDOWN_MS = 45000;
-      const CIRCUIT_BREAKER_THRESHOLD = 2;
-
-      let synthesisLockPromise = null;
-      const inFlightSegmentPromises = new Map();
-
-      function isApiCoolingDown(nowMs = Date.now()) {
-        return state.apiCooldownUntilMs > nowMs;
-      }
-
-      function tripApiCooldown(durationMs, statusLabel, notifyMsg) {
-        const nowMs = Date.now();
-        state.apiCooldownUntilMs = Math.max(state.apiCooldownUntilMs, nowMs + durationMs);
-        state.apiStatus = statusLabel;
-        syncUiState();
-        if (notifyMsg) {
-          showToast(notifyMsg);
-        }
-      }
-
-      function clearApiCooldownState() {
-        state.apiCooldownUntilMs = 0;
-        state.apiConsecutiveErrors = 0;
-        state.apiStatus = hasApiKey() ? "READY" : "IDLE";
-        syncUiState();
-      }
-
-      function recordApiSuccess(latencyMs) {
-        state.apiLastLatencyMs = Math.max(1, Math.round(latencyMs));
-        state.apiConsecutiveErrors = 0;
-        if (!isApiCoolingDown()) {
-          state.apiStatus = "READY";
-        }
-        syncUiState();
-      }
-
-      function recordApiFailure(kind, latencyMs, detailMsg) {
-        state.apiLastLatencyMs = Math.max(1, Math.round(latencyMs));
-        state.apiConsecutiveErrors += 1;
-        state.apiStatus = kind;
-
-        if (kind === "429 RATE LIMIT") {
-          tripApiCooldown(RATE_LIMIT_COOLDOWN_MS, "429 RATE LIMIT", "Gemini 429 rate limit — pausing API calls for 2m");
-        } else if (kind === "QUOTA/KEY ERR") {
-          tripApiCooldown(QUOTA_ERR_COOLDOWN_MS, "QUOTA/KEY ERR", detailMsg || "Gemini quota or key error — cooling down 3m");
-        } else if (state.apiConsecutiveErrors >= CIRCUIT_BREAKER_THRESHOLD) {
-          tripApiCooldown(TRANSIENT_ERR_COOLDOWN_MS, "TIMEOUT/ERR", "Repeated TTS errors — API circuit paused 45s");
-        } else {
-          syncUiState();
-        }
-      }
-
       function base64ToUint8Array(base64) {
         const binary = atob(base64);
         const len = binary.length;
@@ -2028,6 +2118,7 @@
         const apiKey = getApiKey();
         if (!apiKey) return null;
         if (isApiCoolingDown()) {
+          state.apiStatus = "COOLDOWN";
           syncApiTelemetryUi();
           return null;
         }
@@ -2038,7 +2129,9 @@
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 16000);
         const startedAt = performance.now();
+
         state.apiCallsCount += 1;
+        state.apiStatus = "BAKING";
         syncApiTelemetryUi();
 
         try {
@@ -2064,15 +2157,27 @@
             }
           );
           clearTimeout(timer);
-          const elapsed = performance.now() - startedAt;
+          state.apiLastRttMs = Math.max(1, Math.round(performance.now() - startedAt));
+
+          if (res.status === 429) {
+            state.apiConsecutiveErrors += 1;
+            tripApiCooldown(RATE_LIMIT_COOLDOWN_MS, "429 RATE LIMIT");
+            return null;
+          }
+
+          if (res.status === 400 || res.status === 403) {
+            state.apiConsecutiveErrors += 1;
+            tripApiCooldown(ERROR_COOLDOWN_MS, "QUOTA/KEY ERR");
+            return null;
+          }
 
           if (!res.ok) {
-            if (res.status === 429) {
-              recordApiFailure("429 RATE LIMIT", elapsed);
-            } else if (res.status === 400 || res.status === 401 || res.status === 403) {
-              recordApiFailure("QUOTA/KEY ERR", elapsed, `Gemini HTTP ${res.status} — check key or billing quota`);
+            state.apiConsecutiveErrors += 1;
+            if (state.apiConsecutiveErrors >= CONSECUTIVE_ERROR_TRIP_THRESHOLD) {
+              tripApiCooldown(ERROR_COOLDOWN_MS, "API ERR PAUSE");
             } else {
-              recordApiFailure("TIMEOUT/ERR", elapsed);
+              state.apiStatus = "API ERR";
+              syncApiTelemetryUi();
             }
             return null;
           }
@@ -2080,89 +2185,67 @@
           const data = await res.json();
           const inlineData = data?.candidates?.[0]?.content?.parts?.[0]?.inlineData;
           if (!inlineData || !inlineData.data) {
-            recordApiFailure("TIMEOUT/ERR", elapsed);
+            state.apiConsecutiveErrors += 1;
+            if (state.apiConsecutiveErrors >= CONSECUTIVE_ERROR_TRIP_THRESHOLD) {
+              tripApiCooldown(ERROR_COOLDOWN_MS, "EMPTY PAUSE");
+            } else {
+              state.apiStatus = "EMPTY AUDIO";
+              syncApiTelemetryUi();
+            }
             return null;
           }
 
-          recordApiSuccess(elapsed);
           const bytes = base64ToUint8Array(inlineData.data);
+          if (bytes.length < 64) {
+            state.apiConsecutiveErrors += 1;
+            state.apiStatus = "SHORT AUDIO";
+            syncApiTelemetryUi();
+            return null;
+          }
+
+          state.apiConsecutiveErrors = 0;
+          state.apiStatus = "READY";
+          syncApiTelemetryUi();
+
           if (bytes.length > 44 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) {
             return bytes.slice(44);
           }
           return bytes;
         } catch (e) {
           clearTimeout(timer);
-          const elapsed = performance.now() - startedAt;
-          recordApiFailure("TIMEOUT/ERR", elapsed);
+          state.apiLastRttMs = Math.max(1, Math.round(performance.now() - startedAt));
+          state.apiConsecutiveErrors += 1;
+          if (state.apiConsecutiveErrors >= CONSECUTIVE_ERROR_TRIP_THRESHOLD) {
+            tripApiCooldown(ERROR_COOLDOWN_MS, "TIMEOUT PAUSE");
+          } else {
+            state.apiStatus = e?.name === "AbortError" ? "TIMEOUT" : "NET ERR";
+            syncApiTelemetryUi();
+          }
           return null;
         }
       }
 
-      async function runExclusiveSynthesis(dedupeKey, workerFn) {
-        if (!hasApiKey() || isApiCoolingDown()) {
-          syncApiTelemetryUi();
-          return null;
+      async function runDeduplicatedSynthesis(dedupKey, taskFn) {
+        if (state.inFlightSynthesis.has(dedupKey)) {
+          return state.inFlightSynthesis.get(dedupKey);
         }
-
-        if (dedupeKey && inFlightSegmentPromises.has(dedupeKey)) {
-          return inFlightSegmentPromises.get(dedupeKey);
-        }
-
-        const task = (async () => {
-          while (synthesisLockPromise) {
-            try {
-              await synthesisLockPromise;
-            } catch (e) {}
-            if (isApiCoolingDown()) return null;
-          }
-
-          let releaseLock = null;
-          synthesisLockPromise = new Promise((resolve) => {
-            releaseLock = resolve;
-          });
-
+        const promise = (async () => {
           try {
-            if (isApiCoolingDown()) return null;
-            return await workerFn();
+            return await taskFn();
           } finally {
-            const currentLock = synthesisLockPromise;
-            synthesisLockPromise = null;
-            if (releaseLock) releaseLock();
-            if (currentLock === synthesisLockPromise) {
-              synthesisLockPromise = null;
-            }
+            state.inFlightSynthesis.delete(dedupKey);
           }
         })();
-
-        if (dedupeKey) {
-          inFlightSegmentPromises.set(dedupeKey, task);
-          state.apiInFlightKeys = Array.from(inFlightSegmentPromises.keys());
-        }
-
-        try {
-          return await task;
-        } finally {
-          if (dedupeKey) {
-            inFlightSegmentPromises.delete(dedupeKey);
-            state.apiInFlightKeys = Array.from(inFlightSegmentPromises.keys());
-          }
-        }
+        state.inFlightSynthesis.set(dedupKey, promise);
+        return promise;
       }
 
-      async function synthesizeSingleCharacterWav(lineObj, dedupeKey = "") {
-        if (!hasApiKey() || !lineObj || isApiCoolingDown()) return null;
-        const key = dedupeKey || `char:${lineObj.speaker}:${lineObj.text.slice(0, 32)}`;
-        return runExclusiveSynthesis(key, async () => {
-          const pcm = await requestGeminiLinePcm(lineObj);
-          if (!pcm || pcm.byteLength < 64) return null;
-          return pcm16ToWavBlob(pcm, 24000, 1);
-        });
-      }
+      async function synthesizeSegmentWav(lines, dedupKey = "") {
+        if (!hasApiKey() || !Array.isArray(lines) || lines.length === 0) return null;
+        if (isApiCoolingDown()) return null;
 
-      async function synthesizeSegmentWav(lines, dedupeKey = "") {
-        if (!hasApiKey() || !Array.isArray(lines) || lines.length === 0 || isApiCoolingDown()) return null;
-        const key = dedupeKey || `seg:${lines.map((l) => l.speaker).join(",")}:${lines[0].text.slice(0, 28)}`;
-        return runExclusiveSynthesis(key, async () => {
+        const key = dedupKey || `seg_${lines.map((l) => `${l.speaker}:${l.text.slice(0, 18)}`).join("|")}`;
+        return runDeduplicatedSynthesis(key, async () => {
           const pcmChunks = [];
           for (const line of lines) {
             if (isApiCoolingDown()) return null;
@@ -2175,49 +2258,39 @@
         });
       }
 
-      async function bakeSloganInBackground() {
-        if (state.sloganBakeInProgress || !hasApiKey() || isApiCoolingDown()) return;
+      async function synthesizeSingleCharacterSloganWav(charKey) {
+        const script = SLOGAN_CHARACTER_SCRIPTS[charKey];
+        if (!script) return null;
+        const wav = await synthesizeSegmentWav(
+          [{ speaker: script.speaker, text: script.text }],
+          `slogan_char_${charKey.toLowerCase()}`
+        );
+        if (wav) {
+          if (charKey === "Marcus") {
+            state.sloganMarcusWavBlob = wav;
+            await idbSet(SLOGAN_MARCUS_SLOT_KEY, { wavBlob: wav, createdAt: Date.now() });
+          } else {
+            state.sloganDonnaWavBlob = wav;
+            await idbSet(SLOGAN_DONNA_SLOT_KEY, { wavBlob: wav, createdAt: Date.now() });
+          }
+          await saveClipToVault("SLOGAN", script.title, wav);
+        }
+        return wav;
+      }
+
+      async function bakeBothSloganWavsOnce() {
+        if (!hasApiKey() || isApiCoolingDown()) return;
         if (state.sloganMarcusWavBlob && state.sloganDonnaWavBlob) return;
+        if (state.sloganBakeInProgress) return;
 
         state.sloganBakeInProgress = true;
-        state.apiStatus = "BAKING";
         syncUiState();
-
-        let attemptedAny = false;
-        let bakedAny = false;
-
         try {
           if (!state.sloganMarcusWavBlob && !isApiCoolingDown()) {
-            attemptedAny = true;
-            const mWav = await synthesizeSingleCharacterWav(SLOGAN_SCRIPT.Marcus, "slogan_wav_marcus");
-            if (mWav) {
-              bakedAny = true;
-              state.sloganMarcusWavBlob = mWav;
-              await idbSet(SLOGAN_MARCUS_SLOT_KEY, { wavBlob: mWav, createdAt: Date.now() });
-              await saveClipToVault("SLOGAN", SLOGAN_MARCUS_TITLE, mWav);
-            }
+            await synthesizeSingleCharacterSloganWav("Marcus");
           }
           if (!state.sloganDonnaWavBlob && !isApiCoolingDown()) {
-            attemptedAny = true;
-            const dWav = await synthesizeSingleCharacterWav(SLOGAN_SCRIPT.Donna, "slogan_wav_donna");
-            if (dWav) {
-              bakedAny = true;
-              state.sloganDonnaWavBlob = dWav;
-              await idbSet(SLOGAN_DONNA_SLOT_KEY, { wavBlob: dWav, createdAt: Date.now() });
-              await saveClipToVault("SLOGAN", SLOGAN_DONNA_TITLE, dWav);
-            }
-          }
-
-          if (attemptedAny && !bakedAny && !isApiCoolingDown()) {
-            tripApiCooldown(SLOGAN_BAKE_COOLDOWN_MS, "COOLDOWN", "Slogan bake paused (90s) to protect API quota");
-          } else if (state.sloganMarcusWavBlob && state.sloganDonnaWavBlob) {
-            state.apiStatus = "READY";
-            showToast("Marcus & Donna Slogan WAVs cached to Vault");
-            if (state.isOnAir && !state.sloganInitialCompleted && !state.isSpeaking) {
-              enqueueSloganCycle("initial_baked", true);
-            }
-          } else if (!isApiCoolingDown()) {
-            state.apiStatus = "READY";
+            await synthesizeSingleCharacterSloganWav("Donna");
           }
         } finally {
           state.sloganBakeInProgress = false;
@@ -2226,7 +2299,7 @@
       }
 
       /* ======================================================================
-         9. PROCEDURAL 256-BAR (~8m32s) 16-SECTION SYNTHWAVE BED
+         9. PROCEDURAL 256-BAR (~8m32s) 16-SECTION SMOOTH SYNTHWAVE BED
          ====================================================================== */
       async function buildSynthwaveBedBlobAsync() {
         const sampleRate = 22050;
@@ -2556,7 +2629,7 @@
       }
 
       /* ======================================================================
-         10. WEB AUDIO ENGINE (GESTURE UNLOCK + WARM PAD/PULSE + 256-BAR BED)
+         10. WEB AUDIO ENGINE & GEMINI-ONLY VOICE PLAYBACK
          ====================================================================== */
       class BroadcastAudioEngine {
         constructor() {
@@ -2587,11 +2660,10 @@
           }
         }
 
-        ensureContextSync() {
+        async ensureContext() {
           this.configureIosAudioSessionOnce();
           const AudioCtx = window.AudioContext || window.webkitAudioContext;
           if (!AudioCtx) return null;
-
           if (!this.ctx) {
             this.ctx = new AudioCtx();
             this.masterGain = this.ctx.createGain();
@@ -2612,19 +2684,16 @@
               }
             };
           }
-
           if (this.ctx.state !== "running") {
             try {
-              this.ctx.resume().catch(() => {});
+              await this.ctx.resume();
             } catch (e) {}
           }
-
           if (this.masterGain && this.ctx.state === "running") {
             try {
               this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
             } catch (e) {}
           }
-
           if (!this.isPrimed && this.ctx.state === "running") {
             try {
               const silentBuf = this.ctx.createBuffer(1, 1, 22050);
@@ -2635,19 +2704,7 @@
               this.isPrimed = true;
             } catch (e) {}
           }
-
           return this.ctx;
-        }
-
-        async ensureContext() {
-          const ctx = this.ensureContextSync();
-          if (!ctx) return null;
-          if (ctx.state !== "running") {
-            try {
-              await ctx.resume();
-            } catch (e) {}
-          }
-          return ctx;
         }
 
         async ensureBedBuffer(ctx) {
@@ -2666,7 +2723,7 @@
         }
 
         startFallbackSynthPulse(ctx) {
-          if (this.fallbackPulseTimer || !this.bedGain || !ctx) return;
+          if (this.fallbackPulseTimer || !this.bedGain) return;
           const chordRoots = [110.0, 87.31, 130.81, 98.0];
           const arpOffsets = [2.0, 2.5, 3.0, 4.0];
           this.fallbackStep = 0;
@@ -2683,10 +2740,6 @@
             const freq = (this.fallbackStep % 2 === 0) ? root : (root * mult);
 
             try {
-              const filter = this.ctx.createBiquadFilter();
-              filter.type = "lowpass";
-              filter.frequency.setValueAtTime(920, now);
-
               const osc = this.ctx.createOscillator();
               const subOsc = this.ctx.createOscillator();
               const env = this.ctx.createGain();
@@ -2696,18 +2749,17 @@
               subOsc.frequency.setValueAtTime(root, now);
 
               env.gain.setValueAtTime(0.001, now);
-              env.gain.linearRampToValueAtTime(0.32, now + 0.025);
-              env.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+              env.gain.linearRampToValueAtTime(0.32, now + 0.015);
+              env.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
 
-              osc.connect(filter);
-              subOsc.connect(filter);
-              filter.connect(env);
+              osc.connect(env);
+              subOsc.connect(env);
               env.connect(this.bedGain);
 
               osc.start(now);
               subOsc.start(now);
-              osc.stop(now + 0.25);
-              subOsc.stop(now + 0.25);
+              osc.stop(now + 0.24);
+              subOsc.stop(now + 0.24);
             } catch (e) {}
 
             this.fallbackStep++;
@@ -2734,10 +2786,15 @@
           return { gain: BED_CRUISE_GAIN, label: "BED CRUISE" };
         }
 
-        startBedImmediateSync() {
+        async startBedIfEnabled() {
           if (!state.musicBedOn) return;
-          const ctx = this.ensureContextSync();
+          const ctx = await this.ensureContext();
           if (!ctx || !this.bedGain) return;
+          if (ctx.state !== "running") {
+            try {
+              await ctx.resume();
+            } catch (e) {}
+          }
 
           const { gain, label } = this.getCurrentDuckTarget();
           try {
@@ -2751,31 +2808,19 @@
           if (this.bedBuffer) {
             this.stopFallbackSynthPulse();
             if (!this.bedPlaying || !this.bedSource) {
-              try {
-                const src = ctx.createBufferSource();
-                src.buffer = this.bedBuffer;
-                src.loop = true;
-                src.connect(this.bedGain);
-                src.start(0);
-                this.bedSource = src;
-                this.bedPlaying = true;
-              } catch (e) {}
+              const src = ctx.createBufferSource();
+              src.buffer = this.bedBuffer;
+              src.loop = true;
+              src.connect(this.bedGain);
+              src.start(0);
+              this.bedSource = src;
+              this.bedPlaying = true;
             }
             return;
           }
 
           this.startFallbackSynthPulse(ctx);
-        }
-
-        async startBedIfEnabled() {
-          if (!state.musicBedOn) return;
-          this.startBedImmediateSync();
-          const ctx = await this.ensureContext();
-          if (!ctx || !this.bedGain) return;
-
-          if (!this.bedBuffer) {
-            await this.ensureBedBuffer(ctx);
-          }
+          await this.ensureBedBuffer(ctx);
           this.stopFallbackSynthPulse();
 
           if (!state.musicBedOn || !this.bedBuffer) return;
@@ -2833,7 +2878,7 @@
           state.playToken++;
           state.isSpeaking = false;
           state.activeIsSlogan = false;
-          state.activeRunnerType = null;
+          state.activeRunnerType = "NONE";
           if (state.activeSpeechSource) {
             try {
               state.activeSpeechSource.onended = null;
@@ -2851,7 +2896,6 @@
         }
 
         async playWavBlob(wavBlob, token, duckGain, duckLabel) {
-          if (!(wavBlob instanceof Blob) || wavBlob.size < 100) return false;
           const ctx = await this.ensureContext();
           if (!ctx) return false;
           if (ctx.state !== "running") {
@@ -2909,16 +2953,16 @@
           }
         }
 
-        // Gemini TTS / Cached WAV only — never uses browser speechSynthesis
-        async playScriptLines(lines, options = {}) {
+        // Gemini-only playback: returns true if playable WAV audio was delivered, false otherwise
+        async playGeminiLines(lines, options = {}) {
           const {
             badge = "CALLER",
             title = "Studio Segment",
             category = "CALLER",
             isSlogan = false,
-            runnerType = "PROGRAM",
             cachedWav = null,
-            saveToVault = true
+            saveToVault = true,
+            dedupKey = ""
           } = options;
 
           if (!state.isOnAir) return false;
@@ -2927,9 +2971,8 @@
           const token = ++state.playToken;
           state.isSpeaking = true;
           state.activeIsSlogan = isSlogan;
-          state.activeRunnerType = runnerType;
+          state.activeRunnerType = isSlogan ? "SLOGAN" : "PROGRAM";
           setProgramTitle(title);
-          syncUiState();
 
           const duckGain = isSlogan ? BED_SLOGAN_DUCK_GAIN : BED_SPEECH_DUCK_GAIN;
           const duckLabel = isSlogan ? "DUCK SLOGAN -10%" : "DUCK SPEECH -92%";
@@ -2939,12 +2982,9 @@
             if (wavToPlay && !isApiCoolingDown()) {
               state.apiStatus = "CACHED HIT";
               syncApiTelemetryUi();
-            }
-            if (!wavToPlay && hasApiKey() && !isApiCoolingDown()) {
-              state.apiStatus = "BAKING";
-              syncApiTelemetryUi();
-              wavToPlay = await synthesizeSegmentWav(lines, `script:${category}:${title}`);
-              if (wavToPlay && saveToVault && token === state.playToken && state.isOnAir) {
+            } else if (!wavToPlay && hasApiKey() && !isApiCoolingDown()) {
+              wavToPlay = await synthesizeSegmentWav(lines, dedupKey);
+              if (wavToPlay && saveToVault) {
                 await saveClipToVault(category, title, wavToPlay);
               }
             }
@@ -2956,116 +2996,81 @@
             syncTeleprompter(true, badge, title, fullScript);
 
             const ok = await this.playWavBlob(wavToPlay, token, duckGain, duckLabel);
-            return Boolean(ok);
+            return Boolean(ok && token === state.playToken && state.isOnAir);
           } finally {
             if (token === state.playToken) {
               state.isSpeaking = false;
               state.activeIsSlogan = false;
-              state.activeRunnerType = null;
+              state.activeRunnerType = "NONE";
               syncTeleprompter(false);
               if (state.isOnAir) {
-                setProgramTitle("CARRIER MUSIC BED // SLOGAN-ANCHORED 5-MIN SCHEDULE");
+                setProgramTitle("CARRIER MUSIC BED // STANDBY FOR NEXT SLOT");
               } else {
                 setProgramTitle("IDLE // AWAITING CARRIER ENGAGE");
               }
               const post = this.getCurrentDuckTarget();
               this.rampBedGain(post.gain, 300);
               updateDuckPill(post.label);
-              syncUiState();
             }
           }
         }
 
-        // Dual-character slogan WAV playback:
-        // Opening play (isInitialAnchor = true): Marcus then Donna, sets 5-min anchor & first advert at +5m
-        // Subsequent plays: alternates lead character (Marcus or Donna) across the two cached slogan WAVs
+        // Dual-character slogan runner:
+        // - isInitialAnchor = true (going ON AIR): plays Marcus then Donna, sets 15m slogan repeat & +5m first advert
+        // - isInitialAnchor = false: plays ONE alternating character (Marcus <-> Donna) every 15 mins or as fallback
         async playSloganSegment(options = {}) {
           const { isInitialAnchor = false } = options;
           if (!state.isOnAir) return false;
-          stopPreviewWav();
 
-          const order = isInitialAnchor
-            ? ["Marcus", "Donna"]
-            : (state.sloganLeadIndex % 2 === 0 ? ["Marcus", "Donna"] : ["Donna", "Marcus"]);
-
-          const token = ++state.playToken;
-          state.isSpeaking = true;
-          state.activeIsSlogan = true;
-          state.activeRunnerType = "SLOGAN";
-          setProgramTitle(`Weazel 13.3 FM Slogan (${order[0]} & ${order[1]})`);
-          syncUiState();
-
+          const singleChar = state.sloganNextSingleChar === "Donna" ? "Donna" : "Marcus";
+          const sequenceChars = isInitialAnchor ? ["Marcus", "Donna"] : [singleChar];
           let playedAny = false;
 
-          try {
-            for (const charKey of order) {
-              if (token !== state.playToken || !state.isOnAir) break;
-              const charScript = SLOGAN_SCRIPT[charKey];
-              const isMarcus = charKey === "Marcus";
-              let charWav = isMarcus ? state.sloganMarcusWavBlob : state.sloganDonnaWavBlob;
+          for (const charKey of sequenceChars) {
+            if (!state.isOnAir) break;
+            const script = SLOGAN_CHARACTER_SCRIPTS[charKey];
+            if (!script) continue;
 
-              if (charWav && !isApiCoolingDown()) {
-                state.apiStatus = "CACHED HIT";
-                syncApiTelemetryUi();
-              } else if (!charWav && hasApiKey() && !isApiCoolingDown()) {
-                state.apiStatus = "BAKING";
-                syncApiTelemetryUi();
-                charWav = await synthesizeSingleCharacterWav(charScript, `slogan_wav_${charKey.toLowerCase()}`);
-                if (charWav) {
-                  if (isMarcus) {
-                    state.sloganMarcusWavBlob = charWav;
-                    await idbSet(SLOGAN_MARCUS_SLOT_KEY, { wavBlob: charWav, createdAt: Date.now() });
-                  } else {
-                    state.sloganDonnaWavBlob = charWav;
-                    await idbSet(SLOGAN_DONNA_SLOT_KEY, { wavBlob: charWav, createdAt: Date.now() });
-                  }
-                  await saveClipToVault("SLOGAN", charScript.title, charWav);
-                }
+            const existingWav = charKey === "Marcus" ? state.sloganMarcusWavBlob : state.sloganDonnaWavBlob;
+            const ok = await this.playGeminiLines(
+              [{ speaker: script.speaker, text: script.text }],
+              {
+                badge: "STATION SLOGAN",
+                title: script.title,
+                category: "SLOGAN",
+                isSlogan: true,
+                cachedWav: existingWav,
+                saveToVault: false,
+                dedupKey: `slogan_char_${charKey.toLowerCase()}`
               }
+            );
 
-              if (token !== state.playToken || !state.isOnAir) break;
-              if (!charWav) continue;
-
-              syncTeleprompter(true, "STATION SLOGAN", charScript.speaker, charScript.text);
-              const ok = await this.playWavBlob(charWav, token, BED_SLOGAN_DUCK_GAIN, "DUCK SLOGAN -10%");
-              if (ok) {
-                playedAny = true;
+            if (ok) {
+              playedAny = true;
+              if (!existingWav && hasApiKey() && !isApiCoolingDown()) {
+                synthesizeSingleCharacterSloganWav(charKey).catch(() => {});
               }
-            }
-
-            if (playedAny && token === state.playToken && state.isOnAir) {
-              state.sloganLeadIndex = (state.sloganLeadIndex + 1) % 2;
-              const finishedAt = Date.now();
-              if (isInitialAnchor && !state.sloganInitialCompleted) {
-                state.sloganInitialCompleted = true;
-                state.sloganAnchorTimeMs = finishedAt;
-                state.nextSloganDueAtMs = finishedAt + SLOGAN_REPEAT_MS;
-                state.nextProgramDueAtMs = finishedAt + SCHEDULE_SLOT_MS; // First advert 5 mins after slogan
-                state.scheduleCursorIndex = 0; // Starts at SPONSOR
-              } else {
-                state.nextSloganDueAtMs = finishedAt + SLOGAN_REPEAT_MS;
-              }
-              updateClockAndCountdowns();
-            }
-
-            return playedAny;
-          } finally {
-            if (token === state.playToken) {
-              state.isSpeaking = false;
-              state.activeIsSlogan = false;
-              state.activeRunnerType = null;
-              syncTeleprompter(false);
-              if (state.isOnAir) {
-                setProgramTitle("CARRIER MUSIC BED // SLOGAN-ANCHORED 5-MIN SCHEDULE");
-              } else {
-                setProgramTitle("IDLE // AWAITING CARRIER ENGAGE");
-              }
-              const post = this.getCurrentDuckTarget();
-              this.rampBedGain(post.gain, 300);
-              updateDuckPill(post.label);
-              syncUiState();
             }
           }
+
+          if (playedAny && state.isOnAir) {
+            const finishedAt = Date.now();
+            if (isInitialAnchor && !state.sloganInitialCompleted) {
+              state.sloganInitialCompleted = true;
+              state.sloganAnchorTimeMs = finishedAt;
+              state.sloganNextSingleChar = "Marcus"; // Next single-voice slogan starts with Marcus
+              state.nextSloganDueAtMs = finishedAt + SLOGAN_REPEAT_MS; // 15-min slogan repeat
+              state.nextProgramDueAtMs = finishedAt + PROGRAM_INTERVAL_MS; // First advert 5 mins after slogan
+              state.scheduleCursorIndex = 0;
+              updateClockAndCountdowns();
+            } else if (!isInitialAnchor) {
+              state.sloganNextSingleChar = singleChar === "Marcus" ? "Donna" : "Marcus";
+              state.nextSloganDueAtMs = finishedAt + SLOGAN_REPEAT_MS;
+              updateClockAndCountdowns();
+            }
+          }
+
+          return playedAny;
         }
       }
 
@@ -3142,451 +3147,344 @@
         };
       }
 
-      async function attemptSponsorSegment() {
-        const candidates = SPONSOR_SEGMENTS.filter((s) => s.id !== state.lastSponsorId);
-        const seg = candidates[Math.floor(Math.random() * candidates.length)] || SPONSOR_SEGMENTS[0];
-        const fullTitle = `Message from Sponsor — ${seg.title}`;
-        const cached = state.vaultClips.find((c) => c.category === "SPONSOR" && c.title === fullTitle);
-
-        if (!cached && !hasApiKey()) return false;
-
-        const ok = await audioEngine.playScriptLines(seg.lines, {
-          badge: "MESSAGE FROM SPONSOR",
-          title: fullTitle,
-          category: "SPONSOR",
-          isSlogan: false,
-          runnerType: "PROGRAM",
-          cachedWav: cached ? cached.wavBlob : null,
-          saveToVault: true
-        });
-        if (ok) {
+      async function attemptProgramItemDelivery(itemType) {
+        if (!state.isOnAir) return false;
+        if (itemType === "SPONSOR") {
+          const candidates = SPONSOR_SEGMENTS.filter((s) => s.id !== state.lastSponsorId);
+          const seg = candidates[Math.floor(Math.random() * candidates.length)] || SPONSOR_SEGMENTS[0];
           state.lastSponsorId = seg.id;
+          const fullTitle = `Message from Sponsor — ${seg.title}`;
+          const cached = state.vaultClips.find((c) => c.category === "SPONSOR" && c.title === fullTitle);
+          return audioEngine.playGeminiLines(seg.lines, {
+            badge: "MESSAGE FROM SPONSOR",
+            title: fullTitle,
+            category: "SPONSOR",
+            isSlogan: false,
+            cachedWav: cached ? cached.wavBlob : null,
+            saveToVault: true
+          });
         }
-        return ok;
-      }
-
-      async function attemptCallerSegment() {
+        if (itemType === "NEWS") {
+          const seg = await buildNewsWireSegment();
+          return audioEngine.playGeminiLines(seg.lines, {
+            badge: seg.badge,
+            title: seg.title,
+            category: "NEWS",
+            isSlogan: false,
+            saveToVault: false
+          });
+        }
+        if (itemType === "WEATHER") {
+          const seg = await buildWeatherTrafficSegment();
+          return audioEngine.playGeminiLines(seg.lines, {
+            badge: seg.badge,
+            title: seg.title,
+            category: "WEATHER",
+            isSlogan: false,
+            saveToVault: false
+          });
+        }
         const candidates = CALLER_SEGMENTS.filter((c) => c.title !== state.lastCallerTitle);
         const seg = candidates[Math.floor(Math.random() * candidates.length)] || CALLER_SEGMENTS[0];
+        state.lastCallerTitle = seg.title;
         const cached = state.vaultClips.find((c) => c.category === "CALLER" && c.title === seg.title);
-
-        if (!cached && !hasApiKey()) return false;
-
-        const ok = await audioEngine.playScriptLines(seg.lines, {
+        return audioEngine.playGeminiLines(seg.lines, {
           badge: "CALLER",
           title: seg.title,
           category: "CALLER",
           isSlogan: false,
-          runnerType: "PROGRAM",
           cachedWav: cached ? cached.wavBlob : null,
           saveToVault: true
         });
-        if (ok) {
-          state.lastCallerTitle = seg.title;
-        }
-        return ok;
-      }
-
-      async function attemptWeatherSegment() {
-        if (!hasApiKey()) return false;
-        const seg = await buildWeatherTrafficSegment();
-        return await audioEngine.playScriptLines(seg.lines, {
-          badge: seg.badge,
-          title: seg.title,
-          category: "WEATHER",
-          isSlogan: false,
-          runnerType: "PROGRAM",
-          saveToVault: false
-        });
-      }
-
-      async function attemptNewsSegment() {
-        if (!hasApiKey()) return false;
-        const seg = await buildNewsWireSegment();
-        return await audioEngine.playScriptLines(seg.lines, {
-          badge: seg.badge,
-          title: seg.title,
-          category: "NEWS",
-          isSlogan: false,
-          runnerType: "PROGRAM",
-          saveToVault: false
-        });
       }
 
       /* ======================================================================
-         12. SLOGAN-ANCHORED 5-MIN SCHEDULE WITH SLOGAN FALLBACK & RETRY PUSH
+         12. SLOGAN-ANCHORED 5M SCHEDULE WITH SLOGAN FALLBACK & RETRY PUSH-BACK
          ====================================================================== */
-      let queueProcessing = false;
+      let runnerBusy = false;
 
-      function enqueueSpeechItem(item) {
-        if (!state.isOnAir) return;
-        if (item.isSlogan) {
-          if (
-            state.activeRunnerType === "SLOGAN" ||
-            state.speechQueue.some((q) => q.isSlogan)
-          ) {
-            return;
+      async function startInitialSloganAnchor() {
+        if (!state.isOnAir || runnerBusy || state.sloganInitialCompleted) return;
+        runnerBusy = true;
+        try {
+          if (hasApiKey() && !isApiCoolingDown() && (!state.sloganMarcusWavBlob || !state.sloganDonnaWavBlob)) {
+            bakeBothSloganWavsOnce().catch(() => {});
           }
-        } else if (item.kind === "PROGRAM") {
-          if (
-            state.activeRunnerType === "PROGRAM" ||
-            state.speechQueue.some((q) => q.kind === "PROGRAM")
-          ) {
-            return;
-          }
-        }
-        state.speechQueue.push(item);
-        state.speechQueue.sort((a, b) => a.priority - b.priority);
-        syncUiState();
-        processSpeechQueue();
-      }
-
-      function enqueueSloganCycle(cycleId, isInitialAnchor = false) {
-        if (!state.isOnAir) return;
-        if (!isInitialAnchor && !state.sloganInitialCompleted) return;
-        if (!isInitialAnchor && state.lastSloganCycleId === cycleId) return;
-        if (state.activeRunnerType === "SLOGAN" || state.speechQueue.some((q) => q.isSlogan)) {
-          return;
-        }
-
-        state.lastSloganCycleId = cycleId;
-        enqueueSpeechItem({
-          id: `slogan_${cycleId}_${Date.now()}`,
-          kind: "SLOGAN",
-          priority: 1,
-          isSlogan: true,
-          category: "SLOGAN",
-          title: isInitialAnchor ? "Opening Station Slogan (Marcus & Donna)" : "Station Slogan ID",
-          run: () => audioEngine.playSloganSegment({ isInitialAnchor })
-        });
-      }
-
-      function enqueueProgramSlot(slotDueAtMs) {
-        if (!state.isOnAir || !state.sloganInitialCompleted) return;
-        if (state.activeRunnerType === "PROGRAM" || state.speechQueue.some((q) => q.kind === "PROGRAM")) {
-          return;
-        }
-
-        const spec = state.pendingRetryItem || {
-          ...PROGRAM_SEQUENCE[state.scheduleCursorIndex % PROGRAM_SEQUENCE.length],
-          retries: 0
-        };
-
-        enqueueSpeechItem({
-          id: `prog_${slotDueAtMs}_${spec.type}`,
-          kind: "PROGRAM",
-          priority: 2,
-          isSlogan: false,
-          category: spec.type,
-          title: spec.title,
-          programSpec: spec,
-          run: async () => {
-            let delivered = false;
-            try {
-              if (spec.type === "SPONSOR") {
-                delivered = await attemptSponsorSegment();
-              } else if (spec.type === "NEWS") {
-                delivered = await attemptNewsSegment();
-              } else if (spec.type === "WEATHER") {
-                delivered = await attemptWeatherSegment();
-              } else if (spec.type === "CALLER") {
-                delivered = await attemptCallerSegment();
-              }
-            } catch (e) {
-              delivered = false;
-            }
-
-            if (!state.isOnAir) return;
-
-            if (delivered) {
-              // Item delivered cleanly: clear any pending retry and advance cursor
-              if (state.pendingRetryItem && state.pendingRetryItem.type === spec.type) {
-                state.pendingRetryItem = null;
-              }
-              state.scheduleCursorIndex = (state.scheduleCursorIndex + 1) % PROGRAM_SEQUENCE.length;
-            } else {
-              // Item not ready in time: play slogan fallback and retry item at next slot (pushing others back)
-              const nextRetries = (spec.retries || 0) + 1;
-              if (nextRetries <= MAX_ITEM_RETRIES) {
-                state.pendingRetryItem = {
-                  type: spec.type,
-                  title: spec.title,
-                  retries: nextRetries
-                };
-              } else {
-                state.pendingRetryItem = null;
-                state.scheduleCursorIndex = (state.scheduleCursorIndex + 1) % PROGRAM_SEQUENCE.length;
-              }
-
-              const fallbackCycleId = `fallback_${Date.now()}`;
-              state.lastSloganCycleId = fallbackCycleId;
-              await audioEngine.playSloganSegment({ isInitialAnchor: false });
-            }
-
-            // Schedule next 5-minute program slot from completion time
-            state.nextProgramDueAtMs = Date.now() + SCHEDULE_SLOT_MS;
-            syncUiState();
+          const ok = await audioEngine.playSloganSegment({ isInitialAnchor: true });
+          if (!ok && state.isOnAir && !state.sloganInitialCompleted) {
+            const fallbackNow = Date.now();
+            state.sloganInitialCompleted = true;
+            state.sloganAnchorTimeMs = fallbackNow;
+            state.nextSloganDueAtMs = fallbackNow + SLOGAN_REPEAT_MS;
+            state.nextProgramDueAtMs = fallbackNow + PROGRAM_INTERVAL_MS;
+            state.scheduleCursorIndex = 0;
             updateClockAndCountdowns();
           }
-        });
-      }
-
-      async function processSpeechQueue() {
-        if (queueProcessing || !state.isOnAir || state.isSpeaking) return;
-        const nextItem = state.speechQueue.shift();
-        syncUiState();
-        if (!nextItem) return;
-
-        queueProcessing = true;
-        try {
-          await nextItem.run();
-        } catch (e) {
         } finally {
-          queueProcessing = false;
+          runnerBusy = false;
           syncUiState();
-          if (state.isOnAir && state.speechQueue.length > 0) {
-            setTimeout(() => processSpeechQueue(), 350);
-          }
         }
       }
 
-      function runBroadcastSchedulerTick() {
-        safeCall(() => {
-          if (!state.isOnAir) return;
-          const nowMs = Date.now();
+      async function runDueProgramSlot(nowMs) {
+        if (!state.isOnAir || runnerBusy || !state.sloganInitialCompleted) return;
+        if (nowMs < state.nextProgramDueAtMs) return;
 
-          if (!state.sloganInitialCompleted) {
-            if (hasApiKey() && !isApiCoolingDown() && (!state.sloganMarcusWavBlob || !state.sloganDonnaWavBlob) && !state.sloganBakeInProgress) {
-              bakeSloganInBackground().catch(() => {});
-            } else if ((state.sloganMarcusWavBlob || state.sloganDonnaWavBlob) && !state.isSpeaking && state.speechQueue.length === 0) {
-              enqueueSloganCycle("initial_retry", true);
+        runnerBusy = true;
+        try {
+          const item = state.pendingRetryItem || {
+            type: PROGRAM_SEQUENCE[state.scheduleCursorIndex % PROGRAM_SEQUENCE.length].type,
+            title: PROGRAM_SEQUENCE[state.scheduleCursorIndex % PROGRAM_SEQUENCE.length].title,
+            retries: 0
+          };
+
+          const delivered = await attemptProgramItemDelivery(item.type);
+
+          if (delivered) {
+            state.pendingRetryItem = null;
+            state.scheduleCursorIndex = (state.scheduleCursorIndex + 1) % PROGRAM_SEQUENCE.length;
+            state.nextProgramDueAtMs = Date.now() + PROGRAM_INTERVAL_MS;
+          } else {
+            // Slogan fallback when segment wasn't ready/playable in time; retry & push item back
+            await audioEngine.playSloganSegment({ isInitialAnchor: false });
+            const nextRetryCount = (item.retries || 0) + 1;
+            if (nextRetryCount <= MAX_ITEM_RETRIES) {
+              state.pendingRetryItem = {
+                type: item.type,
+                title: item.title,
+                retries: nextRetryCount
+              };
+            } else {
+              state.pendingRetryItem = null;
+              state.scheduleCursorIndex = (state.scheduleCursorIndex + 1) % PROGRAM_SEQUENCE.length;
             }
-            return;
+            state.nextProgramDueAtMs = Date.now() + PROGRAM_INTERVAL_MS;
           }
 
-          if (state.nextProgramDueAtMs > 0 && nowMs >= state.nextProgramDueAtMs) {
-            const dueMark = state.nextProgramDueAtMs;
-            // Push due target forward so it cannot re-fire during async synthesis
-            state.nextProgramDueAtMs = nowMs + SCHEDULE_SLOT_MS;
-            enqueueProgramSlot(dueMark);
-            return;
-          }
+          updateClockAndCountdowns();
+        } finally {
+          runnerBusy = false;
+          syncUiState();
+        }
+      }
 
-          if (
-            state.nextSloganDueAtMs > 0 &&
-            nowMs >= state.nextSloganDueAtMs &&
-            !state.isSpeaking &&
-            state.activeRunnerType !== "PROGRAM" &&
-            !state.speechQueue.some((q) => q.kind === "PROGRAM")
-          ) {
-            const cycleId = `slogan5m_${Math.floor(state.nextSloganDueAtMs / SLOGAN_REPEAT_MS)}`;
-            state.nextSloganDueAtMs = nowMs + SLOGAN_REPEAT_MS;
-            enqueueSloganCycle(cycleId, false);
-          }
-        }, "runBroadcastSchedulerTick");
+      async function runDuePeriodicSlogan(nowMs) {
+        if (!state.isOnAir || runnerBusy || !state.sloganInitialCompleted) return;
+        if (nowMs < state.nextSloganDueAtMs) return;
+
+        runnerBusy = true;
+        try {
+          await audioEngine.playSloganSegment({ isInitialAnchor: false });
+          updateClockAndCountdowns();
+        } finally {
+          runnerBusy = false;
+          syncUiState();
+        }
+      }
+
+      function tickBroadcastScheduler() {
+        if (!state.isOnAir || runnerBusy) return;
+        const nowMs = Date.now();
+        if (!state.sloganInitialCompleted) {
+          startInitialSloganAnchor().catch(() => {});
+          return;
+        }
+        if (nowMs >= state.nextProgramDueAtMs) {
+          runDueProgramSlot(nowMs).catch(() => {});
+          return;
+        }
+        if (nowMs >= state.nextSloganDueAtMs) {
+          runDuePeriodicSlogan(nowMs).catch(() => {});
+        }
       }
 
       /* ======================================================================
-         13. UPCOMING BROADCAST SCHEDULE DRAWER
+         13. UPCOMING PROGRAM DRAWER
          ====================================================================== */
       function renderScheduleDrawer() {
-        safeCall(() => {
-          refreshDomRefs();
-          if (!el.scheduleSlotsList || !el.scheduleNextBanner) return;
-          const nowMs = Date.now();
-          const activeSpec = state.pendingRetryItem || PROGRAM_SEQUENCE[state.scheduleCursorIndex % PROGRAM_SEQUENCE.length];
-          const nextProgMs = state.isOnAir && state.sloganInitialCompleted && state.nextProgramDueAtMs > 0
-            ? Math.max(0, state.nextProgramDueAtMs - nowMs)
-            : SCHEDULE_SLOT_MS;
+        if (!el.scheduleSlotsList || !el.scheduleNextBanner) return;
+        const nowMs = Date.now();
+        const reg = getCurrentCityRecord();
 
-          const nextSloganMs = state.isOnAir && state.sloganInitialCompleted && state.nextSloganDueAtMs > 0
-            ? Math.max(0, state.nextSloganDueAtMs - nowMs)
-            : SLOGAN_REPEAT_MS;
+        const nextSloganRemMs = state.isOnAir && state.sloganInitialCompleted
+          ? Math.max(0, state.nextSloganDueAtMs - nowMs)
+          : 0;
+        const nextProgRemMs = state.isOnAir && state.sloganInitialCompleted
+          ? Math.max(0, state.nextProgramDueAtMs - nowMs)
+          : PROGRAM_INTERVAL_MS;
 
-          if (el.scheduleModalSummary) {
-            el.scheduleModalSummary.textContent = state.isOnAir
-              ? `ON AIR • ${getCurrentCityRecord().cityName.toUpperCase()} • FIRST ADVERT 5M AFTER SLOGAN ANCHOR`
-              : "STANDBY • ENGAGE ON AIR TO ANCHOR SLOGAN & START 5-MINUTE SCHEDULE";
-          }
+        const nextProgItem = state.pendingRetryItem
+          ? `${state.pendingRetryItem.title} (RETRY #${state.pendingRetryItem.retries})`
+          : PROGRAM_SEQUENCE[state.scheduleCursorIndex % PROGRAM_SEQUENCE.length].title;
 
-          el.scheduleNextBanner.innerHTML = `
-            <div class="p-2-5 rounded border border-emerald-40 bg-emerald-30">
-              <div class="text-9px font-extrabold text-emerald-300 font-mono">SLOGAN ANCHOR & 5-MIN REPEAT</div>
-              <div class="text-12px font-extrabold text-white mt-0-5 font-mono">
-                ${state.isOnAir && state.sloganInitialCompleted ? `${formatClockHhMm(new Date(nowMs + nextSloganMs))} • in ${formatMmSs(nextSloganMs)}` : "PLAYS FIRST ON AIR"}
-              </div>
+        if (el.scheduleModalSummary) {
+          el.scheduleModalSummary.textContent = state.isOnAir
+            ? `ON AIR • ${reg.cityName.toUpperCase()} • 5M PROGRAM CADENCE • 15M SINGLE-VOICE SLOGAN (${state.sloganNextSingleChar.toUpperCase()})`
+            : "STANDBY • ENGAGE ON AIR TO PLAY MARCUS & DONNA SLOGAN FIRST";
+        }
+
+        el.scheduleNextBanner.innerHTML = `
+          <div class="banner-card-green">
+            <div class="banner-label-green">NEXT SLOGAN (15M · ${state.sloganNextSingleChar.toUpperCase()} ONLY)</div>
+            <div class="banner-val">
+              ${state.isOnAir && state.sloganInitialCompleted ? `${formatClockHhMm(new Date(nowMs + nextSloganRemMs))} • in ${formatMmSs(nextSloganRemMs)}` : "MARCUS & DONNA AT START"}
             </div>
-            <div class="p-2-5 rounded border border-amber-40 bg-amber-30">
-              <div class="text-9px font-extrabold text-amber-300 font-mono">NEXT SCHEDULED SEGMENT (${formatClockHhMm(new Date(nowMs + nextProgMs))})</div>
-              <div class="text-12px font-extrabold text-white mt-0-5 font-mono">
-                ${activeSpec.title}${state.pendingRetryItem ? ` (RETRY #${state.pendingRetryItem.retries})` : ""} • in ${formatMmSs(nextProgMs)}
-              </div>
+          </div>
+          <div class="banner-card-amber">
+            <div class="banner-label-amber">NEXT SCHEDULED ITEM (5M CADENCE)</div>
+            <div class="banner-val">
+              ${state.isOnAir && state.sloganInitialCompleted ? `${nextProgItem} • in ${formatMmSs(nextProgRemMs)}` : "ADVERT (SPONSOR) +5M AFTER SLOGAN"}
             </div>
+          </div>
+        `;
+
+        el.scheduleSlotsList.innerHTML = "";
+        for (let step = 0; step < 8; step++) {
+          const isRetryStep = step === 0 && Boolean(state.pendingRetryItem);
+          const seqIdx = (state.scheduleCursorIndex + (isRetryStep ? 0 : step)) % PROGRAM_SEQUENCE.length;
+          const slotObj = isRetryStep
+            ? { type: state.pendingRetryItem.type, title: `${state.pendingRetryItem.title} (RETRY #${state.pendingRetryItem.retries})` }
+            : PROGRAM_SEQUENCE[seqIdx];
+
+          const offsetMs = state.isOnAir && state.sloganInitialCompleted
+            ? nextProgRemMs + step * PROGRAM_INTERVAL_MS
+            : (step + 1) * PROGRAM_INTERVAL_MS;
+          const etaDate = new Date(nowMs + offsetMs);
+
+          const row = document.createElement("div");
+          row.className = `slot-row ${step === 0 ? "active-slot" : ""}`;
+          row.innerHTML = `
+            <div class="slot-left">
+              <span class="slot-time">${formatClockHhMm(etaDate)}</span>
+              <span class="vfd-pill ${slotObj.type === "NEWS" ? "crimson" : "amber"}">${slotObj.type}</span>
+              <span class="slot-title">${slotObj.title}</span>
+            </div>
+            <span class="slot-status ${step === 0 ? "active" : ""}">
+              ${step === 0 ? `NEXT · in ${formatMmSs(offsetMs)}` : `+${formatMmSs(offsetMs)}`}
+            </span>
           `;
-
-          el.scheduleSlotsList.innerHTML = "";
-          for (let offset = 0; offset < PROGRAM_SEQUENCE.length; offset++) {
-            const idx = (state.scheduleCursorIndex + offset) % PROGRAM_SEQUENCE.length;
-            const slotObj = (offset === 0 && state.pendingRetryItem) ? state.pendingRetryItem : PROGRAM_SEQUENCE[idx];
-            const slotEtaMs = (state.isOnAir && state.sloganInitialCompleted ? nextProgMs : SCHEDULE_SLOT_MS) + (offset * SCHEDULE_SLOT_MS);
-            const slotDate = new Date(nowMs + slotEtaMs);
-            const isNext = offset === 0;
-            const statusLabel = isNext
-              ? (state.pendingRetryItem ? `RETRY · in ${formatMmSs(slotEtaMs)}` : `NEXT · in ${formatMmSs(slotEtaMs)}`)
-              : `IN ${formatMmSs(slotEtaMs)}`;
-
-            const row = document.createElement("div");
-            row.className = `flex items-center justify-between gap-2 p-2-5 rounded border ${isNext ? "border-emerald-55 bg-emerald-30" : "border-white-12 bg-black-45"}`;
-            row.innerHTML = `
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="text-12px font-extrabold text-slate-300 font-mono">${formatClockHhMm(slotDate)}</span>
-                <span class="vfd-pill ${slotObj.type === "NEWS" ? "crimson" : "amber"}">${slotObj.type}</span>
-                <span class="text-12px font-bold text-white truncate font-mono">${slotObj.title}</span>
-              </div>
-              <div class="text-10px font-extrabold ${isNext ? "text-emerald-300" : "text-amber-300"} shrink-0 font-mono">
-                ${statusLabel}
-              </div>
-            `;
-            el.scheduleSlotsList.appendChild(row);
-          }
-        }, "renderScheduleDrawer");
+          el.scheduleSlotsList.appendChild(row);
+        }
       }
 
       /* ======================================================================
-         14. ACTION HANDLERS + GLOBAL INLINE HOOKS + EVENT BINDING
+         14. ACTION HANDLERS & FAULT-ISOLATED EVENT WIRING
          ====================================================================== */
       function toggleStandby() {
-        safeCall(() => {
+        try {
           state.isOnAir = !state.isOnAir;
+          syncUiState();
 
           if (state.isOnAir) {
+            audioEngine.ensureContext().catch(() => {});
+            state.musicBedOn = true;
             state.sloganInitialCompleted = false;
             state.sloganAnchorTimeMs = 0;
             state.nextSloganDueAtMs = 0;
             state.nextProgramDueAtMs = 0;
+            state.sloganNextSingleChar = "Marcus";
             state.scheduleCursorIndex = 0;
             state.pendingRetryItem = null;
-            state.lastSloganCycleId = "";
-            state.speechQueue = [];
-
-            state.musicBedOn = true;
             syncUiState();
-            audioEngine.startBedImmediateSync();
-            audioEngine.startBedIfEnabled().catch(() => {});
 
-            if (state.sloganMarcusWavBlob || state.sloganDonnaWavBlob) {
-              enqueueSloganCycle("initial_start", true);
-            } else if (hasApiKey()) {
-              setProgramTitle("BAKING MARCUS & DONNA SLOGAN WAVS...");
-              bakeSloganInBackground().catch(() => {});
-            } else {
-              setProgramTitle("ON AIR // ADD GEMINI API KEY OR CACHED SLOGAN WAVS");
-              showToast("Add a Gemini API key to synthesize slogan & segments");
-            }
+            audioEngine.startBedIfEnabled().catch(() => {});
+            startInitialSloganAnchor().catch(() => {});
 
             if (!state.schedulerTimer) {
-              state.schedulerTimer = setInterval(runBroadcastSchedulerTick, 1000);
+              state.schedulerTimer = setInterval(tickBroadcastScheduler, 1000);
             }
-            updateClockAndCountdowns();
             showToast(`WEAZEL 13.3 FM ON AIR // ${getCurrentCityRecord().cityName.toUpperCase()}`);
           } else {
-            state.speechQueue = [];
+            state.pendingRetryItem = null;
             state.sloganInitialCompleted = false;
             state.sloganAnchorTimeMs = 0;
             state.nextSloganDueAtMs = 0;
             state.nextProgramDueAtMs = 0;
-            state.pendingRetryItem = null;
             audioEngine.stopVoice(false);
             state.musicBedOn = false;
             audioEngine.stopBed(160);
             setProgramTitle("IDLE // AWAITING CARRIER ENGAGE");
             syncUiState();
-            updateClockAndCountdowns();
             showToast("WEAZEL 13.3 FM STANDBY");
           }
-        }, "toggleStandby");
+        } catch (e) {}
       }
 
       function toggleBed() {
-        safeCall(() => {
+        try {
+          audioEngine.ensureContext().catch(() => {});
           state.musicBedOn = !state.musicBedOn;
           syncUiState();
           if (state.musicBedOn) {
-            audioEngine.startBedImmediateSync();
             audioEngine.startBedIfEnabled().catch(() => {});
             showToast("256-bar synthwave bed enabled");
           } else {
             audioEngine.stopBed(160);
             showToast("Synthwave bed muted");
           }
-        }, "toggleBed");
+        } catch (e) {}
       }
 
       function cutMic() {
-        safeCall(() => {
-          state.speechQueue = [];
+        try {
           stopPreviewWav();
           audioEngine.stopVoice(true);
           if (state.isOnAir) {
-            setProgramTitle("CARRIER MUSIC BED // SLOGAN-ANCHORED 5-MIN SCHEDULE");
+            setProgramTitle("CARRIER MUSIC BED // STANDBY FOR NEXT SLOT");
           }
           syncUiState();
-          showToast("Mic cut & queue cleared");
-        }, "cutMic");
+          showToast("Mic cut");
+        } catch (e) {}
       }
 
       function openScheduleModal() {
-        safeCall(() => {
-          refreshDomRefs();
+        try {
           state.scheduleOpen = true;
           renderScheduleDrawer();
           if (el.scheduleModal) el.scheduleModal.classList.remove("hidden-modal");
-        }, "openScheduleModal");
+        } catch (e) {}
       }
 
       function closeScheduleModal() {
-        safeCall(() => {
-          refreshDomRefs();
+        try {
           state.scheduleOpen = false;
           if (el.scheduleModal) el.scheduleModal.classList.add("hidden-modal");
-        }, "closeScheduleModal");
+        } catch (e) {}
       }
 
       function openVaultModal() {
-        safeCall(() => {
-          refreshDomRefs();
+        try {
           state.vaultOpen = true;
           renderVaultList();
           if (el.cachedWavsModal) el.cachedWavsModal.classList.remove("hidden-modal");
-        }, "openVaultModal");
+        } catch (e) {}
       }
 
       function closeVaultModal() {
-        safeCall(() => {
-          refreshDomRefs();
+        try {
           state.vaultOpen = false;
           stopPreviewWav();
           if (el.cachedWavsModal) el.cachedWavsModal.classList.add("hidden-modal");
-        }, "closeVaultModal");
+        } catch (e) {}
       }
 
       function handleCountryChange(newCountry) {
-        safeCall(() => {
+        try {
           if (!REGION_CATALOG[newCountry]) return;
           state.country = newCountry;
           const cities = REGION_CATALOG[state.country].cities;
           state.city = Object.keys(cities)[0];
-          populateCityDropdownSync();
+          populateCityDropdown();
           persistRegionSelection();
           syncUiState();
           refreshLiveRegionalWeather().catch(() => {});
           const reg = getCurrentCityRecord();
           showToast(`Region tuned: ${reg.cityName}, ${reg.countryCode}`);
-        }, "handleCountryChange");
+        } catch (e) {}
       }
 
       function handleCityChange(newCity) {
-        safeCall(() => {
+        try {
           const cities = (REGION_CATALOG[state.country] || REGION_CATALOG.IE).cities;
           if (!cities[newCity]) return;
           state.city = newCity;
@@ -3595,24 +3493,22 @@
           refreshLiveRegionalWeather().catch(() => {});
           const reg = getCurrentCityRecord();
           showToast(`City wire locked: ${reg.cityName}, ${reg.countryCode}`);
-        }, "handleCityChange");
+        } catch (e) {}
       }
 
       function toggleKeyVisibility() {
-        safeCall(() => {
-          refreshDomRefs();
+        try {
           if (!el.apiKeyInput) return;
           const isHidden = el.apiKeyInput.type === "password";
           el.apiKeyInput.type = isHidden ? "text" : "password";
           if (el.toggleKeyVisText) {
             el.toggleKeyVisText.textContent = isHidden ? "HIDE" : "SHOW";
           }
-        }, "toggleKeyVisibility");
+        } catch (e) {}
       }
 
       function saveApiKey() {
-        safeCall(() => {
-          refreshDomRefs();
+        try {
           if (!el.apiKeyInput) return;
           const val = el.apiKeyInput.value.trim();
           if (!val) {
@@ -3620,154 +3516,96 @@
             return;
           }
           setStore(STORAGE_KEY_NAME, val);
-          clearApiCooldownState();
+          state.apiCooldownUntilMs = 0;
+          state.apiConsecutiveErrors = 0;
+          state.apiStatus = "READY";
           syncUiState();
-          showToast("Gemini API key saved — cooldown cleared");
+          showToast("Gemini API key saved");
           if (!state.sloganMarcusWavBlob || !state.sloganDonnaWavBlob) {
-            bakeSloganInBackground().catch(() => {});
+            bakeBothSloganWavsOnce().catch(() => {});
           }
-        }, "saveApiKey");
+        } catch (e) {}
       }
 
       function clearApiKey() {
-        safeCall(() => {
-          refreshDomRefs();
+        try {
           delStore(STORAGE_KEY_NAME);
           if (el.apiKeyInput) el.apiKeyInput.value = "";
-          clearApiCooldownState();
+          state.apiCooldownUntilMs = 0;
+          state.apiConsecutiveErrors = 0;
+          state.apiStatus = "IDLE";
           syncUiState();
           showToast("Gemini API key cleared");
-        }, "clearApiKey");
-      }
-
-      window.__weazelToggleStandby = toggleStandby;
-      window.__weazelToggleBed = toggleBed;
-      window.__weazelCutMic = cutMic;
-      window.__weazelOpenSchedule = openScheduleModal;
-      window.__weazelCloseSchedule = closeScheduleModal;
-      window.__weazelOpenVault = openVaultModal;
-      window.__weazelCloseVault = closeVaultModal;
-      window.__weazelStopPreview = () => {
-        stopPreviewWav();
-        showToast("Preview stopped");
-      };
-      window.__weazelCountryChange = handleCountryChange;
-      window.__weazelCityChange = handleCityChange;
-      window.__weazelToggleKeyVis = toggleKeyVisibility;
-      window.__weazelSaveKey = saveApiKey;
-      window.__weazelClearKey = clearApiKey;
-
-      function attachOnceListener(node, eventName, handler) {
-        if (!node || typeof node.addEventListener !== "function") return;
-        const flagKey = `weazelBound_${eventName}`;
-        if (node.dataset && node.dataset[flagKey] === "1") return;
-        node.addEventListener(eventName, (ev) => {
-          safeCall(() => handler(ev), `${eventName}:${node.id || "node"}`);
-        });
-        if (node.dataset) node.dataset[flagKey] = "1";
+        } catch (e) {}
       }
 
       function bindAllEvents() {
-        safeCall(() => {
-          refreshDomRefs();
-
-          attachOnceListener(el.standbyBtn, "click", () => toggleStandby());
-          attachOnceListener(el.bedToggleBtn, "click", () => toggleBed());
-          attachOnceListener(el.cutMicBtn, "click", () => cutMic());
-          attachOnceListener(el.scheduleBtn, "click", () => openScheduleModal());
-          attachOnceListener(el.cachedWavsBtn, "click", () => openVaultModal());
-
-          attachOnceListener(el.toggleKeyVisBtn, "click", () => toggleKeyVisibility());
-          attachOnceListener(el.saveKeyBtn, "click", () => saveApiKey());
-          attachOnceListener(el.clearKeyBtn, "click", () => clearApiKey());
-          attachOnceListener(el.apiKeyInput, "keydown", (ev) => {
-            if (ev && ev.key === "Enter") {
-              ev.preventDefault();
-              saveApiKey();
-            }
+        const safeBind = (node, evt, fn) => {
+          if (!node) return;
+          node.addEventListener(evt, (event) => {
+            try {
+              fn(event);
+            } catch (e) {}
           });
+        };
 
-          attachOnceListener(el.countrySelect, "change", (ev) => {
-            const val = ev && ev.target ? ev.target.value : "";
-            handleCountryChange(val);
-          });
-          attachOnceListener(el.citySelect, "change", (ev) => {
-            const val = ev && ev.target ? ev.target.value : "";
-            handleCityChange(val);
-          });
+        safeBind(el.standbyBtn, "click", toggleStandby);
+        safeBind(el.bedToggleBtn, "click", toggleBed);
+        safeBind(el.cutMicBtn, "click", cutMic);
+        safeBind(el.scheduleBtn, "click", openScheduleModal);
+        safeBind(el.closeScheduleModalBtn, "click", closeScheduleModal);
+        safeBind(el.scheduleModal, "click", (e) => {
+          if (e.target === el.scheduleModal) closeScheduleModal();
+        });
 
-          attachOnceListener(el.closeScheduleModalBtn, "click", () => closeScheduleModal());
-          attachOnceListener(el.scheduleModal, "click", (ev) => {
-            if (ev && ev.target === el.scheduleModal) closeScheduleModal();
-          });
+        safeBind(el.cachedWavsBtn, "click", openVaultModal);
+        safeBind(el.closeCacheDrawerBtn, "click", closeVaultModal);
+        safeBind(el.stopPreviewBtn, "click", () => {
+          stopPreviewWav();
+          showToast("Preview stopped");
+        });
+        safeBind(el.cachedWavsModal, "click", (e) => {
+          if (e.target === el.cachedWavsModal) closeVaultModal();
+        });
 
-          attachOnceListener(el.closeCacheDrawerBtn, "click", () => closeVaultModal());
-          attachOnceListener(el.cachedWavsModal, "click", (ev) => {
-            if (ev && ev.target === el.cachedWavsModal) closeVaultModal();
-          });
-          attachOnceListener(el.stopPreviewBtn, "click", () => {
-            stopPreviewWav();
-            showToast("Preview stopped");
-          });
-
-          if (!document.documentElement.dataset.weazelGlobalBound) {
-            document.documentElement.dataset.weazelGlobalBound = "1";
-            document.addEventListener("click", (ev) => {
-              safeCall(() => {
-                const target = ev && ev.target && typeof ev.target.closest === "function"
-                  ? ev.target.closest("button, [role='button']")
-                  : null;
-                if (!target || !target.id) return;
-                if (target.id === "standbyBtn") toggleStandby();
-                else if (target.id === "bedToggleBtn") toggleBed();
-                else if (target.id === "cutMicBtn") cutMic();
-                else if (target.id === "scheduleBtn") openScheduleModal();
-                else if (target.id === "closeScheduleModalBtn") closeScheduleModal();
-                else if (target.id === "cachedWavsBtn") openVaultModal();
-                else if (target.id === "closeCacheDrawerBtn") closeVaultModal();
-                else if (target.id === "stopPreviewBtn") {
-                  stopPreviewWav();
-                  showToast("Preview stopped");
-                } else if (target.id === "toggleKeyVisBtn") toggleKeyVisibility();
-                else if (target.id === "saveKeyBtn") saveApiKey();
-                else if (target.id === "clearKeyBtn") clearApiKey();
-              }, "delegatedClick");
-            });
-
-            document.addEventListener("keydown", (ev) => {
-              safeCall(() => {
-                if (ev && ev.key === "Escape") {
-                  if (state.scheduleOpen) closeScheduleModal();
-                  if (state.vaultOpen) closeVaultModal();
-                }
-              }, "escapeKey");
-            });
-
-            const unlockOnce = () => {
-              safeCall(() => {
-                audioEngine.ensureContextSync();
-              }, "gestureUnlock");
-            };
-            document.addEventListener("pointerdown", unlockOnce, { passive: true });
-            document.addEventListener("touchstart", unlockOnce, { passive: true });
+        safeBind(el.countrySelect, "change", (e) => handleCountryChange(e.target.value));
+        safeBind(el.citySelect, "change", (e) => handleCityChange(e.target.value));
+        safeBind(el.toggleKeyVisBtn, "click", toggleKeyVisibility);
+        safeBind(el.saveKeyBtn, "click", saveApiKey);
+        safeBind(el.clearKeyBtn, "click", clearApiKey);
+        safeBind(el.apiKeyInput, "keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            saveApiKey();
           }
-        }, "bindAllEvents");
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            if (state.scheduleOpen) closeScheduleModal();
+            if (state.vaultOpen) closeVaultModal();
+          }
+        });
+
+        const unlockOnce = () => {
+          audioEngine.ensureContext().catch(() => {});
+        };
+        document.addEventListener("pointerdown", unlockOnce, { passive: true });
+        document.addEventListener("touchstart", unlockOnce, { passive: true });
       }
 
       /* ======================================================================
-         15. ZERO-BLOCKING BOOTSTRAP ON LOAD
+         15. FAULT-ISOLATED SYNCHRONOUS BOOTSTRAP
          ====================================================================== */
-      let hasInitialized = false;
-
       function init() {
-        safeCall(() => {
-          refreshDomRefs();
-          populateCountryDropdownSync();
-          populateCityDropdownSync();
+        try {
+          populateCountryDropdown();
+          populateCityDropdown();
 
           const existingKey = getApiKey();
-          if (existingKey && el.apiKeyInput && !el.apiKeyInput.value) {
+          if (existingKey && el.apiKeyInput) {
             el.apiKeyInput.value = existingKey;
+            state.apiStatus = "READY";
           }
 
           bindAllEvents();
@@ -3775,51 +3613,28 @@
           updateClockAndCountdowns();
 
           if (!state.clockTimer) {
-            state.clockTimer = setInterval(() => {
-              safeCall(() => updateClockAndCountdowns(), "clockTick");
-            }, 1000);
+            state.clockTimer = setInterval(updateClockAndCountdowns, 1000);
           }
 
-          hasInitialized = true;
-
           setTimeout(() => {
-            safeCall(() => {
-              ensureLocationDropdownsPopulated();
-              bindAllEvents();
-              refreshLiveRegionalWeather().catch(() => {});
-              loadPersistedVault().then(() => {
-                safeCall(() => {
-                  if (hasApiKey() && (!state.sloganMarcusWavBlob || !state.sloganDonnaWavBlob)) {
-                    bakeSloganInBackground().catch(() => {});
-                  }
-                }, "postVaultSloganBake");
-              }).catch(() => {});
-            }, "deferredInit");
+            refreshLiveRegionalWeather().catch(() => {});
+            loadPersistedVault()
+              .then(() => {
+                if (hasApiKey() && (!state.sloganMarcusWavBlob || !state.sloganDonnaWavBlob)) {
+                  bakeBothSloganWavsOnce().catch(() => {});
+                }
+              })
+              .catch(() => {});
           }, 0);
-        }, "init");
+        } catch (err) {
+          syncUiState();
+        }
       }
 
-      window.addEventListener("error", (ev) => {
-        try {
-          if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-          console.error("WEAZEL 13.3 FM window error:", ev && ev.message ? ev.message : ev);
-        } catch (e) {}
-      });
-
-      window.addEventListener("unhandledrejection", (ev) => {
-        try {
-          if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-          console.error("WEAZEL 13.3 FM unhandled rejection:", ev && ev.reason ? ev.reason : ev);
-        } catch (e) {}
-      });
-
-      init();
-
       if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", () => {
-          if (!hasInitialized) init();
-          else bindAllEvents();
-        });
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
       }
     })();
   </script>
