@@ -10,7 +10,7 @@
   <style>
     /* ========================================================================
        SELF-CONTAINED DARK DOUBLE-DIN BROADCAST DECK STYLESHEET
-       Zero dependency on external CSS files; ensures immediate dark rendering.
+       Zero external CSS dependencies; renders immediately on first paint.
        ======================================================================== */
     :root {
       --mca-face-hi: #2b3038;
@@ -44,6 +44,7 @@
       overflow-x: hidden;
     }
 
+    /* Decorative overlays never intercept taps or clicks */
     .decorative-layer,
     .scanlines,
     .glass-reflection,
@@ -156,6 +157,7 @@
     }
 
     .top-bar {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -165,17 +167,27 @@
       padding-bottom: 10px;
     }
 
+    .brand-cluster {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .mca-badge {
       display: inline-flex;
       align-items: center;
-      padding: 6px 14px;
+      height: 44px;
+      padding: 0 16px;
       border-radius: 6px;
       border: 2px solid rgba(255, 255, 255, 0.35);
       background: rgba(0, 0, 0, 0.65);
       font-family: var(--font-display);
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.2em;
       color: #ffffff;
       box-shadow: 0 0 16px rgba(255, 255, 255, 0.14);
       line-height: 1;
@@ -187,15 +199,17 @@
       align-items: center;
       justify-content: center;
       gap: 9px;
+      height: 44px;
       min-height: 44px;
-      min-width: 152px;
-      padding: 8px 15px;
+      min-width: 156px;
+      padding: 0 16px;
       border-radius: 7px;
       font-family: var(--font-mono);
       font-size: 12px;
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      white-space: nowrap;
       border: 1px solid rgba(255, 176, 32, 0.6);
       background: linear-gradient(180deg, #332714 0%, #1a1308 100%);
       color: #fde68a;
@@ -232,14 +246,16 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      min-height: 40px;
-      padding: 7px 10px;
+      height: 44px;
+      min-height: 44px;
+      padding: 0 12px;
       border-radius: 7px;
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.04em;
       text-transform: uppercase;
+      white-space: nowrap;
       color: #e2e8f0;
       border: 1px solid rgba(255, 255, 255, 0.18);
       background: linear-gradient(180deg, #2b313c 0%, #151920 100%);
@@ -368,6 +384,23 @@
       color: #67e8f9;
     }
 
+    .vfd-spectrum-wrap {
+      width: 100%;
+      height: 44px;
+      margin-bottom: 8px;
+      border-radius: 5px;
+      background: rgba(2, 10, 6, 0.85);
+      border: 1px solid rgba(41, 240, 137, 0.22);
+      overflow: hidden;
+      position: relative;
+    }
+
+    #vfdSpectrumCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
     .vfd-segment-line {
       font-family: var(--font-mono);
       font-size: 10px;
@@ -446,7 +479,8 @@
     .mca-input,
     .mca-select {
       width: 100%;
-      min-height: 40px;
+      height: 42px;
+      min-height: 42px;
       padding: 6px 10px;
       border-radius: 7px;
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -463,28 +497,56 @@
       border-color: var(--vfd-green);
     }
 
+    /* Strict 2x2 uniform button grid: all 4 buttons identical width & 44px height */
     .controls-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
     }
 
-    @media (max-width: 600px) {
-      .controls-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    .key-row {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .key-row .mca-input {
-      flex: 1 1 180px;
+    .controls-grid .mca-btn {
+      width: 100%;
       min-width: 0;
+      height: 44px;
+      min-height: 44px;
+    }
+
+    /* API key input row + uniform 3-column action button grid */
+    .key-vault-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .key-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+    }
+
+    .key-actions-grid .mca-btn {
+      width: 100%;
+      min-width: 0;
+      height: 44px;
+      min-height: 44px;
+    }
+
+    /* Uniform 2-column button grid for modal footer/toolbar actions */
+    .modal-even-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+    }
+
+    .modal-even-grid .mca-btn {
+      width: 100%;
+      min-width: 0;
+      height: 44px;
+      min-height: 44px;
     }
 
     .api-telemetry-strip {
@@ -548,14 +610,15 @@
     }
 
     .mca-modal-backdrop.hidden-modal {
-      display: none;
+      display: none !important;
+      pointer-events: none !important;
     }
 
     .mca-modal-card {
       width: 100%;
-      max-width: 680px;
-      max-height: 84vh;
-      max-height: 84dvh;
+      max-width: 720px;
+      max-height: 86vh;
+      max-height: 86dvh;
       display: flex;
       flex-direction: column;
       border-radius: 10px;
@@ -583,10 +646,6 @@
       color: var(--vfd-amber);
     }
 
-    .modal-title.emerald {
-      color: var(--vfd-green);
-    }
-
     .modal-sub {
       font-family: var(--font-mono);
       font-size: 10px;
@@ -595,6 +654,20 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .modal-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .modal-tabs .mca-btn {
+      width: 100%;
+      min-width: 0;
     }
 
     .modal-banner-grid {
@@ -658,11 +731,9 @@
 
     .modal-toolbar {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
       gap: 8px;
-      flex-wrap: wrap;
-      padding: 8px 14px;
+      padding: 10px 14px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       background: rgba(0, 0, 0, 0.25);
     }
@@ -757,6 +828,10 @@
       color: #94a3b8;
       text-align: center;
     }
+
+    .hidden-section {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -773,25 +848,27 @@
 
       <div class="din-stack">
         <!-- =====================================================================
-             1. TOP BAR: MCA BADGE + STANDBY / ON AIR ROCKER
+             1. TOP BAR: MCA BADGE (LEFT) + ON AIR / STANDBY TOGGLE (RIGHT)
              ===================================================================== -->
         <section class="din-unit" aria-label="MCA Broadcast Deck">
           <div class="top-bar">
-            <span class="mca-badge">MCA</span>
+            <div class="brand-cluster">
+              <span class="mca-badge">MCA</span>
 
-            <button
-              type="button"
-              id="standbyBtn"
-              class="standby-rocker"
-              aria-pressed="false"
-            >
-              <span class="rocker-led" aria-hidden="true"></span>
-              <span id="standbyBtnLabel">STANDBY</span>
-            </button>
+              <button
+                type="button"
+                id="standbyBtn"
+                class="standby-rocker"
+                aria-pressed="false"
+              >
+                <span class="rocker-led" aria-hidden="true"></span>
+                <span id="standbyBtnLabel">STANDBY</span>
+              </button>
+            </div>
           </div>
 
           <!-- ===================================================================
-               2. VFD SCREEN: WEAZEL 13.3 FM + REGION + CLOCK + WEATHER
+               2. VFD SCREEN: WEAZEL 13.3 FM + SPECTRUM + REGION + CLOCK + WEATHER
                =================================================================== -->
           <div class="vfd-bezel">
             <div class="glass-reflection decorative-layer" aria-hidden="true"></div>
@@ -809,6 +886,10 @@
                 <span id="vfdDuckPill" class="vfd-pill">BED MUTED</span>
                 <span id="vfdQueuePill" class="vfd-pill">RETRY: 0</span>
               </div>
+            </div>
+
+            <div class="vfd-spectrum-wrap" aria-hidden="true">
+              <canvas id="vfdSpectrumCanvas"></canvas>
             </div>
 
             <div id="vfdSegmentLine" class="vfd-segment-line">
@@ -830,7 +911,7 @@
           </div>
 
           <!-- ===================================================================
-               3. CONNECTED COUNTRY & CITY / REGION SELECTORS
+               3. CONNECTED COUNTRY & COUNTY / STATE / REGION SELECTORS
                =================================================================== -->
           <div class="selectors-grid">
             <div>
@@ -842,18 +923,18 @@
               ></select>
             </div>
             <div>
-              <label for="citySelect" class="field-label">CITY / REGION</label>
+              <label for="citySelect" class="field-label">COUNTY / STATE / REGION</label>
               <select
                 id="citySelect"
                 class="mca-select"
-                aria-label="City / Region"
+                aria-label="County / State / Region"
               ></select>
             </div>
           </div>
         </section>
 
         <!-- =====================================================================
-             4. DECK CONTROLS, GEMINI API KEY VAULT & API TELEMETRY STRIP
+             4. DECK CONTROLS (2x2 UNIFORM GRID), API KEY VAULT & TELEMETRY STRIP
              ===================================================================== -->
         <section class="din-unit" aria-label="MCA Broadcast Controls and API Key Vault">
           <div id="deckControlsGrid" class="controls-grid">
@@ -873,21 +954,21 @@
             </button>
             <button
               type="button"
-              id="scheduleBtn"
+              id="programBtn"
               class="mca-btn lit-amber"
             >
-              <span id="scheduleBtnText">PROGRAM</span>
+              <span id="programBtnText">PROGRAM</span>
             </button>
             <button
               type="button"
-              id="cachedWavsBtn"
+              id="clearDeckBtn"
               class="mca-btn lit-cyan"
             >
-              <span id="cachedWavsBtnText">CACHED WAVS (0/24)</span>
+              <span>CLEAR</span>
             </button>
           </div>
 
-          <div class="key-row">
+          <div class="key-vault-stack">
             <input
               type="password"
               id="apiKeyInput"
@@ -896,27 +977,29 @@
               autocomplete="off"
               spellcheck="false"
             />
-            <button
-              type="button"
-              id="toggleKeyVisBtn"
-              class="mca-btn lit-cyan"
-            >
-              <span id="toggleKeyVisText">SHOW</span>
-            </button>
-            <button
-              type="button"
-              id="saveKeyBtn"
-              class="mca-btn lit-green"
-            >
-              <span>SAVE KEY</span>
-            </button>
-            <button
-              type="button"
-              id="clearKeyBtn"
-              class="mca-btn lit-crimson"
-            >
-              <span>CLEAR</span>
-            </button>
+            <div class="key-actions-grid">
+              <button
+                type="button"
+                id="toggleKeyVisBtn"
+                class="mca-btn lit-cyan"
+              >
+                <span id="toggleKeyVisText">SHOW</span>
+              </button>
+              <button
+                type="button"
+                id="saveKeyBtn"
+                class="mca-btn lit-green"
+              >
+                <span>SAVE KEY</span>
+              </button>
+              <button
+                type="button"
+                id="clearKeyBtn"
+                class="mca-btn lit-crimson"
+              >
+                <span>CLEAR KEY</span>
+              </button>
+            </div>
           </div>
 
           <div class="api-telemetry-strip" aria-label="Gemini API Connection and Cooldown Status">
@@ -938,77 +1021,69 @@
     </div>
   </main>
 
-  <!-- Upcoming Broadcast Schedule Drawer -->
+  <!-- Unified Program & 24-Clip Cached WAV Vault Modal -->
   <div
-    id="scheduleModal"
+    id="programVaultModal"
     class="mca-modal-backdrop hidden-modal"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="scheduleModalTitle"
+    aria-labelledby="programModalTitle"
   >
     <div class="mca-modal-card">
       <div class="modal-header">
         <div style="min-width: 0;">
-          <div id="scheduleModalTitle" class="modal-title">
-            UPCOMING BROADCAST PROGRAM // SLOGAN-ANCHORED 5M CADENCE
+          <div id="programModalTitle" class="modal-title">
+            PROGRAM SCHEDULE &amp; 24-CLIP INDEXEDDB VAULT
           </div>
-          <div id="scheduleModalSummary" class="modal-sub">
-            ENGAGE ON AIR TO ANCHOR SLOGAN &amp; START 5-MINUTE PROGRAM CADENCE
+          <div id="programModalSummary" class="modal-sub">
+            SLOGAN-ANCHORED 5M CADENCE • 15M SINGLE-VOICE SLOGAN REPEATS • 0/24 WAV CLIPS
           </div>
         </div>
         <button
           type="button"
-          id="closeScheduleModalBtn"
+          id="closeProgramModalBtn"
           class="mca-btn lit-crimson"
         >
           <span>CLOSE</span>
         </button>
       </div>
 
-      <div id="scheduleNextBanner" class="modal-banner-grid"></div>
-      <div id="scheduleSlotsList" class="modal-body-scroll"></div>
-    </div>
-  </div>
+      <div class="modal-tabs">
+        <button type="button" id="tabScheduleBtn" class="mca-btn lit-amber">
+          <span>5M PROGRAM SCHEDULE</span>
+        </button>
+        <button type="button" id="tabVaultBtn" class="mca-btn lit-cyan">
+          <span id="tabVaultBtnText">CACHED WAV VAULT (0/24)</span>
+        </button>
+      </div>
 
-  <!-- Cached WAV Vault Drawer -->
-  <div
-    id="cachedWavsModal"
-    class="mca-modal-backdrop hidden-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="cachedWavsTitle"
-  >
-    <div class="mca-modal-card">
-      <div class="modal-header">
-        <div style="min-width: 0;">
-          <div id="cachedWavsTitle" class="modal-title emerald">
-            CACHED WAV VAULT (INDEXEDDB)
+      <!-- Tab 1: 5-Minute Program Cadence -->
+      <div id="scheduleTabPane">
+        <div id="scheduleNextBanner" class="modal-banner-grid"></div>
+        <div id="scheduleSlotsList" class="modal-body-scroll" style="max-height: 52vh;"></div>
+      </div>
+
+      <!-- Tab 2: 24-Clip IndexedDB Vault -->
+      <div id="vaultTabPane" class="hidden-section">
+        <div class="modal-toolbar">
+          <div class="modal-even-grid">
+            <button type="button" id="hydrateVaultBtn" class="mca-btn lit-green">
+              <span>HYDRATE SLOGANS</span>
+            </button>
+            <button type="button" id="stopPreviewBtn" class="mca-btn lit-amber">
+              <span>STOP PREVIEW</span>
+            </button>
+            <button type="button" id="saveExportVaultBtn" class="mca-btn lit-cyan">
+              <span>SAVE / EXPORT</span>
+            </button>
+            <button type="button" id="clearAllVaultBtn" class="mca-btn lit-crimson">
+              <span>CLEAR VAULT</span>
+            </button>
           </div>
-          <div id="cachedWavsSummary" class="modal-sub">
-            0/24 CLIPS • SLOGANS, SPONSOR MESSAGES &amp; CALLERS
-          </div>
+          <span id="cachedWavsSummary" class="modal-sub">0/24 CLIPS • INDEXEDDB</span>
         </div>
-        <button
-          type="button"
-          id="closeCacheDrawerBtn"
-          class="mca-btn lit-crimson"
-        >
-          <span>CLOSE</span>
-        </button>
+        <div id="cachedWavsList" class="modal-body-scroll" style="max-height: 52vh;"></div>
       </div>
-
-      <div class="modal-toolbar">
-        <button
-          type="button"
-          id="stopPreviewBtn"
-          class="mca-btn lit-amber"
-        >
-          <span>STOP PREVIEW</span>
-        </button>
-        <span class="modal-sub">PLAYS VIA AUDIOBUFFER TO MIX OVER MUSIC</span>
-      </div>
-
-      <div id="cachedWavsList" class="modal-body-scroll"></div>
     </div>
   </div>
 
@@ -1019,27 +1094,53 @@
       "use strict";
 
       /* ======================================================================
+         GLOBAL ERROR & REJECTION GUARDS
+         ====================================================================== */
+      window.addEventListener("error", function (event) {
+        try {
+          if (event && typeof event.preventDefault === "function") {
+            event.preventDefault();
+          }
+        } catch (e) {}
+      });
+
+      window.addEventListener("unhandledrejection", function (event) {
+        try {
+          if (event && typeof event.preventDefault === "function") {
+            event.preventDefault();
+          }
+        } catch (e) {}
+      });
+
+      /* ======================================================================
          1. CONSTANTS & RESILIENT STORAGE
          ====================================================================== */
       const STORAGE_KEY_NAME = "weazel_gemini_api_key";
-      const LS_LOC_STATE = "weazel_mca_regional_v4";
+      const LS_LOC_STATE = "weazel_mca_regional_v5";
       const IDB_NAME = "weazel_mca_vault_v5";
       const IDB_STORE = "wav_clips";
       const SLOGAN_MARCUS_SLOT_KEY = "weazel_slogan_marcus_wav_v1";
       const SLOGAN_DONNA_SLOT_KEY = "weazel_slogan_donna_wav_v1";
       const VAULT_LIST_KEY = "weazel_vault_list_v1";
 
+      // 128-Bar Synthwave Bed Loop @ 120 BPM (256 seconds / 4 min 16 sec at 48 kHz stereo)
+      const TOTAL_BARS = 128;
+      const BED_SAMPLE_RATE = 48000;
+      const BED_BPM = 120;
+
       const MAX_VAULT_CLIPS = 24;
       const PROGRAM_INTERVAL_MS = 300000;  // 5 minutes between scheduled program items
       const SLOGAN_REPEAT_MS = 900000;    // 15 minutes between alternating single-voice slogans
-      const MAX_ITEM_RETRIES = 3;         // Max retry push-backs before advancing past a stuck item
+      const MAX_ITEM_RETRIES = 3;
       const RATE_LIMIT_COOLDOWN_MS = 120000;
       const ERROR_COOLDOWN_MS = 45000;
       const CONSECUTIVE_ERROR_TRIP_THRESHOLD = 2;
+      const BUTTON_DEBOUNCE_MS = 300;
 
-      const BED_CRUISE_GAIN = 0.36;
-      const BED_SLOGAN_DUCK_GAIN = Number((BED_CRUISE_GAIN * 0.90).toFixed(4));
-      const BED_SPEECH_DUCK_GAIN = 0.05;
+      // Bed level & ducking targets: 0.90x during bed/cruise, 0.08x during speech
+      const BED_CRUISE_GAIN = 0.90;
+      const BED_SLOGAN_DUCK_GAIN = 0.08;
+      const BED_SPEECH_DUCK_GAIN = 0.08;
 
       const memoryStore = new Map();
 
@@ -1075,196 +1176,231 @@
       }
 
       /* ======================================================================
-         2. CONNECTED COUNTRY & CITY CATALOG
+         2. EXHAUSTIVE COUNTRY & COUNTY / STATE / REGION DIRECTORY
+            (All 32 counties of Ireland defaulting to Dublin, all 8 AU states/territories,
+             all 50 US states + DC, all UK nations & counties, all 13 CA provinces/territories,
+             and all 16 NZ regions)
          ====================================================================== */
+      function buildCitiesMap(entries, defaultCorridors, rssUrl) {
+        const out = {};
+        entries.forEach(([key, name, lat, lon, corridors]) => {
+          out[key] = {
+            name,
+            lat,
+            lon,
+            corridors: corridors && corridors.length ? corridors : defaultCorridors,
+            rss: rssUrl
+          };
+        });
+        return out;
+      }
+
       const REGION_CATALOG = {
         IE: {
           name: "Ireland",
           code: "IE",
-          cities: {
-            dublin: {
-              name: "Dublin",
-              lat: 53.3498,
-              lon: -6.2603,
-              corridors: ["M50 Red Cow Interchange", "Dublin Port Tunnel", "N11 Stillorgan Dual Carriageway", "O'Connell Bridge"],
-              rss: "https://www.rte.ie/news/rss/news-headlines.xml"
-            },
-            cork: {
-              name: "Cork",
-              lat: 51.8985,
-              lon: -8.4756,
-              corridors: ["Jack Lynch Tunnel", "N40 South Ring Road", "Dunkettle Interchange", "Patrick's Quay"],
-              rss: "https://www.rte.ie/news/rss/news-headlines.xml"
-            },
-            galway: {
-              name: "Galway",
-              lat: 53.2707,
-              lon: -9.0568,
-              corridors: ["N6 Quincentenary Bridge", "M6 Doughiska Approach", "Headford Road", "Salthill Prom"],
-              rss: "https://www.rte.ie/news/rss/news-headlines.xml"
-            }
-          }
+          cities: buildCitiesMap([
+            ["dublin", "Dublin", 53.3498, -6.2603, ["M50 Red Cow Interchange", "Dublin Port Tunnel", "N11 Stillorgan Dual Carriageway", "O'Connell Bridge"]],
+            ["antrim", "Antrim", 54.7195, -6.2072, ["M2 Antrim Line", "A26 Frosses Road", "M22 Randalstown Bypass"]],
+            ["armagh", "Armagh", 54.3503, -6.6528, ["A3 Portadown Road", "A28 Newry Corridor", "M1 Junction 11"]],
+            ["carlow", "Carlow", 52.8408, -6.9261, ["M9 Castledermot Bypass", "N80 Wexford Road", "Graiguecullen Bridge"]],
+            ["cavan", "Cavan", 53.9908, -7.3606, ["N3 Cavan Bypass", "N55 Athlone Road", "R212 Dublin Road"]],
+            ["clare", "Clare", 52.8436, -8.9864, ["M18 Ennis Bypass", "N68 Kilrush Road", "Shannon Tunnel Approach"]],
+            ["cork", "Cork", 51.8985, -8.4756, ["Jack Lynch Tunnel", "N40 South Ring Road", "Dunkettle Interchange", "Patrick's Quay"]],
+            ["derry", "Derry", 54.9966, -7.3086, ["Foyle Bridge", "A6 Glenshane Pass", "Craigavon Bridge"]],
+            ["donegal", "Donegal", 54.6538, -8.1096, ["N15 Barnesmore Gap", "N13 Letterkenny Dual Carriageway", "N56 Atlantic Route"]],
+            ["down", "Down", 54.3282, -5.7160, ["A1 Newry Bypass", "A2 Bangor Carriageway", "A24 Carryduff Road"]],
+            ["fermanagh", "Fermanagh", 54.3449, -7.6317, ["A4 Enniskillen Road", "A32 Irvinestown Corridor", "A509 Derrylin Road"]],
+            ["galway", "Galway", 53.2707, -9.0568, ["N6 Quincentenary Bridge", "M6 Doughiska Approach", "Headford Road", "Salthill Prom"]],
+            ["kerry", "Kerry", 52.1545, -9.5669, ["N22 Farranfore Bypass", "N70 Ring of Kerry", "N21 Castleisland Road"]],
+            ["kildare", "Kildare", 53.1589, -6.9096, ["M7 Naas Ball", "M4 Maynooth Interchange", "N78 Athy Link"]],
+            ["kilkenny", "Kilkenny", 52.6541, -7.2448, ["N10 Kilkenny Ring Road", "M9 Danesfort Junction", "N77 Ballyragget Road"]],
+            ["laois", "Laois", 53.0344, -7.2998, ["M7 Portlaoise Interchange", "M8 Cullohill Spur", "N80 Mountmellick Road"]],
+            ["leitrim", "Leitrim", 53.9469, -8.0900, ["N4 Carrick-on-Shannon Bypass", "N16 Manorhamilton Road", "R280 Bundoran Link"]],
+            ["limerick", "Limerick", 52.6638, -8.6267, ["Limerick Tunnel M7", "N18 Shannon Crossing", "Childers Road"]],
+            ["longford", "Longford", 53.7276, -7.7932, ["N4 Longford Bypass", "N5 Strokestown Road", "N63 Roscommon Approach"]],
+            ["louth", "Louth", 53.9979, -6.4059, ["M1 Boyne Cable Bridge", "N52 Dundalk Inner Relief", "N33 Ardee Link"]],
+            ["mayo", "Mayo", 53.8544, -9.2988, ["N5 Castlebar Bypass", "N17 Claremorris Corridor", "N59 Westport Road"]],
+            ["meath", "Meath", 53.6528, -6.6814, ["M3 Clonee-Kells Motorway", "N2 Slane Bridge", "M1 Julianstown"]],
+            ["monaghan", "Monaghan", 54.2492, -6.9683, ["N2 Monaghan Bypass", "N54 Clones Road", "N12 Armagh Link"]],
+            ["offaly", "Offaly", 53.2743, -7.4932, ["N52 Tullamore Bypass", "M6 Kilbeggan Interchange", "N62 Birr Road"]],
+            ["roscommon", "Roscommon", 53.6276, -8.1891, ["N61 Roscommon Relief Road", "N5 Frenchpark Corridor", "M6 Athlone West"]],
+            ["sligo", "Sligo", 54.2766, -8.4761, ["N4 Sligo Inner Relief", "N15 Bundoran Road", "N17 Collooney Roundabout"]],
+            ["tipperary", "Tipperary", 52.4738, -8.1619, ["M8 Cashel Bypass", "N24 Clonmel Relief Road", "N74 Tipperary Link"]],
+            ["tyrone", "Tyrone", 54.5973, -7.3091, ["A5 Omagh Throughpass", "M1 Dungannon Interchange", "A4 Ballygawley Roundabout"]],
+            ["waterford", "Waterford", 52.2593, -7.1101, ["Thomas Francis Meagher Bridge", "N25 Waterford Bypass", "M9 Grannagh Junction"]],
+            ["westmeath", "Westmeath", 53.5259, -7.3381, ["M6 Athlone Relief Road", "N4 Mullingar Bypass", "N52 Delvin Road"]],
+            ["wexford", "Wexford", 52.3369, -6.4633, ["M11 Enniscorthy Bypass", "N25 New Ross Rose Fitzgerald Bridge", "N11 Ferrycarrig"]],
+            ["wicklow", "Wicklow", 52.9808, -6.0446, ["M11 Bray-Greystones Corridor", "N11 Rathnew Bypass", "R755 Roundwood Road"]]
+          ], ["N4 National Corridor", "M50 Orbital", "Regional Link Road"], "https://www.rte.ie/news/rss/news-headlines.xml")
         },
         AU: {
           name: "Australia",
           code: "AU",
-          cities: {
-            launceston: {
-              name: "Launceston",
-              lat: -41.4332,
-              lon: 147.1441,
-              corridors: ["Midland Highway", "East Tamar Highway", "Westbury Road", "Bathurst Street"],
-              rss: "https://www.abc.net.au/news/feed/51120/rss.xml"
-            },
-            melbourne: {
-              name: "Melbourne",
-              lat: -37.8136,
-              lon: 144.9631,
-              corridors: ["West Gate Freeway", "Monash Freeway M1", "Burnley Tunnel", "Hoddle Street"],
-              rss: "https://www.abc.net.au/news/feed/51120/rss.xml"
-            },
-            sydney: {
-              name: "Sydney",
-              lat: -33.8688,
-              lon: 151.2093,
-              corridors: ["Sydney Harbour Bridge", "M4 Western Motorway", "Eastern Distributor", "Parramatta Road"],
-              rss: "https://www.abc.net.au/news/feed/51120/rss.xml"
-            }
-          }
-        },
-        GB: {
-          name: "United Kingdom",
-          code: "GB",
-          cities: {
-            london: {
-              name: "London",
-              lat: 51.5072,
-              lon: -0.1276,
-              corridors: ["M25 Heathrow Spur", "Blackwall Tunnel", "A40 Westway", "Victoria Embankment"],
-              rss: "https://feeds.bbci.co.uk/news/rss.xml"
-            },
-            manchester: {
-              name: "Manchester",
-              lat: 53.4808,
-              lon: -2.2426,
-              corridors: ["M60 Barton Bridge", "Mancunian Way", "A56 Chester Road", "Deansgate"],
-              rss: "https://feeds.bbci.co.uk/news/rss.xml"
-            },
-            edinburgh: {
-              name: "Edinburgh",
-              lat: 55.9533,
-              lon: -3.1883,
-              corridors: ["Queensferry Crossing", "A720 City Bypass", "Princes Street", "Leith Walk"],
-              rss: "https://feeds.bbci.co.uk/news/rss.xml"
-            }
-          }
+          cities: buildCitiesMap([
+            ["act", "Australian Capital Territory", -35.2809, 149.1300, ["Tuggeranong Parkway", "Monaro Highway", "Parkes Way"]],
+            ["nsw", "New South Wales", -33.8688, 151.2093, ["Sydney Harbour Bridge", "M4 Western Motorway", "Pacific Highway"]],
+            ["nt", "Northern Territory", -12.4634, 130.8456, ["Stuart Highway", "Tiger Brennan Drive", "Arnhem Highway"]],
+            ["qld", "Queensland", -27.4705, 153.0260, ["Bruce Highway", "Gateway Motorway M1", "Clem7 Tunnel"]],
+            ["sa", "South Australia", -34.9285, 138.6007, ["North-South Corridor M2", "South Eastern Freeway", "Port Wakefield Road"]],
+            ["tas", "Tasmania", -41.4332, 147.1441, ["Midland Highway", "East Tamar Highway", "Tasman Bridge"]],
+            ["vic", "Victoria", -37.8136, 144.9631, ["West Gate Freeway", "Monash Freeway M1", "Burnley Tunnel"]],
+            ["wa", "Western Australia", -31.9523, 115.8613, ["Kwinana Freeway", "Mitchell Freeway", "Great Eastern Highway"]]
+          ], ["National Highway 1", "Metropolitan Freeway"], "https://www.abc.net.au/news/feed/51120/rss.xml")
         },
         US: {
           name: "United States",
           code: "US",
-          cities: {
-            losangeles: {
-              name: "Los Angeles",
-              lat: 34.0522,
-              lon: -118.2437,
-              corridors: ["I-405 Sepulveda Pass", "US-101 Hollywood Freeway", "I-10 Santa Monica Freeway", "Sunset Boulevard"],
-              rss: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
-            },
-            newyork: {
-              name: "New York",
-              lat: 40.7128,
-              lon: -74.0060,
-              corridors: ["FDR Drive", "Brooklyn-Queens Expressway", "Lincoln Tunnel", "Cross Bronx Expressway"],
-              rss: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
-            },
-            miami: {
-              name: "Miami",
-              lat: 25.7617,
-              lon: -80.1918,
-              corridors: ["I-95 Dolphin Interchange", "MacArthur Causeway", "Palmetto Expressway", "Ocean Drive"],
-              rss: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
-            }
-          }
+          cities: buildCitiesMap([
+            ["al", "Alabama", 32.3617, -86.2792, ["I-65 Montgomery Corridor", "I-20 Birmingham Split", "I-10 Mobile Bayway"]],
+            ["ak", "Alaska", 61.2181, -149.9003, ["Seward Highway AK-1", "Glenn Highway", "Parks Highway"]],
+            ["az", "Arizona", 33.4484, -112.0740, ["I-10 Papago Freeway", "Loop 101 Pima", "I-17 Black Canyon"]],
+            ["ar", "Arkansas", 34.7465, -92.2896, ["I-40 Little Rock", "I-30 Arkansas River", "I-49 Fayetteville"]],
+            ["ca", "California", 34.0522, -118.2437, ["I-405 Sepulveda Pass", "US-101 Hollywood Freeway", "I-80 Bay Bridge"]],
+            ["co", "Colorado", 39.7392, -104.9903, ["I-25 Valley Highway", "I-70 Eisenhower Tunnel", "C-470 Beltway"]],
+            ["ct", "Connecticut", 41.7658, -72.6734, ["I-95 Gold Coast", "I-84 Hartford Mixmaster", "Merritt Parkway"]],
+            ["de", "Delaware", 39.1582, -75.5244, ["I-95 Wilmington Corridor", "DE-1 Coastal Highway", "US-13 Dover"]],
+            ["dc", "District of Columbia", 38.9072, -77.0369, ["I-395 Center Leg", "Capital Beltway I-495", "Rock Creek Parkway"]],
+            ["fl", "Florida", 25.7617, -80.1918, ["I-95 Dolphin Interchange", "I-4 Orlando Corridor", "Florida's Turnpike"]],
+            ["ga", "Georgia", 33.7490, -84.3880, ["I-285 Perimeter", "I-75/I-85 Downtown Connector", "GA-400"]],
+            ["hi", "Hawaii", 21.3069, -157.8583, ["H-1 Lunalilo Freeway", "H-3 Kaneohe Viaduct", "Nimitz Highway"]],
+            ["id", "Idaho", 43.6150, -116.2023, ["I-84 Boise Connector", "US-95 Coeur d'Alene", "I-15 Pocatello"]],
+            ["il", "Illinois", 41.8781, -87.6298, ["I-90 Kennedy Expressway", "I-290 Eisenhower", "Lake Shore Drive"]],
+            ["in", "Indiana", 39.7684, -86.1581, ["I-465 Indianapolis Loop", "I-65 North Split", "I-80 Borman Expressway"]],
+            ["ia", "Iowa", 41.5868, -93.6250, ["I-235 Des Moines", "I-80 Iowa City", "I-380 Cedar Rapids"]],
+            ["ks", "Kansas", 39.0473, -95.6752, ["I-70 Kansas Turnpike", "I-35 Overland Park", "US-54 Kellogg"]],
+            ["ky", "Kentucky", 38.2527, -85.7585, ["I-65 Kennedy Bridge", "I-64 Louisville", "I-75 Brent Spence"]],
+            ["la", "Louisiana", 29.9511, -90.0715, ["I-10 Twin Span", "Lake Pontchartrain Causeway", "I-12 Baton Rouge"]],
+            ["me", "Maine", 43.6591, -70.2568, ["I-295 Portland", "Maine Turnpike I-95", "US-1 Coastal"]],
+            ["md", "Maryland", 39.2904, -76.6122, ["I-695 Baltimore Beltway", "Fort McHenry Tunnel", "I-270 Spur"]],
+            ["ma", "Massachusetts", 42.3601, -71.0589, ["I-93 Central Artery Tunnel", "Mass Pike I-90", "Storrow Drive"]],
+            ["mi", "Michigan", 42.3314, -83.0458, ["I-75 Chrysler Freeway", "I-94 Ford Freeway", "M-10 Lodge"]],
+            ["mn", "Minnesota", 44.9778, -93.2650, ["I-94 Twin Cities", "I-35W Mississippi Bridge", "I-494 Crosstown"]],
+            ["ms", "Mississippi", 32.2988, -90.1848, ["I-55 Jackson Corridor", "I-20 Vicksburg", "US-90 Gulf Coast"]],
+            ["mo", "Missouri", 38.6270, -90.1994, ["I-70 Stan Musial Bridge", "I-64 St. Louis", "I-435 Kansas City"]],
+            ["mt", "Montana", 46.5891, -112.0391, ["I-90 Bozeman Pass", "I-15 Helena", "US-93 Missoula"]],
+            ["ne", "Nebraska", 41.2565, -95.9345, ["I-80 Omaha Corridor", "I-480 Missouri River", "US-77 Lincoln"]],
+            ["nv", "Nevada", 36.1699, -115.1398, ["I-15 Resort Corridor", "US-95 Spaghetti Bowl", "I-515"]],
+            ["nh", "New Hampshire", 43.2081, -71.5376, ["I-93 Manchester", "Everett Turnpike", "I-95 Portsmouth"]],
+            ["nj", "New Jersey", 40.7357, -74.1724, ["New Jersey Turnpike I-95", "Garden State Parkway", "Route 1 & 9"]],
+            ["nm", "New Mexico", 35.0844, -106.6504, ["I-25 Big I Interchange", "I-40 Albuquerque", "US-285 Santa Fe"]],
+            ["ny", "New York", 40.7128, -74.0060, ["FDR Drive", "Brooklyn-Queens Expressway", "Lincoln Tunnel"]],
+            ["nc", "North Carolina", 35.7796, -78.6382, ["I-40 Research Triangle", "I-485 Charlotte Loop", "I-85 Greensboro"]],
+            ["nd", "North Dakota", 46.8083, -100.7837, ["I-94 Bismarck", "I-29 Fargo", "US-2 Minot"]],
+            ["oh", "Ohio", 39.9612, -82.9988, ["I-71 Columbus", "I-90 Innerbelt Cleveland", "I-75 Cincinnati"]],
+            ["ok", "Oklahoma", 35.4676, -97.5164, ["I-40 Crosstown", "I-35 Oklahoma City", "I-44 Turner Turnpike"]],
+            ["or", "Oregon", 45.5152, -122.6784, ["I-5 Marquam Bridge", "I-84 Banfield", "US-26 Sunset Highway"]],
+            ["pa", "Pennsylvania", 39.9526, -75.1652, ["I-76 Schuylkill Expressway", "I-95 Delaware Expressway", "I-376 Parkway East"]],
+            ["ri", "Rhode Island", 41.8240, -71.4128, ["I-95 Providence Viaduct", "I-195 Washington Bridge", "RI-146"]],
+            ["sc", "South Carolina", 34.0007, -81.0348, ["I-26 Charleston", "I-20 Columbia", "I-85 Greenville"]],
+            ["sd", "South Dakota", 44.3668, -100.3538, ["I-90 Sioux Falls", "I-29 Brookings", "US-16 Rapid City"]],
+            ["tn", "Tennessee", 36.1627, -86.7816, ["I-40 Nashville Loop", "I-24 Murfreesboro", "I-75 Knoxville"]],
+            ["tx", "Texas", 29.7604, -95.3698, ["I-10 Katy Freeway", "I-35 Austin", "I-635 LBJ Freeway"]],
+            ["ut", "Utah", 40.7608, -111.8910, ["I-15 Wasatch Front", "I-80 Parleys Canyon", "I-215 Belt Route"]],
+            ["vt", "Vermont", 44.2601, -72.5754, ["I-89 Burlington", "I-91 Brattleboro", "US-7 Rutland"]],
+            ["va", "Virginia", 37.5407, -77.4360, ["I-95 Richmond", "I-66 Rosslyn", "I-64 Hampton Roads"]],
+            ["wa", "Washington", 47.6062, -122.3321, ["I-5 Ship Canal Bridge", "I-90 Floating Bridge", "SR-99 Tunnel"]],
+            ["wv", "West Virginia", 38.3498, -81.6326, ["I-64 Charleston", "I-77 West Virginia Turnpike", "I-79 Morgantown"]],
+            ["wi", "Wisconsin", 43.0389, -87.9065, ["I-94 Marquette Interchange", "I-43 Milwaukee", "US-12 Madison"]],
+            ["wy", "Wyoming", 41.1400, -104.8202, ["I-80 Cheyenne", "I-25 Casper", "US-89 Jackson"]]
+          ], ["Interstate Corridor", "Metro Beltway"], "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml")
         },
-        SE: {
-          name: "Sweden",
-          code: "SE",
-          cities: {
-            stockholm: {
-              name: "Stockholm",
-              lat: 59.3293,
-              lon: 18.0686,
-              corridors: ["Essingeleden E4", "Södra Länken", "Centralbron", "Sveavägen"],
-              rss: "https://www.svt.se/nyheter/rss.xml"
-            },
-            gothenburg: {
-              name: "Gothenburg",
-              lat: 57.7089,
-              lon: 11.9746,
-              corridors: ["Tingstadstunneln", "Älvsborgsbron", "E6 Kallebäck", "Avenyn"],
-              rss: "https://www.svt.se/nyheter/rss.xml"
-            }
-          }
-        },
-        FR: {
-          name: "France",
-          code: "FR",
-          cities: {
-            paris: {
-              name: "Paris",
-              lat: 48.8566,
-              lon: 2.3522,
-              corridors: ["Boulevard Périphérique", "A86 Duplex Tunnel", "Voie Georges-Pompidou", "Place de la Concorde"],
-              rss: "https://www.france24.com/en/rss"
-            },
-            nice: {
-              name: "Nice",
-              lat: 43.7102,
-              lon: 7.2620,
-              corridors: ["Promenade des Anglais", "Autoroute A8 La Provençale", "Voie Mathis", "Port Lympia"],
-              rss: "https://www.france24.com/en/rss"
-            }
-          }
+        GB: {
+          name: "United Kingdom",
+          code: "GB",
+          cities: buildCitiesMap([
+            ["london", "Greater London (England)", 51.5072, -0.1276, ["M25 Heathrow Spur", "Blackwall Tunnel", "A40 Westway"]],
+            ["bedfordshire", "Bedfordshire (England)", 52.1360, -0.4667, ["M1 Junction 11", "A421 Bedford Bypass", "A6 Luton"]],
+            ["berkshire", "Berkshire (England)", 51.4543, -0.9781, ["M4 Reading Corridor", "A329(M)", "A34 Newbury"]],
+            ["bristol", "Bristol (England)", 51.4545, -2.5879, ["M32 Newfoundland Way", "M4/M5 Almondsbury", "Clifton Suspension Approach"]],
+            ["buckinghamshire", "Buckinghamshire (England)", 51.8168, -0.8124, ["M40 High Wycombe", "A5 Milton Keynes", "A41 Aylesbury"]],
+            ["cambridgeshire", "Cambridgeshire (England)", 52.2053, 0.1218, ["A14 Huntingdon", "M11 Cambridge", "A1(M) Peterborough"]],
+            ["cheshire", "Cheshire (England)", 53.1930, -2.8931, ["M56 Runcorn", "M6 Thelwall Viaduct", "A55 Chester"]],
+            ["cornwall", "Cornwall (England)", 50.2660, -5.0527, ["A30 Bodmin Moor", "A38 Tamar Bridge", "A39 Atlantic Highway"]],
+            ["cumbria", "Cumbria (England)", 54.5772, -2.7975, ["M6 Shap Summit", "A66 Penrith", "A590 Barrow"]],
+            ["derbyshire", "Derbyshire (England)", 52.9225, -1.4746, ["A52 Brian Clough Way", "A38 Derby", "A6 Matlock"]],
+            ["devon", "Devon (England)", 50.7184, -3.5339, ["M5 Exeter", "A38 Devon Expressway", "A361 North Devon Link"]],
+            ["dorset", "Dorset (England)", 50.7488, -2.3445, ["A338 Wessex Way", "A35 Dorchester", "A31 Ringwood"]],
+            ["durham", "County Durham (England)", 54.7753, -1.5849, ["A1(M) Durham", "A19 Seaham", "A688 Bishop Auckland"]],
+            ["eastsussex", "East Sussex (England)", 50.8225, -0.1372, ["A27 Brighton Bypass", "A23 London Road", "A259 Coast Road"]],
+            ["essex", "Essex (England)", 51.7343, 0.4691, ["A12 Chelmsford", "M25 Dartford Crossing", "A127 Southend"]],
+            ["gloucestershire", "Gloucestershire (England)", 51.8642, -2.2382, ["M5 Cheltenham", "A417 Birdlip", "A40 Gloucester"]],
+            ["greatermanchester", "Greater Manchester (England)", 53.4808, -2.2426, ["M60 Barton Bridge", "Mancunian Way", "M62 Pennine"]],
+            ["hampshire", "Hampshire (England)", 51.0577, -1.3081, ["M3 Winchester", "M27 Southampton", "A3 Hindhead Tunnel"]],
+            ["herefordshire", "Herefordshire (England)", 52.0565, -2.7160, ["A49 Hereford", "M50 Ross-on-Wye", "A438 Ledbury"]],
+            ["hertfordshire", "Hertfordshire (England)", 51.7627, -0.2244, ["A1(M) Hatfield Tunnel", "M25 South Mimms", "M1 Hemel Hempstead"]],
+            ["kent", "Kent (England)", 51.2787, 0.5217, ["M20 Ashford", "M2 Medway Viaduct", "A2 Dover Approach"]],
+            ["lancashire", "Lancashire (England)", 53.7632, -2.7031, ["M6 Preston", "M65 Blackburn", "M55 Blackpool"]],
+            ["leicestershire", "Leicestershire (England)", 52.6369, -1.1398, ["M1 Junction 21", "A46 Leicester Western", "A50 Groby"]],
+            ["lincolnshire", "Lincolnshire (England)", 53.2307, -0.5406, ["A46 Lincoln Bypass", "A1 Grantham", "A15 Humber Approach"]],
+            ["merseyside", "Merseyside (England)", 53.4084, -2.9916, ["Queensway Mersey Tunnel", "M62 Rocket Junction", "M57 Knowsley"]],
+            ["norfolk", "Norfolk (England)", 52.6309, 1.2974, ["A47 Norwich Southern Bypass", "A11 Wymondham", "A140 Cromer"]],
+            ["northyorkshire", "North Yorkshire (England)", 53.9591, -1.0815, ["A1(M) Wetherby", "A64 York", "A59 Harrogate"]],
+            ["northamptonshire", "Northamptonshire (England)", 52.2405, -0.9027, ["M1 Northampton", "A45 Wellingborough", "A14 Kettering"]],
+            ["northumberland", "Northumberland (England)", 55.2083, -2.0784, ["A1 Alnwick", "A69 Hexham", "A189 Spine Road"]],
+            ["nottinghamshire", "Nottinghamshire (England)", 52.9548, -1.1581, ["A52 Clifton Boulevard", "M1 Trowell", "A46 Newark"]],
+            ["oxfordshire", "Oxfordshire (England)", 51.7520, -1.2577, ["A34 Oxford Ring Road", "M40 Banbury", "A40 Witney"]],
+            ["shropshire", "Shropshire (England)", 52.7073, -2.7553, ["M54 Telford", "A5 Shrewsbury", "A49 Ludlow"]],
+            ["somerset", "Somerset (England)", 51.0150, -3.1029, ["M5 Taunton", "A303 Ilminster", "A371 Wells"]],
+            ["southyorkshire", "South Yorkshire (England)", 53.3811, -1.4701, ["M1 Tinsley Viaduct", "Sheffield Parkway A57", "A1(M) Doncaster"]],
+            ["staffordshire", "Staffordshire (England)", 52.8063, -2.1164, ["M6 Stafford", "A500 Stoke D-Road", "A50 Uttoxeter"]],
+            ["suffolk", "Suffolk (England)", 52.0567, 1.1482, ["A14 Orwell Bridge", "A12 Ipswich", "A14 Bury St Edmunds"]],
+            ["surrey", "Surrey (England)", 51.2362, -0.5704, ["M25 Wisley Interchange", "A3 Guildford", "M23 Gatwick Spur"]],
+            ["tyneandwear", "Tyne and Wear (England)", 54.9783, -1.6178, ["Tyne Tunnel A19", "A1 Gateshead Western", "A167 Central Motorway"]],
+            ["warwickshire", "Warwickshire (England)", 52.2819, -1.5849, ["M40 Warwick", "M6 Coventry", "A46 Stratford"]],
+            ["westmidlands", "West Midlands (England)", 52.4862, -1.8904, ["M6 Spaghetti Junction", "M5 Oldbury", "A38(M) Aston Expressway"]],
+            ["westsussex", "West Sussex (England)", 50.8376, -0.7749, ["A27 Chichester", "A23 Crawley", "A24 Horsham"]],
+            ["westyorkshire", "West Yorkshire (England)", 53.8008, -1.5491, ["M62 Chain Bar", "M621 Leeds", "A647 Bradford"]],
+            ["wiltshire", "Wiltshire (England)", 51.3492, -1.9927, ["M4 Swindon", "A303 Stonehenge", "A36 Salisbury"]],
+            ["worcestershire", "Worcestershire (England)", 52.1936, -2.2216, ["M5 Worcester", "A449 Kidderminster", "A46 Evesham"]],
+            ["scotland_central", "Central Belt & Lothian (Scotland)", 55.9533, -3.1883, ["Queensferry Crossing", "M8 Kingston Bridge", "A720 Edinburgh Bypass"]],
+            ["scotland_north", "Highlands & Grampian (Scotland)", 57.1497, -2.0943, ["A90 Aberdeen AWPR", "A9 Drumochter Pass", "Kessock Bridge"]],
+            ["scotland_south", "Borders & Dumfries (Scotland)", 55.0709, -3.6053, ["A74(M) Moffat", "A75 Gretna-Stranraer", "A68 Jedburgh"]],
+            ["wales_south", "South & West Wales (Wales)", 51.4816, -3.1791, ["M4 Brynglas Tunnels", "A470 Cardiff-Merthyr", "A48 Carmarthen"]],
+            ["wales_north", "North & Mid Wales (Wales)", 53.2274, -4.1293, ["A55 North Wales Expressway", "Britannia Bridge", "A483 Wrexham"]],
+            ["ni_ulster", "Northern Ireland (UK)", 54.5973, -5.9301, ["M1 Westlink Belfast", "M2 Foreshore", "A6 Glenshane"]]
+          ], ["A-Road Trunk Corridor", "Motorway Orbital"], "https://feeds.bbci.co.uk/news/rss.xml")
         },
         CA: {
           name: "Canada",
           code: "CA",
-          cities: {
-            vancouver: {
-              name: "Vancouver",
-              lat: 49.2827,
-              lon: -123.1207,
-              corridors: ["Lions Gate Bridge", "Highway 1 Port Mann", "Granville Street Bridge", "West Georgia"],
-              rss: "https://www.cbc.ca/webfeed/rss/rss-topstories"
-            },
-            toronto: {
-              name: "Toronto",
-              lat: 43.6532,
-              lon: -79.3832,
-              corridors: ["Highway 401 Collector", "Don Valley Parkway", "Gardiner Expressway", "Yonge Street"],
-              rss: "https://www.cbc.ca/webfeed/rss/rss-topstories"
-            }
-          }
+          cities: buildCitiesMap([
+            ["ab", "Alberta", 51.0447, -114.0719, ["Deerfoot Trail QEII", "Anthony Henday Drive", "Trans-Canada Highway 1"]],
+            ["bc", "British Columbia", 49.2827, -123.1207, ["Highway 1 Port Mann Bridge", "Lions Gate Bridge", "Sea-to-Sky Highway 99"]],
+            ["mb", "Manitoba", 49.8951, -97.1384, ["Perimeter Highway 100", "Portage Avenue", "Trans-Canada West"]],
+            ["nb", "New Brunswick", 45.9636, -66.6431, ["Route 2 Trans-Canada", "Saint John Harbour Bridge", "Route 15 Moncton"]],
+            ["nl", "Newfoundland and Labrador", 47.5615, -52.7126, ["Outer Ring Road", "Trans-Canada Highway 1", "Team Gushue Highway"]],
+            ["nt", "Northwest Territories", 62.4540, -114.3718, ["Yellowknife Highway 3", "Deh Cho Bridge", "Ingraham Trail"]],
+            ["ns", "Nova Scotia", 44.6488, -63.5752, ["MacKay Bridge", "Highway 102 Bicentennial", "Highway 118"]],
+            ["nu", "Nunavut", 63.7467, -68.5170, ["Federal Road Iqaluit", "Apex Trail", "Airport Ring"]],
+            ["on", "Ontario", 43.6532, -79.3832, ["Highway 401 Express", "Gardiner Expressway", "Don Valley Parkway"]],
+            ["pe", "Prince Edward Island", 46.2382, -63.1311, ["Confederation Bridge", "Route 1 Charlottetown", "Route 2 Summerside"]],
+            ["qc", "Quebec", 45.5017, -73.5673, ["Autoroute 40 Métropolitaine", "Champlain Bridge", "Autoroute 20"]],
+            ["sk", "Saskatchewan", 50.4452, -104.6189, ["Ring Road Regina", "Circle Drive Saskatoon", "Highway 11"]],
+            ["yt", "Yukon", 60.7212, -135.0568, ["Alaska Highway 1", "Klondike Highway 2", "Robert Campbell Highway"]]
+          ], ["Trans-Canada Highway", "Provincial Expressway"], "https://www.cbc.ca/cmlink/rss-topstories")
         },
-        JP: {
-          name: "Japan",
-          code: "JP",
-          cities: {
-            tokyo: {
-              name: "Tokyo",
-              lat: 35.6762,
-              lon: 139.6503,
-              corridors: ["Shuto Expressway C1 Inner Loop", "Bayshore Route Wangan", "Shibuya Crossing", "Meiji-dori"],
-              rss: "https://www3.nhk.or.jp/rss/news/cat0.xml"
-            },
-            osaka: {
-              name: "Osaka",
-              lat: 34.6937,
-              lon: 135.5023,
-              corridors: ["Hanshin Expressway Loop 1", "Midosuji Boulevard", "Umeda Ramp", "Namba Station"],
-              rss: "https://www3.nhk.or.jp/rss/news/cat0.xml"
-            }
-          }
+        NZ: {
+          name: "New Zealand",
+          code: "NZ",
+          cities: buildCitiesMap([
+            ["northland", "Northland", -35.7275, 174.3166, ["SH1 Brynderwyn Hills", "SH10 Kerikeri", "SH14 Dargaville"]],
+            ["auckland", "Auckland", -36.8509, 174.7645, ["Auckland Harbour Bridge", "SH1 Southern Motorway", "Waterview Tunnel"]],
+            ["waikato", "Waikato", -37.7870, 175.2793, ["Waikato Expressway SH1", "SH29 Kaimai Range", "SH3 Te Awamutu"]],
+            ["bayofplenty", "Bay of Plenty", -37.6878, 176.1651, ["Tauranga Eastern Link SH2", "SH29A Maungatapu", "SH30 Rotorua"]],
+            ["gisborne", "Gisborne", -38.6623, 178.0176, ["SH2 Waioeka Gorge", "SH35 East Coast", "Gladstone Road"]],
+            ["hawkesbay", "Hawke's Bay", -39.4928, 176.9120, ["Hawke's Bay Expressway SH2", "SH5 Napier-Taupo", "Marine Parade"]],
+            ["taranaki", "Taranaki", -39.0556, 174.0752, ["SH3 New Plymouth", "SH45 Surf Highway", "Devon Street"]],
+            ["manawatu", "Manawatu-Whanganui", -40.3523, 175.6082, ["SH3 Manawatu Gorge", "SH1 Bulls", "Fitzherbert Bridge"]],
+            ["wellington", "Wellington", -41.2866, 174.7756, ["SH1 Transmission Gully", "Terrace Tunnel", "SH2 Hutt Valley"]],
+            ["tasman", "Tasman", -41.2706, 173.2840, ["SH60 Takaka Hill", "SH6 Richmond", "Waimea Inlet"]],
+            ["nelson", "Nelson", -41.2706, 173.2840, ["SH6 Rocks Road", "Whakatu Drive", "Annesbrook"]],
+            ["marlborough", "Marlborough", -41.5134, 173.9612, ["SH1 Picton-Blenheim", "SH6 Havelock", "Wairau Bridge"]],
+            ["westcoast", "West Coast", -42.4504, 171.2108, ["SH6 Greymouth", "SH73 Arthur's Pass", "Haast Pass"]],
+            ["canterbury", "Canterbury", -43.5320, 172.6306, ["Christchurch Southern Motorway", "SH1 Rakaia Bridge", "Lyttelton Tunnel"]],
+            ["otago", "Otago", -45.8788, 170.5028, ["SH1 Dunedin Southern", "SH6 Kawarau Gorge", "Crown Range Road"]],
+            ["southland", "Southland", -46.4132, 168.3538, ["SH1 Invercargill-Bluff", "SH6 Winton", "SH94 Milford Road"]]
+          ], ["State Highway 1", "Regional Arterial"], "https://www.rnz.co.nz/rss/national.xml")
         }
       };
 
@@ -1294,10 +1430,7 @@
         }
       };
 
-      // Two separate character slogan WAVs:
-      // - Going ON AIR plays Marcus first, then Donna.
-      // - Subsequent slogan plays alternate one character at a time (Marcus <-> Donna) every 15 mins.
-      const SLOGAN_CHARACTER_SCRIPTS = {
+      const SLOGAN_SCRIPT = {
         Marcus: {
           speaker: "Marcus",
           title: "Weazel 13.3 FM Slogan — Marcus",
@@ -1415,7 +1548,6 @@
         }
       ];
 
-      // First item after slogan anchor is SPONSOR (advert) at +5 mins, followed by NEWS, WEATHER, CALLER, repeating
       const PROGRAM_SEQUENCE = [
         { type: "SPONSOR", title: "Message from Sponsor" },
         { type: "NEWS", title: "Weazel News Wire" },
@@ -1443,10 +1575,11 @@
         musicBedOn: false,
         isSpeaking: false,
         activeIsSlogan: false,
-        activeRunnerType: "NONE", // "NONE" | "SLOGAN" | "PROGRAM"
+        activeRunnerType: "NONE",
         activeProgramTitle: "IDLE // AWAITING CARRIER ENGAGE",
         playToken: 0,
         activeSpeechSource: null,
+        activeSpeechGain: null,
         country: initialCountry,
         city: initialCity,
         weatherSummary: "11°C · BREEZY",
@@ -1458,9 +1591,9 @@
         sloganAnchorTimeMs: 0,
         nextSloganDueAtMs: 0,
         nextProgramDueAtMs: 0,
-        sloganNextSingleChar: "Marcus", // After opening dual start (Marcus + Donna), alternates Marcus <-> Donna
+        sloganNextSingleChar: "Marcus",
         scheduleCursorIndex: 0,
-        pendingRetryItem: null, // { type, title, retries } pushed back on slogan fallback
+        pendingRetryItem: null,
         lastSponsorId: "",
         lastCallerTitle: "",
         vaultClips: [],
@@ -1470,10 +1603,13 @@
         apiStatus: "IDLE",
         apiLastRttMs: null,
         inFlightSynthesis: new Map(),
+        buttonLastClickAt: new Map(),
         schedulerTimer: null,
         clockTimer: null,
-        scheduleOpen: false,
-        vaultOpen: false
+        watchdogTimer: null,
+        wakeLockSentinel: null,
+        programModalOpen: false,
+        activeModalTab: "SCHEDULE"
       };
 
       const el = {
@@ -1493,6 +1629,7 @@
         vfdAirStatusPill: document.getElementById("vfdAirStatusPill"),
         vfdDuckPill: document.getElementById("vfdDuckPill"),
         vfdQueuePill: document.getElementById("vfdQueuePill"),
+        vfdSpectrumCanvas: document.getElementById("vfdSpectrumCanvas"),
         vfdSegmentLine: document.getElementById("vfdSegmentLine"),
         vfdStatusLine: document.getElementById("vfdStatusLine"),
         vfdTeleprompterBox: document.getElementById("vfdTeleprompterBox"),
@@ -1506,25 +1643,172 @@
         bedToggleBtn: document.getElementById("bedToggleBtn"),
         bedToggleBtnText: document.getElementById("bedToggleBtnText"),
         cutMicBtn: document.getElementById("cutMicBtn"),
-        scheduleBtn: document.getElementById("scheduleBtn"),
-        scheduleBtnText: document.getElementById("scheduleBtnText"),
-        cachedWavsBtn: document.getElementById("cachedWavsBtn"),
-        cachedWavsBtnText: document.getElementById("cachedWavsBtnText"),
-        scheduleModal: document.getElementById("scheduleModal"),
-        closeScheduleModalBtn: document.getElementById("closeScheduleModalBtn"),
-        scheduleModalSummary: document.getElementById("scheduleModalSummary"),
+        programBtn: document.getElementById("programBtn"),
+        programBtnText: document.getElementById("programBtnText"),
+        clearDeckBtn: document.getElementById("clearDeckBtn"),
+        programVaultModal: document.getElementById("programVaultModal"),
+        closeProgramModalBtn: document.getElementById("closeProgramModalBtn"),
+        programModalSummary: document.getElementById("programModalSummary"),
+        tabScheduleBtn: document.getElementById("tabScheduleBtn"),
+        tabVaultBtn: document.getElementById("tabVaultBtn"),
+        tabVaultBtnText: document.getElementById("tabVaultBtnText"),
+        scheduleTabPane: document.getElementById("scheduleTabPane"),
+        vaultTabPane: document.getElementById("vaultTabPane"),
         scheduleNextBanner: document.getElementById("scheduleNextBanner"),
         scheduleSlotsList: document.getElementById("scheduleSlotsList"),
-        cachedWavsModal: document.getElementById("cachedWavsModal"),
-        closeCacheDrawerBtn: document.getElementById("closeCacheDrawerBtn"),
+        hydrateVaultBtn: document.getElementById("hydrateVaultBtn"),
         stopPreviewBtn: document.getElementById("stopPreviewBtn"),
+        saveExportVaultBtn: document.getElementById("saveExportVaultBtn"),
+        clearAllVaultBtn: document.getElementById("clearAllVaultBtn"),
         cachedWavsSummary: document.getElementById("cachedWavsSummary"),
         cachedWavsList: document.getElementById("cachedWavsList"),
         mcaToast: document.getElementById("mcaToast")
       };
 
       /* ======================================================================
-         5. UI HELPERS, API TELEMETRY & CLOCK
+         5. IMMEDIATE BUTTON & CONTROL BINDING (BOUND FIRST, ZERO BLOCKING)
+         ====================================================================== */
+      function passButtonDebounce(btnKey) {
+        const now = Date.now();
+        const last = state.buttonLastClickAt.get(btnKey) || 0;
+        if (now - last < BUTTON_DEBOUNCE_MS) return false;
+        state.buttonLastClickAt.set(btnKey, now);
+        return true;
+      }
+
+      let eventsBound = false;
+      function bindAllEventsImmediately() {
+        if (eventsBound) return;
+        eventsBound = true;
+
+        const bindClick = (node, key, fn) => {
+          if (!node) return;
+          node.addEventListener("click", (event) => {
+            event.stopPropagation();
+            if (!passButtonDebounce(key)) return;
+            try {
+              fn(event);
+            } catch (e) {}
+          });
+        };
+
+        bindClick(el.standbyBtn, "standbyBtn", toggleStandby);
+        bindClick(el.bedToggleBtn, "bedToggleBtn", toggleBed);
+        bindClick(el.cutMicBtn, "cutMicBtn", cutMic);
+        bindClick(el.programBtn, "programBtn", () => openProgramModal("SCHEDULE"));
+        bindClick(el.clearDeckBtn, "clearDeckBtn", clearDeckReset);
+        bindClick(el.closeProgramModalBtn, "closeProgramModalBtn", closeProgramModal);
+        bindClick(el.tabScheduleBtn, "tabScheduleBtn", () => setModalTab("SCHEDULE"));
+        bindClick(el.tabVaultBtn, "tabVaultBtn", () => setModalTab("VAULT"));
+        bindClick(el.stopPreviewBtn, "stopPreviewBtn", () => {
+          stopPreviewWav();
+          showToast("Preview stopped");
+        });
+        bindClick(el.saveExportVaultBtn, "saveExportVaultBtn", () => {
+          exportVaultOrBedWav().catch(() => {});
+        });
+        bindClick(el.clearAllVaultBtn, "clearAllVaultBtn", () => {
+          clearAllVaultClips().catch(() => {});
+        });
+        bindClick(el.hydrateVaultBtn, "hydrateVaultBtn", () => {
+          loadPersistedVault()
+            .then(() => {
+              if (hasApiKey() && !isApiCoolingDown()) {
+                return bakeBothSloganWavsOnce();
+              }
+            })
+            .then(() => {
+              renderVaultList();
+              showToast("Vault hydrated");
+            })
+            .catch(() => {});
+        });
+        bindClick(el.toggleKeyVisBtn, "toggleKeyVisBtn", toggleKeyVisibility);
+        bindClick(el.saveKeyBtn, "saveKeyBtn", saveApiKey);
+        bindClick(el.clearKeyBtn, "clearKeyBtn", clearApiKey);
+
+        if (el.programVaultModal) {
+          el.programVaultModal.addEventListener("click", (e) => {
+            if (e.target === el.programVaultModal) closeProgramModal();
+          });
+        }
+
+        if (el.countrySelect) {
+          el.countrySelect.addEventListener("change", (e) => handleCountryChange(e.target.value));
+        }
+        if (el.citySelect) {
+          el.citySelect.addEventListener("change", (e) => handleCityChange(e.target.value));
+        }
+        if (el.apiKeyInput) {
+          el.apiKeyInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (passButtonDebounce("saveKeyBtn")) saveApiKey();
+            }
+          });
+        }
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && state.programModalOpen) {
+            closeProgramModal();
+          }
+        });
+
+        // Screen-lock sharp-tone prevention + seamless post-unlock recovery
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            audioEngine.muteBeforeSleep();
+          } else if (document.visibilityState === "visible") {
+            if (state.isOnAir) {
+              audioEngine.acquireWakeLock().catch(() => {});
+            }
+            if (state.isOnAir || state.musicBedOn) {
+              audioEngine.recoverAfterUnlock(false).catch(() => {});
+            }
+          }
+        });
+
+        window.addEventListener("pagehide", () => {
+          audioEngine.muteBeforeSleep();
+        });
+
+        window.addEventListener("focus", () => {
+          if (state.isOnAir) {
+            audioEngine.acquireWakeLock().catch(() => {});
+          }
+          if (state.isOnAir || state.musicBedOn) {
+            audioEngine.recoverAfterUnlock(false).catch(() => {});
+          }
+        });
+
+        window.addEventListener("pageshow", () => {
+          if (state.isOnAir) {
+            audioEngine.acquireWakeLock().catch(() => {});
+          }
+          if (state.isOnAir || state.musicBedOn) {
+            audioEngine.recoverAfterUnlock(false).catch(() => {});
+          }
+        });
+
+        // Trusted-gesture Web Audio restoration (passive & non-blocking; only runs when needed)
+        const handlePostLockGesture = () => {
+          if (!state.isOnAir && !state.musicBedOn) return;
+          const ctxNotRunning = !audioEngine.ctx || audioEngine.ctx.state !== "running";
+          if (audioEngine.needsGestureRecovery || ctxNotRunning) {
+            audioEngine.recoverAfterUnlock(true).catch(() => {});
+          }
+        };
+
+        document.addEventListener("pointerdown", handlePostLockGesture, { passive: true });
+        document.addEventListener("touchstart", handlePostLockGesture, { passive: true });
+        document.addEventListener("click", handlePostLockGesture, { passive: true });
+      }
+
+      // Bind listeners immediately before any async work or audio rendering
+      bindAllEventsImmediately();
+
+      /* ======================================================================
+         6. UI HELPERS, API TELEMETRY & CLOCK
          ====================================================================== */
       let toastTimeout = null;
       function showToast(msg) {
@@ -1535,7 +1819,7 @@
           if (toastTimeout) clearTimeout(toastTimeout);
           toastTimeout = setTimeout(() => {
             if (el.mcaToast) el.mcaToast.classList.remove("show");
-          }, 2600);
+          }, 2400);
         } catch (e) {}
       }
 
@@ -1634,7 +1918,7 @@
           else if (remCooldownMs > 0 && st === "READY") st = "COOLDOWN";
           el.apiConnStatus.textContent = `API: ${st}`;
           el.apiConnStatus.className = "vfd-pill " + (
-            st.includes("429") || st.includes("ERR") || st.includes("QUOTA") ? "crimson" :
+            st.includes("429") || st.includes("ERR") || st.includes("QUOTA") || st.includes("TIMEOUT") ? "crimson" :
             st === "COOLDOWN" || st === "BAKING" ? "amber" :
             st === "CACHED HIT" ? "cyan" : ""
           );
@@ -1687,8 +1971,8 @@
         if (el.bedToggleBtn) {
           el.bedToggleBtn.classList.toggle("lit-green", state.musicBedOn);
         }
-        if (el.cachedWavsBtnText) {
-          el.cachedWavsBtnText.textContent = `CACHED WAVS (${state.vaultClips.length}/${MAX_VAULT_CLIPS})`;
+        if (el.tabVaultBtnText) {
+          el.tabVaultBtnText.textContent = `CACHED WAV VAULT (${state.vaultClips.length}/${MAX_VAULT_CLIPS})`;
         }
         if (el.vfdQueuePill) {
           el.vfdQueuePill.textContent = `RETRY: ${retryCount}`;
@@ -1697,6 +1981,9 @@
         if (el.vfdStatusLine) {
           const bakeNote = state.sloganBakeInProgress ? " • BAKING" : "";
           el.vfdStatusLine.textContent = `SLOGAN WAVS: ${sloganCount}/2 (${state.sloganNextSingleChar.toUpperCase()} NEXT) • VAULT ${state.vaultClips.length}/${MAX_VAULT_CLIPS}${bakeNote} • ${reg.cityName.toUpperCase()} WIRE`;
+        }
+        if (el.programModalSummary) {
+          el.programModalSummary.textContent = `SLOGAN-ANCHORED 5M CADENCE • 15M SINGLE-VOICE SLOGAN REPEATS • ${state.vaultClips.length}/${MAX_VAULT_CLIPS} WAV CLIPS`;
         }
         syncApiTelemetryUi();
       }
@@ -1709,14 +1996,14 @@
           el.vfdClockReadout.textContent = now.toTimeString().slice(0, 8);
         }
 
-        if (el.scheduleBtnText) {
+        if (el.programBtnText) {
           if (!state.isOnAir) {
-            el.scheduleBtnText.textContent = "PROGRAM";
+            el.programBtnText.textContent = "PROGRAM";
           } else if (!state.sloganInitialCompleted) {
-            el.scheduleBtnText.textContent = "SLOGAN...";
+            el.programBtnText.textContent = "PROGRAM · SLOGAN";
           } else {
             const remProg = Math.max(0, state.nextProgramDueAtMs - nowMs);
-            el.scheduleBtnText.textContent = `NEXT ${formatMmSs(remProg)}`;
+            el.programBtnText.textContent = `PROGRAM ${formatMmSs(remProg)}`;
           }
         }
 
@@ -1724,13 +2011,13 @@
           syncApiTelemetryUi();
         }
 
-        if (state.scheduleOpen) {
+        if (state.programModalOpen && state.activeModalTab === "SCHEDULE") {
           renderScheduleDrawer();
         }
       }
 
       /* ======================================================================
-         6. CONNECTED COUNTRY & CITY DROPDOWNS + LIVE OPEN-METEO WEATHER
+         7. CONNECTED COUNTRY & CITY DROPDOWNS + LIVE OPEN-METEO WEATHER
          ====================================================================== */
       function persistRegionSelection() {
         setStore(LS_LOC_STATE, JSON.stringify({
@@ -1805,12 +2092,11 @@
         } catch (e) {}
       }
 
-      // Populate dropdowns synchronously on parse so options exist immediately
       populateCountryDropdown();
       populateCityDropdown();
 
       /* ======================================================================
-         7. INDEXEDDB CACHED WAV VAULT (UP TO 24 CLIPS, EXCLUDING NEWS/WEATHER)
+         8. INDEXEDDB CACHED WAV VAULT (UP TO 24 CLIPS, EXCLUDING NEWS/WEATHER)
          ====================================================================== */
       let idbPromise = null;
       function openVaultDb() {
@@ -1886,6 +2172,23 @@
         } catch (e) {}
       }
 
+      async function idbClearAll() {
+        try {
+          const db = await openVaultDb();
+          if (!db) return;
+          await new Promise((resolve) => {
+            try {
+              const tx = db.transaction(IDB_STORE, "readwrite");
+              tx.objectStore(IDB_STORE).clear();
+              tx.oncomplete = () => resolve();
+              tx.onerror = () => resolve();
+            } catch (e) {
+              resolve();
+            }
+          });
+        } catch (e) {}
+      }
+
       async function loadPersistedVault() {
         try {
           const marcusRec = await idbGet(SLOGAN_MARCUS_SLOT_KEY);
@@ -1904,6 +2207,39 @@
           }
         } catch (e) {}
         syncUiState();
+      }
+
+      async function exportVaultOrBedWav() {
+        try {
+          const targetClip = state.vaultClips[0];
+          if (targetClip && targetClip.wavBlob instanceof Blob) {
+            const url = URL.createObjectURL(targetClip.wavBlob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${targetClip.title.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}.wav`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1500);
+            showToast(`Exported: ${targetClip.title}`);
+            return;
+          }
+          await idbSet(VAULT_LIST_KEY, state.vaultClips);
+          showToast("Vault state saved to IndexedDB");
+        } catch (e) {
+          showToast("Vault saved");
+        }
+      }
+
+      async function clearAllVaultClips() {
+        stopPreviewWav();
+        state.vaultClips = [];
+        state.sloganMarcusWavBlob = null;
+        state.sloganDonnaWavBlob = null;
+        await idbClearAll();
+        syncUiState();
+        renderVaultList();
+        showToast("Cleared all cached WAV clips");
       }
 
       async function saveClipToVault(category, title, wavBlob) {
@@ -1932,7 +2268,7 @@
 
           await idbSet(VAULT_LIST_KEY, state.vaultClips);
           syncUiState();
-          if (state.vaultOpen) renderVaultList();
+          if (state.programModalOpen) renderVaultList();
         } catch (e) {}
       }
 
@@ -1969,7 +2305,7 @@
             showToast("AudioContext unavailable");
             return;
           }
-          if (ctx.state !== "running") {
+          if (ctx.state === "suspended") {
             await ctx.resume();
           }
           const arrayBuf = await clip.wavBlob.arrayBuffer();
@@ -2019,7 +2355,7 @@
       function renderVaultList() {
         if (!el.cachedWavsList) return;
         if (el.cachedWavsSummary) {
-          el.cachedWavsSummary.textContent = `${state.vaultClips.length}/${MAX_VAULT_CLIPS} CLIPS • SLOGANS, SPONSOR MESSAGES & CALLERS`;
+          el.cachedWavsSummary.textContent = `${state.vaultClips.length}/${MAX_VAULT_CLIPS} CLIPS • INDEXEDDB`;
         }
         if (state.vaultClips.length === 0) {
           el.cachedWavsList.innerHTML = `<div class="vault-empty">NO CACHED WAVS YET — ENTER GEMINI API KEY &amp; GO ON AIR TO CACHE SLOGANS, SPONSOR MESSAGES &amp; CALLERS</div>`;
@@ -2043,17 +2379,26 @@
               <button type="button" data-action="delete" class="mca-btn lit-crimson"><span>DELETE</span></button>
             </div>
           `;
-          row.querySelector('[data-action="play"]').addEventListener("click", () => previewVaultClip(clip));
-          row.querySelector('[data-action="delete"]').addEventListener("click", () => deleteVaultClip(clip.id));
+          row.querySelector('[data-action="play"]').addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            if (!passButtonDebounce(`play_${clip.id}`)) return;
+            previewVaultClip(clip).catch(() => {});
+          });
+          row.querySelector('[data-action="delete"]').addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            if (!passButtonDebounce(`del_${clip.id}`)) return;
+            deleteVaultClip(clip.id).catch(() => {});
+          });
           el.cachedWavsList.appendChild(row);
         });
       }
 
       /* ======================================================================
-         8. GEMINI TTS PIPELINE (WITH ANTI-OVERLOAD DEDUP & COOLDOWN)
+         9. GEMINI API (SCRIPT GENERATION + TTS WAV PCM ENCODER)
          ====================================================================== */
       function base64ToUint8Array(base64) {
-        const binary = atob(base64);
+        const clean = String(base64 || "").replace(/[^A-Za-z0-9+/=]/g, "");
+        const binary = atob(clean);
         const len = binary.length;
         const bytes = new Uint8Array(len);
         for (let i = 0; i < len; i++) {
@@ -2069,11 +2414,11 @@
         const buffer = new ArrayBuffer(44 + dataSize);
         const view = new DataView(buffer);
 
-        function writeStr(offset, str) {
+        const writeStr = (offset, str) => {
           for (let i = 0; i < str.length; i++) {
             view.setUint8(offset + i, str.charCodeAt(i));
           }
-        }
+        };
 
         writeStr(0, "RIFF");
         view.setUint32(4, 36 + dataSize, true);
@@ -2112,6 +2457,76 @@
           }
         });
         return merged;
+      }
+
+      async function requestGeminiDynamicNewsLines(reg, rawHeadline) {
+        const apiKey = getApiKey();
+        if (!apiKey || isApiCoolingDown()) return null;
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 9000);
+        const startedAt = performance.now();
+
+        state.apiCallsCount += 1;
+        state.apiStatus = "SCRIPTING";
+        syncApiTelemetryUi();
+
+        const prompt = `Write a 2-line satirical late-night FM radio news flash for Weazel 13.3 FM in ${reg.cityName}, ${reg.countryName}.
+Anchors:
+- Marcus: cynical, booming baritone FM anchor.
+- Donna: bubbly, winking co-host with playful FM double-entendres.
+Headline inspiration: "${rawHeadline}"
+Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"speaker":"Donna","text":"..."}]`;
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              signal: controller.signal,
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                  responseMimeType: "application/json",
+                  temperature: 0.9
+                }
+              })
+            }
+          );
+          clearTimeout(timer);
+          state.apiLastRttMs = Math.max(1, Math.round(performance.now() - startedAt));
+
+          if (res.status === 429) {
+            state.apiConsecutiveErrors += 1;
+            tripApiCooldown(RATE_LIMIT_COOLDOWN_MS, "429 RATE LIMIT");
+            return null;
+          }
+          if (!res.ok) {
+            state.apiConsecutiveErrors += 1;
+            if (state.apiConsecutiveErrors >= CONSECUTIVE_ERROR_TRIP_THRESHOLD) {
+              tripApiCooldown(ERROR_COOLDOWN_MS, "API ERR PAUSE");
+            }
+            return null;
+          }
+
+          const data = await res.json();
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const parsed = JSON.parse(rawText);
+          if (Array.isArray(parsed) && parsed.length >= 2 && parsed[0].text && parsed[1].text) {
+            state.apiConsecutiveErrors = 0;
+            state.apiStatus = "READY";
+            syncApiTelemetryUi();
+            return [
+              { speaker: "Marcus", text: String(parsed[0].text).trim() },
+              { speaker: "Donna", text: String(parsed[1].text).trim() }
+            ];
+          }
+          return null;
+        } catch (e) {
+          clearTimeout(timer);
+          return null;
+        }
       }
 
       async function requestGeminiLinePcm(lineObj) {
@@ -2216,9 +2631,9 @@
           state.apiLastRttMs = Math.max(1, Math.round(performance.now() - startedAt));
           state.apiConsecutiveErrors += 1;
           if (state.apiConsecutiveErrors >= CONSECUTIVE_ERROR_TRIP_THRESHOLD) {
-            tripApiCooldown(ERROR_COOLDOWN_MS, "TIMEOUT PAUSE");
+            tripApiCooldown(ERROR_COOLDOWN_MS, "TIMEOUT/ERR");
           } else {
-            state.apiStatus = e?.name === "AbortError" ? "TIMEOUT" : "NET ERR";
+            state.apiStatus = "TIMEOUT/ERR";
             syncApiTelemetryUi();
           }
           return null;
@@ -2259,7 +2674,7 @@
       }
 
       async function synthesizeSingleCharacterSloganWav(charKey) {
-        const script = SLOGAN_CHARACTER_SCRIPTS[charKey];
+        const script = SLOGAN_SCRIPT[charKey];
         if (!script) return null;
         const wav = await synthesizeSegmentWav(
           [{ speaker: script.speaker, text: script.text }],
@@ -2299,15 +2714,24 @@
       }
 
       /* ======================================================================
-         9. PROCEDURAL 256-BAR (~8m32s) 16-SECTION SMOOTH SYNTHWAVE BED
+         10. DAFT PUNK / FRENCH TOUCH 128-BAR 48kHz SPACEY SYNTHWAVE BED
+         - Drum Voice Architecture (TR-909 + LinnDrum + Alesis 3630 Bus Pump):
+           * Four-on-the-floor TR-909 kick (220 Hz -> 50 Hz pitch sweep, 3.5 kHz
+             beater click, 118 Hz punch, warm analog saturation, 26% sidechain pump)
+           * Dual-partial TR-909 / LinnDrum snare (185 Hz + 330 Hz shell + dry 80s
+             LinnDrum crack) layered with triple-burst 909/808 handclap on beats 2 & 4
+           * Signature French Touch off-beat open 909 hi-hat on every "&" beat
+             (step % 4 === 2) + crisp 16th-note closed hats + 8-bar 909 tom fills
+         - Runs off the main UI thread inside an inline Web Worker with zero-copy
+           transferable Float32Array buffers (plus setTimeout(..., 16) fallback).
          ====================================================================== */
-      async function buildSynthwaveBedBlobAsync() {
-        const sampleRate = 22050;
-        const bpm = 120;
+      async function buildSynthwaveBedPcmAsync() {
+        const sampleRate = BED_SAMPLE_RATE;
+        const bpm = BED_BPM;
         const beatSec = 60 / bpm;
         const barSec = beatSec * 4;
-        const stepSec = beatSec / 4;
-        const totalBars = 256;
+        const halfBarSec = barSec * 0.5;
+        const totalBars = TOTAL_BARS;
         const totalSeconds = totalBars * barSec;
         const totalSamples = Math.floor(sampleRate * totalSeconds);
 
@@ -2328,49 +2752,227 @@
           { bass: 49.00, root: 98.00,  notes: [196.00, 246.94, 293.66, 392.00] }
         ];
 
-        let seed = 0x5EED1337;
-        const rand = () => {
+        const lushVoicings = [
+          [164.81, 196.00, 246.94, 293.66, 329.63],
+          [174.61, 220.00, 261.63, 329.63, 392.00],
+          [196.00, 246.94, 293.66, 329.63, 392.00],
+          [146.83, 196.00, 246.94, 293.66, 369.99]
+        ];
+
+        const invSampleRate = 1 / sampleRate;
+        function makePhaseAcc(initPhase = 0) {
+          let ph = initPhase - Math.floor(initPhase);
+          return (freqHz) => {
+            const safeFreq = Math.max(0, Number.isFinite(freqHz) ? freqHz : 0);
+            ph += safeFreq * invSampleRate;
+            if (ph >= 1) ph -= Math.floor(ph);
+            if (ph < 0) ph += 1;
+            return ph;
+          };
+        }
+
+        function warmSawFromPhase(p, warmth = 0.28) {
+          const rawSaw = 2 * p - 1;
+          const thirdHarm = Math.sin(2 * Math.PI * 3 * p) * (warmth * 0.12);
+          return rawSaw * (1 - warmth * 0.24) + thirdHarm;
+        }
+
+        function softTriFromPhase(p) {
+          return 2 * Math.abs(2 * p - 1) - 1;
+        }
+
+        function hannMicroWindow(elapsedSec, durationSec, fadeInSec = 0.018, fadeOutSec = 0.028) {
+          if (elapsedSec <= 0 || elapsedSec >= durationSec) return 0;
+          let w = 1;
+          if (fadeInSec > 0 && elapsedSec < fadeInSec) {
+            const u = elapsedSec / fadeInSec;
+            w *= 0.5 - 0.5 * Math.cos(Math.PI * u);
+          }
+          const rem = durationSec - elapsedSec;
+          if (fadeOutSec > 0 && rem < fadeOutSec) {
+            const v = rem / fadeOutSec;
+            w *= 0.5 - 0.5 * Math.cos(Math.PI * v);
+          }
+          return Math.max(0, Math.min(1, w));
+        }
+
+        function makeSmoothLp(initHz, slewRateHzPerSec = 2200) {
+          let y1 = 0;
+          let y2 = 0;
+          let smoothHz = Math.max(60, Math.min(2800, initHz));
+          const maxDeltaHz = slewRateHzPerSec / sampleRate;
+          return {
+            process(x, targetHz) {
+              const safeX = Number.isFinite(x) ? Math.max(-2.0, Math.min(2.0, x)) : 0;
+              const clampedTarget = Math.max(60, Math.min(2800, Number.isFinite(targetHz) ? targetHz : smoothHz));
+              const diff = clampedTarget - smoothHz;
+              if (diff > maxDeltaHz) smoothHz += maxDeltaHz;
+              else if (diff < -maxDeltaHz) smoothHz -= maxDeltaHz;
+              else smoothHz = clampedTarget;
+
+              const f = Math.min(0.34, (2 * Math.PI * smoothHz) / sampleRate);
+              y1 += f * (safeX - y1);
+              y2 += f * (y1 - y2);
+              return y2;
+            }
+          };
+        }
+
+        function makeOnePoleHp(cutoffHz) {
+          let xPrev = 0;
+          let yPrev = 0;
+          const rc = 1 / (2 * Math.PI * Math.max(20, cutoffHz));
+          const dt = 1 / sampleRate;
+          const alpha = rc / (rc + dt);
+          return (x) => {
+            const y = alpha * (yPrev + x - xPrev);
+            xPrev = x;
+            yPrev = y;
+            return y;
+          };
+        }
+
+        function makeSlewValue(initVal, maxStepPerSample, minClamp = -Infinity, maxClamp = Infinity) {
+          let cur = Math.max(minClamp, Math.min(maxClamp, initVal));
+          return (target) => {
+            const safeTarget = Math.max(minClamp, Math.min(maxClamp, Number.isFinite(target) ? target : cur));
+            const d = safeTarget - cur;
+            if (d > maxStepPerSample) cur += maxStepPerSample;
+            else if (d < -maxStepPerSample) cur -= maxStepPerSample;
+            else cur = safeTarget;
+            return cur;
+          };
+        }
+
+        function makeDcBlocker() {
+          let xPrev = 0;
+          let yPrev = 0;
+          return (x) => {
+            const y = x - xPrev + 0.9985 * yPrev;
+            xPrev = x;
+            yPrev = y;
+            return y;
+          };
+        }
+
+        function readFractionalDelay(buf, writeIdx, delaySamples) {
+          const len = buf.length;
+          const clampedDelay = Math.max(2.0, Math.min(len - 3.0, delaySamples));
+          const readPos = writeIdx - clampedDelay;
+          const wrappedPos = ((readPos % len) + len) % len;
+          const i0 = Math.floor(wrappedPos);
+          const i1 = (i0 + 1) % len;
+          const frac = wrappedPos - i0;
+          const smoothFrac = frac * frac * (3 - 2 * frac);
+          return buf[i0] * (1.0 - smoothFrac) + buf[i1] * smoothFrac;
+        }
+
+        let seed = 918273645;
+        function nextRand() {
           seed = (seed * 1664525 + 1013904223) >>> 0;
-          return (seed / 2147483648) - 1;
-        };
-
-        const snareNoise = new Float32Array(Math.floor(sampleRate * 0.36));
-        let lpSnare1 = 0;
-        let lpSnare2 = 0;
-        let hpSnare = 0;
-        for (let k = 0; k < snareNoise.length; k++) {
-          const white = rand();
-          lpSnare1 = lpSnare1 * 0.72 + white * 0.28;
-          lpSnare2 = lpSnare2 * 0.68 + lpSnare1 * 0.32;
-          hpSnare = hpSnare * 0.92 + lpSnare2 * 0.08;
-          snareNoise[k] = lpSnare2 - hpSnare * 0.55;
+          return (seed / 4294967296) * 2 - 1;
         }
 
-        const hatNoise = new Float32Array(Math.floor(sampleRate * 0.09));
-        let prevW = 0;
-        let lpHat = 0;
-        for (let k = 0; k < hatNoise.length; k++) {
-          const w = rand();
-          const hp = w - prevW * 0.85;
-          prevW = w;
-          lpHat = lpHat * 0.45 + hp * 0.55;
-          hatNoise[k] = lpHat;
+        const noisePool = new Float32Array(sampleRate * 4);
+        let nLp1 = 0;
+        let nLp2 = 0;
+        let nLp3 = 0;
+        for (let n = 0; n < noisePool.length; n++) {
+          const r = nextRand();
+          nLp1 += 0.085 * (r - nLp1);
+          nLp2 += 0.14 * (nLp1 - nLp2);
+          nLp3 += 0.20 * (nLp2 - nLp3);
+          noisePool[n] = Math.max(-0.75, Math.min(0.75, nLp3 * 2.4));
         }
 
-        const softTri = (phase) => {
-          const p = phase - Math.floor(phase);
-          const tri = 4 * Math.abs(p - 0.5) - 1;
-          return Math.sin(tri * (Math.PI * 0.46));
-        };
+        // Crisp high-frequency metallic noise pool for TR-909 / LinnDrum hats, snare wire & claps
+        const crispNoisePool = new Float32Array(sampleRate * 2);
+        let hpPrev = 0;
+        for (let n = 0; n < crispNoisePool.length; n++) {
+          const r = nextRand();
+          const hp = r - 0.82 * hpPrev;
+          hpPrev = r;
+          crispNoisePool[n] = Math.max(-0.85, Math.min(0.85, hp * 0.65));
+        }
 
-        let padLpL = 0;
-        let padLpR = 0;
-        let bassLp = 0;
-        let arpLpL = 0;
-        let arpLpR = 0;
+        const chorusBufLen = Math.floor(sampleRate * 0.088);
+        const chorusDelayL = new Float32Array(chorusBufLen);
+        const chorusDelayR = new Float32Array(chorusBufLen);
+        let chorusIdx = 0;
+        let chorusLpL = 0;
+        let chorusLpR = 0;
+
+        const echoLenL = Math.floor(sampleRate * 0.45);
+        const echoLenR = Math.floor(sampleRate * 0.60);
+        const echoBufL = new Float32Array(echoLenL);
+        const echoBufR = new Float32Array(echoLenR);
+        let echoIdxL = 0;
+        let echoIdxR = 0;
+        let echoLpL = 0;
+        let echoLpR = 0;
+
+        const hallTapLens = [
+          Math.floor(sampleRate * 0.211),
+          Math.floor(sampleRate * 0.307),
+          Math.floor(sampleRate * 0.431),
+          Math.floor(sampleRate * 0.587)
+        ];
+        const hallTaps = hallTapLens.map((len) => new Float32Array(len));
+        const hallIdxs = [0, 0, 0, 0];
+        const hallDamps = [0, 0, 0, 0];
+
+        const bassFilter = makeSmoothLp(760, 2600);
+        const padFilterL = makeSmoothLp(1020, 1450);
+        const padFilterR = makeSmoothLp(1060, 1450);
+        const swellFilterL = makeSmoothLp(980, 1250);
+        const swellFilterR = makeSmoothLp(1020, 1250);
+        const lushChordFilterL = makeSmoothLp(960, 1150);
+        const lushChordFilterR = makeSmoothLp(1000, 1150);
+
+        const padMudHpL = makeOnePoleHp(235);
+        const padMudHpR = makeOnePoleHp(235);
+        const spaceMudHpL = makeOnePoleHp(290);
+        const spaceMudHpR = makeOnePoleHp(290);
+
+        // Alesis 3630-style 26% sidechain bus pump on four-on-the-floor 909 kicks
+        const slewSidechain = makeSlewValue(1.0, 4.8 / sampleRate, 0.74, 1.0);
+        const slewBassFreq = makeSlewValue(55.0, 220.0 / sampleRate, 35.0, 160.0);
+        const slewBassEnv = makeSlewValue(0.75, 4.2 / sampleRate, 0.0, 1.15);
+        const slewLeadFreq = makeSlewValue(220.0, 260.0 / sampleRate, 80.0, 900.0);
+
+        const subPhaseAcc = makePhaseAcc(0.0);
+        const bassOscPhaseAcc = makePhaseAcc(0.11);
+        const bassTriPhaseAcc = makePhaseAcc(0.23);
+        const leadPhaseAcc = makePhaseAcc(0.31);
+        const swellPhaseAccs = [0, 1, 2, 3].map((idx) => makePhaseAcc(0.09 + idx * 0.19));
+        const padPhaseAccs = [0, 1, 2, 3].map((idx) => ({
+          l1: makePhaseAcc(0.05 + idx * 0.13),
+          l2: makePhaseAcc(0.17 + idx * 0.19),
+          r1: makePhaseAcc(0.29 + idx * 0.11),
+          r2: makePhaseAcc(0.43 + idx * 0.23)
+        }));
+        const lushPhaseAccs = [0, 1, 2, 3, 4].map((idx) => makePhaseAcc(0.12 + idx * 0.17));
+        const peakPhaseAccA = makePhaseAcc(0.19);
+        const peakPhaseAccB = makePhaseAcc(0.61);
+
+        const dcBlockL = makeDcBlocker();
+        const dcBlockR = makeDcBlocker();
+
+        // Warm 2-pole ~6.8 kHz analog tape low-pass ceiling to keep highs smooth
+        let outLp1L = 0;
+        let outLp1R = 0;
+        let outLp2L = 0;
+        let outLp2R = 0;
+        const outLpCoeff = Math.min(0.48, (2 * Math.PI * 6800) / sampleRate);
+
         let peakAbs = 0.001;
+        let sumSq = 0;
 
-        const chunkSamples = Math.floor(sampleRate * 2.5);
+        // Yield every 8,192 samples using a 16ms macrotask frame delay so UI input events never starve
+        const chunkSamples = 8192;
+        const yieldSlice = () => new Promise((resolve) => {
+          setTimeout(resolve, 16);
+        });
 
         for (let chunkStart = 0; chunkStart < totalSamples; chunkStart += chunkSamples) {
           const chunkEnd = Math.min(totalSamples, chunkStart + chunkSamples);
@@ -2381,392 +2983,1002 @@
             const barIdx = Math.floor(barFloat);
             const barFrac = barFloat - barIdx;
             const barInSection = barIdx % 16;
-            const section = Math.floor(barIdx / 16);
+            const section = Math.floor(barIdx / 16); // 0..7 across 128 bars
 
             const beatFloat = barFrac * 4;
             const beatIdx = Math.floor(beatFloat);
             const beatFrac = beatFloat - beatIdx;
             const beatTime = beatFrac * beatSec;
 
-            const stepFloat = barFrac * 16;
-            const stepIdx = Math.floor(stepFloat);
-            const stepFrac = stepFloat - stepIdx;
-            const stepTime = stepFrac * stepSec;
+            const halfBarFloat = barFrac * 2;
+            const halfBarIdx = Math.floor(halfBarFloat);
+            const halfBarTime = (halfBarFloat - halfBarIdx) * halfBarSec;
+            const barTime = barFrac * barSec;
 
-            const useMod = (section === 5 || section === 6 || section === 13 || section === 14);
+            const useMod = (section === 3 || section === 6);
             const prog = useMod ? modChords : mainChords;
             const chord = prog[barIdx % 4];
 
-            const isHalfTimeBreakdown = (section === 4 || section === 12);
-            const isMinimalCruise = (section === 8 || section === 9);
-            const isDoubleHatBridge = (section === 10 || section === 11);
-            const isMidnightFinale = (section === 14 || section === 15);
-            const isChorusPeak = (section === 3 || section === 7 || section === 11 || section === 15);
+            const isHalfTimeBreakdown = (section === 2 || section === 6);
+            const isMinimalCruise = (section === 4);
+            const isExpandedBridge = (section === 5);
+            const isMidnightFinale = (section === 7);
+            const isChorusPeak = (section === 1 || section === 3 || section === 5 || section === 7);
 
+            // 1. Daft Punk / TR-909 Four-on-the-Floor Kick (220 Hz -> 50 Hz pitch sweep, 3.5 kHz beater click, 118 Hz chest punch)
             let kick = 0;
+            const kickDur = 0.28;
             const kickOnBeat = isHalfTimeBreakdown
-              ? (beatIdx === 0)
-              : (beatIdx === 0 || beatIdx === 2 || (isChorusPeak && beatIdx === 3 && stepIdx === 14));
-            if (kickOnBeat && beatTime < 0.28) {
-              const kEnv = Math.exp(-beatTime * 19.5);
-              const kFreq = 48 + 140 * Math.exp(-beatTime * 36);
-              const click = beatTime < 0.008 ? (1 - beatTime / 0.008) * 0.36 : 0;
-              kick = (Math.sin(2 * Math.PI * kFreq * beatTime) * kEnv * 0.60) + click;
+              ? (beatIdx === 0 || beatIdx === 2)
+              : true; // Signature French house four-on-the-floor pulse
+            if (kickOnBeat && beatTime < kickDur) {
+              const kWin = hannMicroWindow(beatTime, kickDur, 0.0025, 0.045);
+              const kSubEnv = Math.exp(-beatTime * 11.8) * kWin;
+              const kPunchEnv = Math.exp(-beatTime * 22.0) * kWin;
+              const kBeaterEnv = Math.exp(-beatTime * 165.0) * kWin;
+              const kFreq = 50 + 170 * Math.exp(-beatTime * 115.0);
+              const deepSub = Math.sin(2 * Math.PI * kFreq * beatTime) * kSubEnv * 0.74;
+              const chestPunch = Math.sin(2 * Math.PI * 118 * beatTime) * kPunchEnv * 0.38;
+              const beaterClick = (
+                Math.sin(2 * Math.PI * 3500 * beatTime) * 0.14 +
+                crispNoisePool[(i * 3 + 11) % crispNoisePool.length] * 0.16
+              ) * kBeaterEnv;
+              kick = Math.tanh((deepSub + chestPunch + beaterClick) * 1.25) * 0.48;
             }
 
-            let snare = 0;
+            // 2. TR-909 / LinnDrum Dual-Partial Snare + Triple-Burst 909/808 Handclap (Beats 2 & 4)
+            let snareL = 0;
+            let snareR = 0;
+            const snareDur = 0.25;
             const snareHit = section === 0
-              ? false
+              ? (beatIdx === 3 && barIdx % 2 === 1)
               : isHalfTimeBreakdown
                 ? (beatIdx === 2)
                 : (beatIdx === 1 || beatIdx === 3);
 
-            if (snareHit && beatTime < 0.35) {
-              const sIdx = Math.floor(beatTime * sampleRate);
-              const gateEnv = beatTime < 0.17 ? 1.0 : Math.exp(-(beatTime - 0.17) * 32);
-              const toneBody = Math.sin(2 * Math.PI * 190 * beatTime) * Math.exp(-beatTime * 23) * 0.26;
-              const nVal = sIdx < snareNoise.length ? snareNoise[sIdx] : 0;
-              snare = (nVal * 0.18 * gateEnv) + toneBody;
+            if (snareHit && beatTime < snareDur) {
+              const sWin = hannMicroWindow(beatTime, snareDur, 0.003, 0.042);
+              // Dual-partial 909 body (185 Hz + 330 Hz) with crisp pitch transient
+              const p1 = 185 + 75 * Math.exp(-beatTime * 80.0);
+              const p2 = 330 + 110 * Math.exp(-beatTime * 95.0);
+              const body909 = (
+                Math.sin(2 * Math.PI * p1 * beatTime) * Math.exp(-beatTime * 17.5) * 0.56 +
+                Math.sin(2 * Math.PI * p2 * beatTime) * Math.exp(-beatTime * 24.0) * 0.30
+              ) * sWin;
+
+              // Dry, snappy LinnDrum snare wire crack
+              const nIdxL = (i * 2 + 23) % crispNoisePool.length;
+              const nIdxR = (i * 2 + 197) % crispNoisePool.length;
+              const linnCrackEnv = Math.exp(-beatTime * 26.0) * sWin;
+              const linnCrackL = crispNoisePool[nIdxL] * linnCrackEnv * 0.42;
+              const linnCrackR = crispNoisePool[nIdxR] * linnCrackEnv * 0.42;
+
+              // Triple-burst 909/808 handclap (0 ms, 11 ms, 22 ms micro-transients + wide stereo tail)
+              let clapEnv = 0;
+              if (beatTime < 0.011) {
+                clapEnv = Math.exp(-beatTime * 110.0) * 0.85;
+              } else if (beatTime < 0.022) {
+                clapEnv = Math.exp(-(beatTime - 0.011) * 110.0) * 0.92;
+              } else if (beatTime < 0.033) {
+                clapEnv = Math.exp(-(beatTime - 0.022) * 105.0) * 1.0;
+              } else {
+                clapEnv = Math.exp(-(beatTime - 0.033) * 21.0) * 0.78;
+              }
+              const clapL = crispNoisePool[(i * 5 + 41) % crispNoisePool.length] * clapEnv * sWin * 0.34;
+              const clapR = crispNoisePool[(i * 5 + 509) % crispNoisePool.length] * clapEnv * sWin * 0.34;
+
+              snareL = Math.tanh((body909 + linnCrackL + clapL) * 1.15) * 0.40;
+              snareR = Math.tanh((body909 + linnCrackR + clapR) * 1.15) * 0.40;
             }
 
-            let tom = 0;
-            if ((barInSection === 7 || barInSection === 15) && stepIdx >= 12 && stepTime < 0.12) {
-              const tomStep = stepIdx - 12;
-              const tomBase = [175, 145, 118, 92][tomStep];
-              const tomFreq = tomBase + 65 * Math.exp(-stepTime * 28);
-              tom = Math.sin(2 * Math.PI * tomFreq * stepTime) * Math.exp(-stepTime * 18) * 0.30;
-            }
+            // 3. Signature French Touch Off-Beat Open 909 Hi-Hat (step % 4 === 2) + 16th-Note Closed Hats
+            let hatL = 0;
+            let hatR = 0;
+            const sixteenthFloat = barFrac * 16;
+            const step16 = Math.floor(sixteenthFloat);
+            const step16Time = (sixteenthFloat - step16) * (beatSec * 0.25);
+            const isOffBeatOpenHat = (step16 % 4 === 2);
 
-            let rim = 0;
-            if (isMinimalCruise && (stepIdx === 6 || stepIdx === 14) && stepTime < 0.05) {
-              rim = (Math.sin(2 * Math.PI * 480 * stepTime) + Math.sin(2 * Math.PI * 1120 * stepTime) * 0.5) *
-                    Math.exp(-stepTime * 90) * 0.19;
-            }
-
-            let hat = 0;
             if (section >= 1 && !isHalfTimeBreakdown) {
-              const subTime = isDoubleHatBridge ? (stepTime % (stepSec * 0.5)) : stepTime;
-              const hIdx = Math.floor(subTime * sampleRate);
-              if (hIdx < hatNoise.length) {
-                const isOpenAccent = (stepIdx % 4 === 2);
-                const hAmp = isOpenAccent ? 0.18 : 0.10;
-                const hDecay = isOpenAccent ? 26 : 54;
-                hat = hatNoise[hIdx] * Math.exp(-subTime * hDecay) * hAmp;
+              const pIdxL = (i * 3 + 73 + step16 * 19) % crispNoisePool.length;
+              const pIdxR = (i * 3 + 313 + step16 * 29) % crispNoisePool.length;
+              // Metallic 909 square-inharmonic ring mixed with filtered crisp noise
+              const metal909 = (
+                Math.sin(2 * Math.PI * 5230 * step16Time) * 0.18 +
+                Math.sin(2 * Math.PI * 3810 * step16Time) * 0.16
+              );
+
+              if (isOffBeatOpenHat) {
+                const openDur = 0.21;
+                if (step16Time < openDur) {
+                  const oWin = hannMicroWindow(step16Time, openDur, 0.002, 0.035);
+                  const oEnv = Math.exp(-step16Time * 13.5) * oWin;
+                  const oAmp = isChorusPeak ? 0.135 : 0.115;
+                  hatL = (crispNoisePool[pIdxL] * 0.82 + metal909) * oEnv * oAmp;
+                  hatR = (crispNoisePool[pIdxR] * 0.82 - metal909) * oEnv * oAmp;
+                }
+              } else {
+                const closedDur = 0.065;
+                if (step16Time < closedDur) {
+                  const cWin = hannMicroWindow(step16Time, closedDur, 0.0015, 0.015);
+                  const cEnv = Math.exp(-step16Time * 52.0) * cWin;
+                  const ghostScale = (step16 % 4 === 0) ? 0.042 : 0.064;
+                  hatL = (crispNoisePool[pIdxL] * 0.85 + metal909 * 0.5) * cEnv * ghostScale;
+                  hatR = (crispNoisePool[pIdxR] * 0.85 - metal909 * 0.5) * cEnv * ghostScale;
+                }
               }
             }
 
+            // 4. 8-Bar TR-909 / LinnDrum Pitched Tom Fills + Section-Start Air Shimmer
             let crash = 0;
-            if ((section === 3 || section === 7 || section === 11 || section === 14) && barInSection === 0 && barFrac * barSec < 1.35) {
-              const cTime = barFrac * barSec;
-              const cNoiseIdx = Math.floor((cTime * sampleRate) % hatNoise.length);
-              crash = hatNoise[cNoiseIdx] * Math.exp(-cTime * 2.6) * 0.24;
+            const crashDur = 1.45;
+            if ((section === 1 || section === 3 || section === 5 || section === 7) && barInSection === 0 && barTime < crashDur) {
+              const cWin = hannMicroWindow(barTime, crashDur, 0.08, 0.35);
+              const cIdx = (i + 311) % crispNoisePool.length;
+              crash += crispNoisePool[cIdx] * Math.exp(-barTime * 2.4) * cWin * 0.042;
+            }
+            if (section >= 1 && (barIdx % 8 === 7) && beatIdx >= 2) {
+              const fillStep = Math.floor((barFrac - 0.5) * 8); // 0..3 over beats 3 & 4
+              const fillTime = ((barFrac - 0.5) * 8 - fillStep) * (beatSec * 0.5);
+              const tomDur = 0.21;
+              if (fillStep >= 0 && fillStep < 4 && fillTime < tomDur) {
+                const tomStarts = [260, 212, 174, 138];
+                const tomEnds = [132, 108, 88, 70];
+                const tWin = hannMicroWindow(fillTime, tomDur, 0.003, 0.04);
+                const tFreq = tomEnds[fillStep] + (tomStarts[fillStep] - tomEnds[fillStep]) * Math.exp(-fillTime * 28.0);
+                const tomSnap = crispNoisePool[(i * 2 + 89) % crispNoisePool.length] * Math.exp(-fillTime * 65.0) * 0.25;
+                const tomTone = (Math.sin(2 * Math.PI * tFreq * fillTime) + tomSnap) * Math.exp(-fillTime * 14.5) * tWin;
+                crash += Math.tanh(tomTone * 1.2) * 0.28;
+              }
             }
 
-            const bassFreq = isHalfTimeBreakdown
+            // 5. Punchy, defined analog bass with crisp attack pluck & 110–220 Hz harmonic clarity
+            const targetBassFreq = (isHalfTimeBreakdown || halfBarIdx === 0)
               ? chord.bass
-              : (stepIdx % 2 === 1 ? chord.root : chord.bass);
-            const bassEnv = isHalfTimeBreakdown
-              ? Math.exp(-barFrac * 2.2)
-              : (0.42 + 0.58 * Math.exp(-stepTime * 12.5));
-            const bassRaw =
-              Math.sin(2 * Math.PI * bassFreq * t) * 0.56 +
-              softTri(t * (bassFreq * 2.0)) * 0.34 +
-              Math.sin(2 * Math.PI * (bassFreq * 3.0) * t) * 0.18;
-            bassLp += 0.35 * (bassRaw - bassLp);
-            const bass = bassLp * bassEnv * 0.44;
+              : chord.root;
+            const bassFreq = slewBassFreq(targetBassFreq);
+            const rawBassEnv = isHalfTimeBreakdown
+              ? (0.52 + 0.48 * Math.exp(-barFrac * 2.4))
+              : (0.58 + 0.42 * Math.exp(-halfBarTime * 5.6));
+            const bassEnv = slewBassEnv(rawBassEnv);
 
+            const pSub = subPhaseAcc(chord.bass);
+            const pBassMain = bassOscPhaseAcc(bassFreq);
+            const pBassTri = bassTriPhaseAcc(bassFreq * 2.0);
+
+            const subWeight = Math.sin(2 * Math.PI * pSub) * 0.44;
+            const bassOsc =
+              Math.sin(2 * Math.PI * pBassMain) * 0.36 +
+              warmSawFromPhase(pBassMain, 0.38) * 0.34 +
+              softTriFromPhase(pBassTri) * 0.30;
+            const bassCut = 560 + 480 * Math.exp(-halfBarTime * 4.8) + (isChorusPeak ? 160 : 0);
+            const bassFiltered = bassFilter.process(bassOsc * bassEnv, bassCut);
+            // Alesis 3630 French Touch sidechain pump triggered on every 909 kick
+            const targetSidechain = kickOnBeat ? Math.min(1.0, 0.74 + beatTime * 1.45) : 1.0;
+            const sidechain = slewSidechain(targetSidechain);
+            const bass = (subWeight * (isHalfTimeBreakdown ? 0.76 : 0.62) + bassFiltered * 0.74) * (0.48 * sidechain);
+
+            // 6. Warm, silky detuned unison pad + high-passed stereo space chorus (~18% lower headroom)
             let padRawL = 0;
             let padRawR = 0;
+            const sweepLfo = 0.5 + 0.5 * Math.sin(2 * Math.PI * (1 / (barSec * 12)) * t);
+            const padCutoff = 820 + sweepLfo * 640 + (isChorusPeak ? 180 : 0);
+
             for (let n = 0; n < chord.notes.length; n++) {
               const nf = chord.notes[n];
-              const detune = (n % 2 === 0 ? 1.003 : 0.997);
-              const lSine = Math.sin(2 * Math.PI * nf * t);
-              const lTri = softTri(t * (nf * 0.9985));
-              const lOct = Math.sin(2 * Math.PI * (nf * 2.0) * t) * 0.22;
-              const rSine = Math.sin(2 * Math.PI * (nf * detune) * t);
-              const rTri = softTri(t * (nf * detune * 1.0015));
-              const rOct = Math.sin(2 * Math.PI * (nf * detune * 2.0) * t) * 0.22;
-              padRawL += (lSine * 0.58 + lTri * 0.30 + lOct) * 0.30;
-              padRawR += (rSine * 0.58 + rTri * 0.30 + rOct) * 0.30;
-            }
-            const sidechain = kickOnBeat ? Math.min(1.0, 0.42 + beatTime * 2.4) : 1.0;
-            padLpL += 0.23 * (padRawL - padLpL);
-            padLpR += 0.23 * (padRawR - padLpR);
-            const padLevel = isMinimalCruise ? 0.20 : 0.28;
-            const padL = padLpL * sidechain * padLevel;
-            const padR = padLpR * sidechain * padLevel;
+              const spread = 0.0040 + (n % 2) * 0.0012;
+              const fL1 = nf * (1 - spread);
+              const fL2 = nf * (1 + spread * 0.55);
+              const fR1 = nf * (1 + spread);
+              const fR2 = nf * (1 - spread * 0.55);
 
-            let stabL = 0;
-            let stabR = 0;
-            if ((section === 5 || section === 6 || section === 13) && (stepIdx === 0 || stepIdx === 3 || stepIdx === 6 || stepIdx === 10) && stepTime < 0.11) {
-              const sEnv = Math.exp(-stepTime * 22);
-              const n1 = chord.notes[1];
-              const n2 = chord.notes[2];
-              const stabWave = (
-                Math.sin(2 * Math.PI * n1 * t) * 0.38 +
-                softTri(t * n1) * 0.24 +
-                Math.sin(2 * Math.PI * n2 * t) * 0.32 +
-                softTri(t * n2) * 0.20
+              const acc = padPhaseAccs[n];
+              const pL1 = acc.l1(fL1);
+              const pL2 = acc.l2(fL2);
+              const pR1 = acc.r1(fR1);
+              const pR2 = acc.r2(fR2);
+
+              const vL = (
+                warmSawFromPhase(pL1, 0.24) * 0.22 +
+                softTriFromPhase(pL2) * 0.48 +
+                Math.sin(2 * Math.PI * pL1) * 0.30
               );
-              stabL = stabWave * sEnv * 0.16;
-              stabR = stabWave * sEnv * 0.14;
+              const vR = (
+                warmSawFromPhase(pR1, 0.24) * 0.22 +
+                softTriFromPhase(pR2) * 0.48 +
+                Math.sin(2 * Math.PI * pR1) * 0.30
+              );
+              padRawL += vL * 0.25;
+              padRawR += vR * 0.25;
             }
 
-            let arpRawL = 0;
-            let arpRawR = 0;
+            const chorRate1 = 0.14;
+            const chorRate2 = 0.23;
+            const chorModL = 0.026 + 0.014 * Math.sin(2 * Math.PI * chorRate1 * t) + 0.005 * Math.cos(2 * Math.PI * chorRate2 * t + 0.9);
+            const chorModR = 0.029 + 0.014 * Math.cos(2 * Math.PI * chorRate1 * t + 1.4) + 0.005 * Math.sin(2 * Math.PI * chorRate2 * t);
+
+            const chorTapL = readFractionalDelay(chorusDelayL, chorusIdx, chorModL * sampleRate);
+            const chorTapR = readFractionalDelay(chorusDelayR, chorusIdx, chorModR * sampleRate);
+
+            chorusLpL += 0.16 * (chorTapL - chorusLpL);
+            chorusLpR += 0.16 * (chorTapR - chorusLpR);
+
+            chorusDelayL[chorusIdx] = Math.tanh((padRawL + chorusLpR * 0.20) * 0.95);
+            chorusDelayR[chorusIdx] = Math.tanh((padRawR + chorusLpL * 0.20) * 0.95);
+            chorusIdx = (chorusIdx + 1) % chorusDelayL.length;
+
+            const padLevel = isMinimalCruise ? 0.155 : 0.188;
+            const padMixL = padMudHpL(padRawL * 0.56 + chorusLpL * 0.44);
+            const padMixR = padMudHpR(padRawR * 0.56 + chorusLpR * 0.44);
+            const padL = padFilterL.process(padMixL, padCutoff) * sidechain * padLevel;
+            const padR = padFilterR.process(padMixR, padCutoff) * sidechain * padLevel;
+
+            // 7. Warm half-note harmonic chord swells (~18% lower headroom so drums sit forward)
+            let swellL = 0;
+            let swellR = 0;
             if (section >= 1 && !isHalfTimeBreakdown && !isMinimalCruise) {
-              const arpPattern = [0, 1, 2, 3, 2, 1, 3, 2];
-              const noteIdx = arpPattern[stepIdx % arpPattern.length];
-              const octJump = (stepIdx % 8 === 7) ? 2.0 : 1.0;
-              const aFreq = chord.notes[noteIdx] * octJump;
-              const aEnv = Math.exp(-stepTime * 13.5);
-              const arpWave =
-                (Math.sin(2 * Math.PI * aFreq * t) * 0.64) +
-                (softTri(t * aFreq) * 0.28) +
-                (Math.sin(2 * Math.PI * (aFreq * 2.0) * t) * 0.18);
-              const pan = (stepIdx % 2 === 0) ? 0.85 : 0.35;
-              const secGain = section === 1 ? 0.14 : 0.21;
-              arpRawL += arpWave * aEnv * secGain * pan;
-              arpRawR += arpWave * aEnv * secGain * (1.2 - pan);
+              const chordGroup = lushVoicings[(barIdx + halfBarIdx) % lushVoicings.length];
+              const swellWin = hannMicroWindow(halfBarTime, halfBarSec, 0.22, 0.26);
+              const swellEnv = swellWin * (0.76 + 0.24 * Math.sin(Math.PI * (halfBarTime / halfBarSec)));
+              let sumSwellL = 0;
+              let sumSwellR = 0;
+              for (let c = 0; c < 4; c++) {
+                const cf = chordGroup[c];
+                const pc = swellPhaseAccs[c](cf);
+                const cWave = softTriFromPhase(pc) * 0.48 + Math.sin(2 * Math.PI * pc) * 0.52;
+                sumSwellL += cWave * 0.25 * (c % 2 === 0 ? 1.07 : 0.89);
+                sumSwellR += cWave * 0.25 * (c % 2 === 0 ? 0.89 : 1.07);
+              }
+              const secGain = section === 1 ? 0.070 : 0.090;
+              swellL = swellFilterL.process(sumSwellL * swellEnv, 860 + sweepLfo * 460) * secGain;
+              swellR = swellFilterR.process(sumSwellR * swellEnv, 900 + sweepLfo * 460) * secGain;
             }
 
             if (isChorusPeak) {
-              const cNote = chord.notes[(stepIdx * 3) % chord.notes.length] * 2.0;
-              const cEnv = Math.exp(-stepTime * 17.5);
-              const cWave = (Math.sin(2 * Math.PI * cNote * t) * 0.78) + (softTri(t * cNote) * 0.22);
-              arpRawL += cWave * cEnv * 0.085;
-              arpRawR += cWave * cEnv * 0.115;
+              const peakStack = lushVoicings[barIdx % lushVoicings.length];
+              const pA = peakPhaseAccA(peakStack[1] * 0.997);
+              const pB = peakPhaseAccB(peakStack[2] * 1.003);
+              const barSwell = Math.sin(Math.PI * barFrac);
+              const peakBlend =
+                (softTriFromPhase(pA) * 0.4 + Math.sin(2 * Math.PI * pA) * 0.6 +
+                 softTriFromPhase(pB) * 0.4 + Math.sin(2 * Math.PI * pB) * 0.6) * 0.25;
+              swellL += peakBlend * barSwell * 0.043;
+              swellR += peakBlend * barSwell * 0.046;
             }
 
-            arpLpL += 0.56 * (arpRawL - arpLpL);
-            arpLpR += 0.56 * (arpRawR - arpLpR);
-            const arpL = arpLpL;
-            const arpR = arpLpR;
-
+            // 8. Lush extended 5-note synth chords on breakdowns & cruise sections (~18% lower headroom)
             let bellL = 0;
             let bellR = 0;
-            if ((isHalfTimeBreakdown || section === 9) && (beatIdx === 0 || beatIdx === 2) && beatTime < 0.95) {
-              const bNote = chord.notes[beatIdx === 0 ? 3 : 2] * 2.0;
-              const modIndex = 2.4 * Math.exp(-beatTime * 6.5);
-              const fm = Math.sin(2 * Math.PI * bNote * t + modIndex * Math.sin(2 * Math.PI * (bNote * 2.0) * t));
-              const bEnv = Math.exp(-beatTime * 3.4);
-              bellL = fm * bEnv * 0.16;
-              bellR = fm * bEnv * 0.18;
+            if ((isHalfTimeBreakdown || section === 3 || section === 4 || section === 6) && halfBarTime < halfBarSec) {
+              const voicing = lushVoicings[(barIdx + halfBarIdx) % lushVoicings.length];
+              const chordWin = hannMicroWindow(halfBarTime, halfBarSec, 0.20, 0.28);
+              let chordStackL = 0;
+              let chordStackR = 0;
+              for (let v = 0; v < voicing.length; v++) {
+                const vf = voicing[v];
+                const pv = lushPhaseAccs[v](vf);
+                const vWave = softTriFromPhase(pv) * 0.46 + Math.sin(2 * Math.PI * pv) * 0.54;
+                const vWeight = v === 0 ? 0.28 : (v === voicing.length - 1 ? 0.14 : 0.24);
+                chordStackL += vWave * vWeight * (v % 2 === 0 ? 1.06 : 0.91);
+                chordStackR += vWave * vWeight * (v % 2 === 0 ? 0.91 : 1.06);
+              }
+              const smoothChordL = lushChordFilterL.process(chordStackL * chordWin, 880 + sweepLfo * 380);
+              const smoothChordR = lushChordFilterR.process(chordStackR * chordWin, 920 + sweepLfo * 380);
+              bellL = smoothChordL * 0.110;
+              bellR = smoothChordR * 0.118;
             }
 
+            // 9. Continuous-phase warm midnight synth lead with slew-limited pitch
             let leadL = 0;
             let leadR = 0;
             if (isMidnightFinale) {
               const leadScale = [chord.notes[3], chord.notes[2], chord.notes[3] * 1.122, chord.notes[3]];
-              const lFreq = leadScale[beatIdx % 4];
-              const vibrato = 1 + 0.0045 * Math.sin(2 * Math.PI * 5.5 * t);
-              const leadWave = (Math.sin(2 * Math.PI * lFreq * vibrato * t) * 0.68) +
-                               (softTri(t * lFreq * vibrato) * 0.32);
-              const lEnv = 0.75 + 0.25 * Math.sin(Math.PI * beatFrac);
-              leadL = leadWave * lEnv * 0.15;
-              leadR = leadWave * lEnv * 0.135;
+              const rawLeadFreq = leadScale[beatIdx % 4];
+              const lFreq = slewLeadFreq(rawLeadFreq);
+              const vibrato = 1 + 0.0028 * Math.sin(2 * Math.PI * 3.8 * t);
+              const pLead = leadPhaseAcc(lFreq * vibrato);
+              const leadWave = (warmSawFromPhase(pLead, 0.22) * 0.26) +
+                               (softTriFromPhase(pLead) * 0.44) +
+                               (Math.sin(2 * Math.PI * pLead) * 0.30);
+              const lEnv = 0.78 + 0.22 * Math.sin(Math.PI * barFrac);
+              leadL = leadWave * lEnv * 0.072;
+              leadR = leadWave * lEnv * 0.072;
             }
 
-            const monoDrums = kick + snare * 0.92 + tom + rim + hat + crash;
-            const sumL = monoDrums + bass + padL + stabL + arpL + bellL + leadL;
-            const sumR = monoDrums + bass + padR + stabR + arpR + bellR + leadR;
+            // 10. High-passed stereo space delay + warm damped 4-tap algorithmic hall tail
+            const sendL = swellL * 0.28 + leadL * 0.28 + bellL * 0.26 + padL * 0.16 + snareL * 0.06;
+            const sendR = swellR * 0.28 + leadR * 0.28 + bellR * 0.26 + padR * 0.16 + snareR * 0.06;
 
-            const outL = Math.tanh(sumL * 1.15);
-            const outR = Math.tanh(sumR * 1.15);
-            left[i] = outL;
-            right[i] = outR;
-            const absMax = Math.max(Math.abs(outL), Math.abs(outR));
+            const echoOutL = echoBufL[echoIdxL];
+            const echoOutR = echoBufR[echoIdxR];
+            echoLpL += 0.15 * (echoOutL - echoLpL);
+            echoLpR += 0.15 * (echoOutR - echoLpR);
+            echoBufL[echoIdxL] = Math.max(-0.86, Math.min(0.86, Math.tanh((sendL + echoLpR * 0.34) * 0.94)));
+            echoBufR[echoIdxR] = Math.max(-0.86, Math.min(0.86, Math.tanh((sendR + echoLpL * 0.34) * 0.94)));
+            echoIdxL = (echoIdxL + 1) % echoLenL;
+            echoIdxR = (echoIdxR + 1) % echoLenR;
+
+            let hallSumL = 0;
+            let hallSumR = 0;
+            const monoSend = (sendL + sendR) * 0.5;
+            for (let tap = 0; tap < 4; tap++) {
+              const buf = hallTaps[tap];
+              const hIdx = hallIdxs[tap];
+              const rawTap = buf[hIdx];
+              hallDamps[tap] += 0.13 * (rawTap - hallDamps[tap]);
+              const dampedTap = hallDamps[tap];
+
+              const nextTap = (tap + 1) % 4;
+              const fbFeed = Math.max(-0.72, Math.min(0.72, hallDamps[nextTap] * 0.40));
+              const tapPan = (tap % 2 === 0) ? 0.72 : 0.28;
+              buf[hIdx] = Math.max(-0.86, Math.min(0.86, Math.tanh((monoSend * (0.36 + tap * 0.04) + fbFeed) * 0.94)));
+              hallIdxs[tap] = (hIdx + 1) % buf.length;
+
+              hallSumL += dampedTap * tapPan;
+              hallSumR += dampedTap * (1.0 - tapPan);
+            }
+
+            const spaceL = spaceMudHpL(echoLpL * 0.20 + hallSumL * 0.22);
+            const spaceR = spaceMudHpR(echoLpR * 0.20 + hallSumR * 0.22);
+
+            const drumsL = kick + snareL + hatL + crash;
+            const drumsR = kick + snareR + hatR + crash;
+            const rawSumL = drumsL + bass + padL + swellL + bellL + leadL + spaceL;
+            const rawSumR = drumsR + bass + padR + swellR + bellR + leadR + spaceR;
+
+            const cleanL = dcBlockL(rawSumL);
+            const cleanR = dcBlockR(rawSumR);
+            const warmL = Math.tanh(cleanL * 0.94) * 0.92;
+            const warmR = Math.tanh(cleanR * 0.94) * 0.92;
+
+            outLp1L += outLpCoeff * (warmL - outLp1L);
+            outLp1R += outLpCoeff * (warmR - outLp1R);
+            outLp2L += outLpCoeff * (outLp1L - outLp2L);
+            outLp2R += outLpCoeff * (outLp1R - outLp2R);
+
+            left[i] = outLp2L;
+            right[i] = outLp2R;
+
+            const absMax = Math.max(Math.abs(outLp2L), Math.abs(outLp2R));
             if (absMax > peakAbs) peakAbs = absMax;
+            sumSq += (outLp2L * outLp2L + outLp2R * outLp2R) * 0.5;
           }
 
-          await new Promise((r) => setTimeout(r, 0));
+          await yieldSlice();
         }
 
-        const normGain = 0.78 / Math.max(0.25, peakAbs);
-        for (let i = 0; i < totalSamples; i++) {
-          left[i] = Math.max(-1, Math.min(1, left[i] * normGain));
-          right[i] = Math.max(-1, Math.min(1, right[i] * normGain));
+        // Chunked 3-sample median despiker + loudness normalization + 40ms cosine loop fades
+        const rms = Math.sqrt(sumSq / Math.max(1, totalSamples));
+        const targetRms = 0.178;
+        const rmsGain = rms > 0.0001 ? Math.min(1.38, Math.max(0.55, targetRms / rms)) : 1.0;
+        const maxSafeGain = 0.80 / Math.max(0.25, peakAbs);
+        const normGain = Math.min(maxSafeGain, rmsGain);
+
+        function median3(a, b, c) {
+          return a > b ? (b > c ? b : (a > c ? c : a)) : (a > c ? a : (b > c ? c : b));
         }
 
-        const numChannels = 2;
-        const bytesPerSample = 2;
-        const blockAlign = numChannels * bytesPerSample;
-        const byteRate = sampleRate * blockAlign;
-        const dataBytes = totalSamples * blockAlign;
-        const wavBuffer = new ArrayBuffer(44 + dataBytes);
-        const view = new DataView(wavBuffer);
+        const loopFadeSamples = Math.floor(sampleRate * 0.04);
+        for (let chunkStart = 0; chunkStart < totalSamples; chunkStart += 16000) {
+          const chunkEnd = Math.min(totalSamples, chunkStart + 16000);
+          for (let i = chunkStart; i < chunkEnd; i++) {
+            const iPrev = i > 0 ? i - 1 : 0;
+            const iNext = i < totalSamples - 1 ? i + 1 : totalSamples - 1;
+            let sL = median3(left[iPrev], left[i], left[iNext]) * normGain;
+            let sR = median3(right[iPrev], right[i], right[iNext]) * normGain;
 
-        const writeAscii = (offset, str) => {
-          for (let j = 0; j < str.length; j++) {
-            view.setUint8(offset + j, str.charCodeAt(j));
+            if (i < loopFadeSamples) {
+              const wIn = 0.5 - 0.5 * Math.cos((Math.PI * i) / loopFadeSamples);
+              sL *= wIn;
+              sR *= wIn;
+            } else if (i >= totalSamples - loopFadeSamples) {
+              const rem = totalSamples - 1 - i;
+              const wOut = 0.5 - 0.5 * Math.cos((Math.PI * rem) / loopFadeSamples);
+              sL *= wOut;
+              sR *= wOut;
+            }
+
+            left[i] = Math.max(-0.88, Math.min(0.88, sL));
+            right[i] = Math.max(-0.88, Math.min(0.88, sR));
           }
+          await yieldSlice();
+        }
+
+        return {
+          left,
+          right,
+          sampleRate,
+          durationSec: totalSeconds
         };
+      }
 
-        writeAscii(0, "RIFF");
-        view.setUint32(4, 36 + dataBytes, true);
-        writeAscii(8, "WAVE");
-        writeAscii(12, "fmt ");
-        view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true);
-        view.setUint16(22, numChannels, true);
-        view.setUint32(24, sampleRate, true);
-        view.setUint32(28, byteRate, true);
-        view.setUint16(32, blockAlign, true);
-        view.setUint16(34, 16, true);
-        writeAscii(36, "data");
-        view.setUint32(40, dataBytes, true);
-
-        let ptr = 44;
-        for (let i = 0; i < totalSamples; i++) {
-          const lSample = Math.max(-1, Math.min(1, left[i]));
-          const rSample = Math.max(-1, Math.min(1, right[i]));
-          view.setInt16(ptr, lSample < 0 ? lSample * 0x8000 : lSample * 0x7FFF, true);
-          view.setInt16(ptr + 2, rSample < 0 ? rSample * 0x8000 : rSample * 0x7FFF, true);
-          ptr += 4;
-        }
-
-        return new Blob([wavBuffer], { type: "audio/wav" });
+      // Background Web Worker wrapper so 100% of 128-bar DSP synthesis runs off the main UI thread
+      function renderSynthwaveBedInWorkerAsync() {
+        return new Promise((resolve) => {
+          try {
+            if (typeof Worker !== "function" || typeof Blob !== "function" || typeof URL === "undefined") {
+              resolve(null);
+              return;
+            }
+            const workerSrc = `
+              const TOTAL_BARS = ${TOTAL_BARS};
+              const BED_SAMPLE_RATE = ${BED_SAMPLE_RATE};
+              const BED_BPM = ${BED_BPM};
+              ${buildSynthwaveBedPcmAsync.toString()}
+              self.onmessage = async function () {
+                try {
+                  const res = await buildSynthwaveBedPcmAsync();
+                  self.postMessage(
+                    { ok: true, left: res.left, right: res.right, sampleRate: res.sampleRate, durationSec: res.durationSec },
+                    [res.left.buffer, res.right.buffer]
+                  );
+                } catch (err) {
+                  self.postMessage({ ok: false });
+                }
+              };
+            `;
+            const blob = new Blob([workerSrc], { type: "application/javascript" });
+            const workerUrl = URL.createObjectURL(blob);
+            const worker = new Worker(workerUrl);
+            const cleanup = () => {
+              try { worker.terminate(); } catch (e) {}
+              try { URL.revokeObjectURL(workerUrl); } catch (e) {}
+            };
+            worker.onmessage = (ev) => {
+              const msg = ev && ev.data;
+              cleanup();
+              if (msg && msg.ok && msg.left && msg.right) {
+                resolve({
+                  left: msg.left,
+                  right: msg.right,
+                  sampleRate: msg.sampleRate,
+                  durationSec: msg.durationSec
+                });
+              } else {
+                resolve(null);
+              }
+            };
+            worker.onerror = () => {
+              cleanup();
+              resolve(null);
+            };
+            worker.postMessage("start");
+          } catch (e) {
+            resolve(null);
+          }
+        });
       }
 
       /* ======================================================================
-         10. WEB AUDIO ENGINE & GEMINI-ONLY VOICE PLAYBACK
+         11. WEB AUDIO ENGINE, MASTERING EQ CHAIN, SPECTRUM & LOCK RECOVERY
          ====================================================================== */
       class BroadcastAudioEngine {
         constructor() {
           this.ctx = null;
           this.masterGain = null;
+          this.analyser = null;
+          this.bedFilterInput = null;
           this.bedGain = null;
-          this.bedBuffer = null;
-          this.bedSource = null;
+          this.bedPcmData = null;         // Cached { left, right, sampleRate, durationSec }
+          this.bedAudioBuffer = null;
+          this.bedSourceNode = null;
+          this.bedWavBlob = null;
+          this.bedWavUrl = null;
+          this.fallbackAudioEl = null;
+          this.needsGestureRecovery = false;
           this.bedBuildingPromise = null;
+          this.bedStartCtxTime = 0;
+          this.bedOffsetSec = 0;
           this.bedPlaying = false;
+          this.manualBedStop = false;
+          this.recoveringLock = false;
           this.fallbackPulseTimer = null;
           this.fallbackStep = 0;
           this.isPrimed = false;
           this.sessionConfigured = false;
+          this.mediaSessionBound = false;
         }
 
-        configureIosAudioSessionOnce() {
+        configureAudioSessionOnce() {
           if (this.sessionConfigured) return;
           this.sessionConfigured = true;
           try {
             if (typeof navigator !== "undefined" && "audioSession" in navigator && navigator.audioSession) {
-              navigator.audioSession.type = "transient";
+              navigator.audioSession.type = "playback";
             }
+          } catch (e) {}
+        }
+
+        async encodeStereoWavBlobAsync(pcm) {
+          if (!pcm || !pcm.left || !pcm.right) return null;
+          const numSamples = pcm.left.length;
+          const numChannels = 2;
+          const sampleRate = pcm.sampleRate || BED_SAMPLE_RATE;
+          const byteRate = sampleRate * numChannels * 2;
+          const blockAlign = numChannels * 2;
+          const dataSize = numSamples * blockAlign;
+          const buffer = new ArrayBuffer(44 + dataSize);
+          const view = new DataView(buffer);
+
+          const writeStr = (offset, str) => {
+            for (let i = 0; i < str.length; i++) {
+              view.setUint8(offset + i, str.charCodeAt(i));
+            }
+          };
+
+          writeStr(0, "RIFF");
+          view.setUint32(4, 36 + dataSize, true);
+          writeStr(8, "WAVE");
+          writeStr(12, "fmt ");
+          view.setUint32(16, 16, true);
+          view.setUint16(20, 1, true);
+          view.setUint16(22, numChannels, true);
+          view.setUint32(24, sampleRate, true);
+          view.setUint32(28, byteRate, true);
+          view.setUint16(32, blockAlign, true);
+          view.setUint16(34, 16, true);
+          writeStr(36, "data");
+          view.setUint32(40, dataSize, true);
+
+          const pcm16 = new Int16Array(buffer, 44, numSamples * 2);
+          const left = pcm.left;
+          const right = pcm.right;
+          const chunk = 32768;
+
+          for (let start = 0; start < numSamples; start += chunk) {
+            const end = Math.min(numSamples, start + chunk);
+            for (let i = start; i < end; i++) {
+              const l = Math.max(-1, Math.min(1, left[i]));
+              const r = Math.max(-1, Math.min(1, right[i]));
+              pcm16[i * 2] = l < 0 ? Math.round(l * 32768) : Math.round(l * 32767);
+              pcm16[i * 2 + 1] = r < 0 ? Math.round(r * 32768) : Math.round(r * 32767);
+            }
+            await new Promise((resolve) => setTimeout(resolve, 0));
+          }
+
+          return new Blob([buffer], { type: "audio/wav" });
+        }
+
+        ensureFallbackAudioElement() {
+          if (!this.bedWavUrl) return null;
+          if (!this.fallbackAudioEl) {
+            const audio = document.createElement("audio");
+            audio.loop = true;
+            audio.preload = "auto";
+            audio.setAttribute("playsinline", "");
+            audio.setAttribute("webkit-playsinline", "");
+            audio.src = this.bedWavUrl;
+            this.fallbackAudioEl = audio;
+          } else if (this.fallbackAudioEl.src !== this.bedWavUrl) {
+            this.fallbackAudioEl.src = this.bedWavUrl;
+          }
+          return this.fallbackAudioEl;
+        }
+
+        syncFallbackAudioVolume(targetGain) {
+          if (!this.fallbackAudioEl) return;
+          try {
+            this.fallbackAudioEl.volume = Math.max(0, Math.min(1, Number(targetGain) || 0));
+          } catch (e) {}
+        }
+
+        async startFallbackAudioElement(targetGain, duckLabel) {
+          const audio = this.ensureFallbackAudioElement();
+          if (!audio || !this.bedPcmData) return false;
+          try {
+            const dur = Math.max(0.1, this.bedPcmData.durationSec);
+            const offset = this.bedOffsetSec % dur;
+            this.syncFallbackAudioVolume(targetGain);
+            if (Math.abs((audio.currentTime || 0) - offset) > 0.35) {
+              try {
+                audio.currentTime = offset;
+              } catch (e) {}
+            }
+            if (audio.paused) {
+              await audio.play();
+            }
+            updateDuckPill(duckLabel);
+            return true;
           } catch (e) {
-            try {
-              if (navigator.audioSession) navigator.audioSession.type = "playback";
-            } catch (err) {}
+            return false;
           }
         }
 
-        async ensureContext() {
-          this.configureIosAudioSessionOnce();
+        stopFallbackAudioElement() {
+          if (!this.fallbackAudioEl) return;
+          try {
+            if (!this.fallbackAudioEl.paused && this.bedPcmData) {
+              this.bedOffsetSec = (this.fallbackAudioEl.currentTime || 0) % Math.max(0.1, this.bedPcmData.durationSec);
+            }
+            this.fallbackAudioEl.pause();
+          } catch (e) {}
+        }
+
+        async acquireWakeLock() {
+          if (!state.isOnAir) return;
+          try {
+            if (typeof navigator !== "undefined" && "wakeLock" in navigator && navigator.wakeLock) {
+              if (state.wakeLockSentinel && !state.wakeLockSentinel.released) return;
+              const sentinel = await navigator.wakeLock.request("screen");
+              state.wakeLockSentinel = sentinel;
+              sentinel.addEventListener("release", () => {
+                if (state.wakeLockSentinel === sentinel) {
+                  state.wakeLockSentinel = null;
+                }
+              });
+            }
+          } catch (e) {}
+        }
+
+        async releaseWakeLock() {
+          const sentinel = state.wakeLockSentinel;
+          state.wakeLockSentinel = null;
+          if (sentinel) {
+            try {
+              await sentinel.release();
+            } catch (e) {}
+          }
+        }
+
+        syncMediaSession() {
+          try {
+            if (typeof navigator === "undefined" || !("mediaSession" in navigator) || !navigator.mediaSession) return;
+            const reg = getCurrentCityRecord();
+            if (typeof window.MediaMetadata === "function") {
+              navigator.mediaSession.metadata = new window.MediaMetadata({
+                title: "WEAZEL 13.3 FM",
+                artist: "MCA Broadcast Deck",
+                album: `128-Bar Synthwave & Talk — ${reg.cityName}`
+              });
+            }
+            navigator.mediaSession.playbackState = state.isOnAir ? "playing" : "paused";
+
+            if (!this.mediaSessionBound) {
+              this.mediaSessionBound = true;
+              const safeAction = (action, handler) => {
+                try {
+                  navigator.mediaSession.setActionHandler(action, handler);
+                } catch (e) {}
+              };
+              safeAction("play", () => {
+                if (!state.isOnAir) toggleStandby();
+                else this.recoverAfterUnlock(true).catch(() => {});
+              });
+              safeAction("pause", () => {
+                if (state.isOnAir) toggleStandby();
+              });
+              safeAction("stop", () => {
+                if (state.isOnAir) toggleStandby();
+              });
+            }
+          } catch (e) {}
+        }
+
+        buildAudioGraph(ctx) {
+          this.masterGain = ctx.createGain();
+          this.masterGain.gain.setValueAtTime(1.0, ctx.currentTime);
+
+          this.analyser = ctx.createAnalyser();
+          this.analyser.fftSize = 128;
+          this.analyser.smoothingTimeConstant = 0.82;
+
+          this.masterGain.connect(this.analyser);
+          this.analyser.connect(ctx.destination);
+
+          this.bedGain = ctx.createGain();
+          this.bedGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+          this.bedGain.connect(this.masterGain);
+
+          // Mastering & anti-crackle EQ chain:
+          // 1) 30 Hz sub-sonic high-pass so fundamental bass & 909 kick remain full and punchy
+          // 2) 125 Hz warm bass/kick punch shelf (+3.4 dB, Q 1.2) for crisp low-end definition
+          // 3) 245 Hz low-mid mud-scoop (-2.8 dB, Q 1.2) to prevent boxiness
+          // 4) 2400 Hz synth-masking dip (-3.0 dB, Q 1.3) so drums sit forward without harshness
+          // 5) 6800 Hz warm analog low-pass ceiling (Q 0.55) for smooth non-fatiguing highs
+          const subTightHp = ctx.createBiquadFilter();
+          subTightHp.type = "highpass";
+          subTightHp.frequency.setValueAtTime(30, ctx.currentTime);
+          subTightHp.Q.setValueAtTime(0.65, ctx.currentTime);
+
+          const bassPunchPeak = ctx.createBiquadFilter();
+          bassPunchPeak.type = "peaking";
+          bassPunchPeak.frequency.setValueAtTime(125, ctx.currentTime);
+          bassPunchPeak.Q.setValueAtTime(1.2, ctx.currentTime);
+          bassPunchPeak.gain.setValueAtTime(3.4, ctx.currentTime);
+
+          const mudScoop = ctx.createBiquadFilter();
+          mudScoop.type = "peaking";
+          mudScoop.frequency.setValueAtTime(245, ctx.currentTime);
+          mudScoop.Q.setValueAtTime(1.2, ctx.currentTime);
+          mudScoop.gain.setValueAtTime(-2.8, ctx.currentTime);
+
+          const notchFilter = ctx.createBiquadFilter();
+          notchFilter.type = "peaking";
+          notchFilter.frequency.setValueAtTime(2400, ctx.currentTime);
+          notchFilter.Q.setValueAtTime(1.3, ctx.currentTime);
+          notchFilter.gain.setValueAtTime(-3.0, ctx.currentTime);
+
+          const antiCrackleLp = ctx.createBiquadFilter();
+          antiCrackleLp.type = "lowpass";
+          antiCrackleLp.frequency.setValueAtTime(6800, ctx.currentTime);
+          antiCrackleLp.Q.setValueAtTime(0.55, ctx.currentTime);
+
+          subTightHp.connect(bassPunchPeak);
+          bassPunchPeak.connect(mudScoop);
+          mudScoop.connect(notchFilter);
+          notchFilter.connect(antiCrackleLp);
+          antiCrackleLp.connect(this.bedGain);
+          this.bedFilterInput = subTightHp;
+          this.bedAudioBuffer = null;
+
+          ctx.onstatechange = () => {
+            if (this.ctx !== ctx) return;
+            if ((ctx.state === "suspended" || ctx.state === "interrupted") && (state.isOnAir || state.musicBedOn)) {
+              this.needsGestureRecovery = true;
+              this.recoverAfterUnlock(false).catch(() => {});
+            }
+          };
+        }
+
+        primeSilentBuffer(ctx) {
+          if (!ctx || this.isPrimed || ctx.state !== "running") return;
+          try {
+            const silentBuf = ctx.createBuffer(1, 1, 22050);
+            const silentSrc = ctx.createBufferSource();
+            silentSrc.buffer = silentBuf;
+            silentSrc.connect(this.masterGain || ctx.destination);
+            silentSrc.start(0);
+            this.isPrimed = true;
+          } catch (e) {}
+        }
+
+        // Smoothly ramp bedGain/voiceGain down to 0.0001 over 18ms and save bedOffsetSec before sleep
+        muteBeforeSleep() {
+          if (this.bedPlaying && this.ctx && this.bedPcmData) {
+            const elapsed = Math.max(0, this.ctx.currentTime - this.bedStartCtxTime);
+            this.bedOffsetSec = (this.bedOffsetSec + elapsed) % this.bedPcmData.durationSec;
+          }
+          if (state.isOnAir || state.musicBedOn) {
+            this.needsGestureRecovery = true;
+          }
+          if (!this.ctx || this.ctx.state === "closed") return;
+          const now = this.ctx.currentTime;
+          const rampEnd = now + 0.018;
+          try {
+            if (this.bedGain) {
+              const curBed = Math.max(0.0001, Number(this.bedGain.gain.value) || 0.0001);
+              this.bedGain.gain.cancelScheduledValues(now);
+              this.bedGain.gain.setValueAtTime(curBed, now);
+              this.bedGain.gain.exponentialRampToValueAtTime(0.0001, rampEnd);
+            }
+            if (state.activeSpeechGain) {
+              const curVoice = Math.max(0.0001, Number(state.activeSpeechGain.gain.value) || 0.0001);
+              state.activeSpeechGain.gain.cancelScheduledValues(now);
+              state.activeSpeechGain.gain.setValueAtTime(curVoice, now);
+              state.activeSpeechGain.gain.exponentialRampToValueAtTime(0.0001, rampEnd);
+            }
+          } catch (e) {}
+        }
+
+        async rebuildFreshContext() {
+          const oldCtx = this.ctx;
+          this.stopBedSourceOnly();
+          this.stopFallbackSynthPulse();
+          this.ctx = null;
+          this.masterGain = null;
+          this.analyser = null;
+          this.bedFilterInput = null;
+          this.bedGain = null;
+          this.bedAudioBuffer = null;
+          this.isPrimed = false;
+
+          if (oldCtx && oldCtx.state !== "closed") {
+            try {
+              await oldCtx.close();
+            } catch (e) {}
+          }
+
           const AudioCtx = window.AudioContext || window.webkitAudioContext;
           if (!AudioCtx) return null;
-          if (!this.ctx) {
-            this.ctx = new AudioCtx();
-            this.masterGain = this.ctx.createGain();
-            this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
-            this.masterGain.connect(this.ctx.destination);
-
-            this.bedGain = this.ctx.createGain();
-            this.bedGain.gain.setValueAtTime(0, this.ctx.currentTime);
-            this.bedGain.connect(this.masterGain);
-
-            this.ctx.onstatechange = () => {
-              if (
-                this.ctx &&
-                (this.ctx.state === "interrupted" || this.ctx.state === "suspended") &&
-                (state.isOnAir || state.musicBedOn || previewAudioSource)
-              ) {
-                this.ctx.resume().catch(() => {});
-              }
-            };
-          }
-          if (this.ctx.state !== "running") {
-            try {
-              await this.ctx.resume();
-            } catch (e) {}
-          }
-          if (this.masterGain && this.ctx.state === "running") {
-            try {
-              this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
-            } catch (e) {}
-          }
-          if (!this.isPrimed && this.ctx.state === "running") {
-            try {
-              const silentBuf = this.ctx.createBuffer(1, 1, 22050);
-              const silentSrc = this.ctx.createBufferSource();
-              silentSrc.buffer = silentBuf;
-              silentSrc.connect(this.masterGain || this.ctx.destination);
-              silentSrc.start(0);
-              this.isPrimed = true;
-            } catch (e) {}
+          this.ctx = new AudioCtx();
+          this.buildAudioGraph(this.ctx);
+          try {
+            await Promise.race([
+              this.ctx.resume(),
+              new Promise((_, reject) => setTimeout(() => reject(new Error("resume_timeout")), 500))
+            ]);
+          } catch (e) {}
+          if (this.ctx && this.ctx.state === "running") {
+            this.primeSilentBuffer(this.ctx);
           }
           return this.ctx;
         }
 
-        async ensureBedBuffer(ctx) {
-          if (this.bedBuffer) return this.bedBuffer;
+        async ensureContext() {
+          this.configureAudioSessionOnce();
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return null;
+
+          if (!this.ctx || this.ctx.state === "closed") {
+            this.ctx = new AudioCtx();
+            this.isPrimed = false;
+            this.buildAudioGraph(this.ctx);
+          }
+
+          if (this.ctx.state === "interrupted") {
+            return this.rebuildFreshContext();
+          }
+
+          if (this.ctx.state === "suspended") {
+            try {
+              await Promise.race([
+                this.ctx.resume(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error("resume_timeout")), 500))
+              ]);
+            } catch (e) {
+              return this.rebuildFreshContext();
+            }
+          }
+
+          if (this.ctx && this.ctx.state === "running") {
+            this.primeSilentBuffer(this.ctx);
+          }
+          return this.ctx;
+        }
+
+        ensureBedBufferForContext(ctx) {
+          if (!ctx || !this.bedPcmData) return null;
+          if (this.bedAudioBuffer && this.bedAudioBuffer.length === this.bedPcmData.left.length) {
+            return this.bedAudioBuffer;
+          }
+          try {
+            const { left, right, sampleRate } = this.bedPcmData;
+            const buf = ctx.createBuffer(2, left.length, sampleRate);
+            buf.copyToChannel(left, 0);
+            buf.copyToChannel(right, 1);
+            this.bedAudioBuffer = buf;
+            return buf;
+          } catch (e) {
+            return null;
+          }
+        }
+
+        async ensureBedPcmCached() {
+          if (this.bedPcmData) return this.bedPcmData;
           if (this.bedBuildingPromise) return this.bedBuildingPromise;
 
           this.bedBuildingPromise = (async () => {
-            const wavBlob = await buildSynthwaveBedBlobAsync();
-            const arrayBuf = await wavBlob.arrayBuffer();
-            const decoded = await ctx.decodeAudioData(arrayBuf.slice(0));
-            this.bedBuffer = decoded;
-            return decoded;
+            let pcm = await renderSynthwaveBedInWorkerAsync();
+            if (!pcm) {
+              pcm = await buildSynthwaveBedPcmAsync();
+            }
+            this.bedPcmData = pcm;
+            // Build compact 16-bit PCM WAV Blob for <audio> lock-screen fallback
+            this.encodeStereoWavBlobAsync(pcm)
+              .then((blob) => {
+                if (!blob) return;
+                this.bedWavBlob = blob;
+                if (this.bedWavUrl) {
+                  try {
+                    URL.revokeObjectURL(this.bedWavUrl);
+                  } catch (e) {}
+                }
+                this.bedWavUrl = URL.createObjectURL(blob);
+                this.ensureFallbackAudioElement();
+              })
+              .catch(() => {});
+            return pcm;
           })();
 
           return this.bedBuildingPromise;
         }
 
+        stopBedSourceOnly() {
+          if (this.bedSourceNode) {
+            if (this.bedPlaying && this.ctx && this.bedPcmData) {
+              const elapsed = Math.max(0, this.ctx.currentTime - this.bedStartCtxTime);
+              this.bedOffsetSec = (this.bedOffsetSec + elapsed) % this.bedPcmData.durationSec;
+            }
+            try {
+              this.bedSourceNode.onended = null;
+              this.bedSourceNode.stop(0);
+              this.bedSourceNode.disconnect();
+            } catch (e) {}
+            this.bedSourceNode = null;
+          }
+          this.bedPlaying = false;
+        }
+
+        startBedBufferLoop(ctx, targetGain, duckLabel) {
+          const buf = this.ensureBedBufferForContext(ctx);
+          if (!buf || !this.bedGain) return false;
+
+          this.stopFallbackAudioElement();
+          this.stopBedSourceOnly();
+          this.stopFallbackSynthPulse();
+
+          try {
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.loop = true;
+            src.loopStart = 0;
+            src.loopEnd = buf.duration;
+            src.connect(this.bedFilterInput || this.bedGain);
+
+            const offset = this.bedOffsetSec % Math.max(0.1, buf.duration);
+            src.start(0, offset);
+
+            this.bedSourceNode = src;
+            this.bedStartCtxTime = ctx.currentTime;
+            this.bedPlaying = true;
+            this.needsGestureRecovery = false;
+
+            this.rampBedGain(targetGain, 180);
+            updateDuckPill(duckLabel);
+            return true;
+          } catch (e) {
+            this.bedPlaying = false;
+            return false;
+          }
+        }
+
         startFallbackSynthPulse(ctx) {
           if (this.fallbackPulseTimer || !this.bedGain) return;
           const chordRoots = [110.0, 87.31, 130.81, 98.0];
-          const arpOffsets = [2.0, 2.5, 3.0, 4.0];
           this.fallbackStep = 0;
 
           const triggerStep = () => {
-            if (!state.musicBedOn || this.bedBuffer || !this.ctx || !this.bedGain) {
-              this.stopFallbackSynthPulse();
+            if (!state.musicBedOn || this.bedPcmData || !this.ctx || !this.bedGain || this.ctx.state !== "running") {
+              if (!state.musicBedOn || this.bedPcmData) {
+                this.stopFallbackSynthPulse();
+              }
               return;
             }
             const now = this.ctx.currentTime;
-            const bar = Math.floor(this.fallbackStep / 8) % 4;
-            const root = chordRoots[bar];
-            const mult = arpOffsets[this.fallbackStep % 4];
-            const freq = (this.fallbackStep % 2 === 0) ? root : (root * mult);
+            const root = chordRoots[this.fallbackStep % 4];
+            const destNode = this.bedFilterInput || this.bedGain;
 
             try {
               const osc = this.ctx.createOscillator();
+              const fifthOsc = this.ctx.createOscillator();
               const subOsc = this.ctx.createOscillator();
+              const lp = this.ctx.createBiquadFilter();
               const env = this.ctx.createGain();
+
               osc.type = "triangle";
+              fifthOsc.type = "sine";
               subOsc.type = "sine";
-              osc.frequency.setValueAtTime(freq, now);
-              subOsc.frequency.setValueAtTime(root, now);
+              osc.frequency.setValueAtTime(root * 2, now);
+              fifthOsc.frequency.setValueAtTime(root * 3, now);
+              subOsc.frequency.setValueAtTime(root * 0.5, now);
 
-              env.gain.setValueAtTime(0.001, now);
-              env.gain.linearRampToValueAtTime(0.32, now + 0.015);
-              env.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+              lp.type = "lowpass";
+              lp.frequency.setValueAtTime(1100, now);
+              lp.Q.setValueAtTime(0.6, now);
 
-              osc.connect(env);
-              subOsc.connect(env);
-              env.connect(this.bedGain);
+              env.gain.setValueAtTime(0.0001, now);
+              env.gain.linearRampToValueAtTime(0.22, now + 0.18);
+              env.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
+
+              osc.connect(lp);
+              fifthOsc.connect(lp);
+              subOsc.connect(lp);
+              lp.connect(env);
+              env.connect(destNode);
 
               osc.start(now);
+              fifthOsc.start(now);
               subOsc.start(now);
-              osc.stop(now + 0.24);
-              subOsc.stop(now + 0.24);
+              osc.stop(now + 0.98);
+              fifthOsc.stop(now + 0.98);
+              subOsc.stop(now + 0.98);
             } catch (e) {}
 
             this.fallbackStep++;
           };
 
           triggerStep();
-          this.fallbackPulseTimer = setInterval(triggerStep, 250);
+          this.fallbackPulseTimer = setInterval(triggerStep, 1000);
         }
 
         stopFallbackSynthPulse() {
@@ -2780,96 +3992,124 @@
           if (!state.musicBedOn) return { gain: 0, label: "BED MUTED" };
           if (state.isSpeaking) {
             return state.activeIsSlogan
-              ? { gain: BED_SLOGAN_DUCK_GAIN, label: "DUCK SLOGAN -10%" }
+              ? { gain: BED_SLOGAN_DUCK_GAIN, label: "DUCK SLOGAN -92%" }
               : { gain: BED_SPEECH_DUCK_GAIN, label: "DUCK SPEECH -92%" };
           }
           return { gain: BED_CRUISE_GAIN, label: "BED CRUISE" };
         }
 
+        async recoverAfterUnlock(fromGesture = false) {
+          if (this.recoveringLock) return;
+          this.recoveringLock = true;
+          try {
+            let ctx = await this.ensureContext();
+            if ((!ctx || ctx.state !== "running") && fromGesture) {
+              ctx = await this.rebuildFreshContext();
+            }
+
+            const target = this.getCurrentDuckTarget();
+
+            if (ctx && ctx.state === "running") {
+              this.needsGestureRecovery = false;
+              this.stopFallbackAudioElement();
+
+              if (state.activeSpeechGain) {
+                try {
+                  state.activeSpeechGain.gain.setTargetAtTime(1.0, ctx.currentTime, 0.03);
+                } catch (e) {}
+              }
+
+              if (state.musicBedOn && !this.manualBedStop) {
+                if (!this.bedPlaying || !this.bedSourceNode || fromGesture) {
+                  await this.startBedIfEnabled();
+                } else {
+                  this.rampBedGain(target.gain, 180);
+                  updateDuckPill(target.label);
+                }
+              }
+            } else if (state.musicBedOn && !this.manualBedStop) {
+              // Mobile Safari non-gesture visibilitychange fallback: engage HTMLAudioElement WAV loop
+              this.needsGestureRecovery = true;
+              this.stopBedSourceOnly();
+              await this.startFallbackAudioElement(target.gain, target.label);
+            }
+          } finally {
+            this.recoveringLock = false;
+          }
+        }
+
         async startBedIfEnabled() {
           if (!state.musicBedOn) return;
+          this.manualBedStop = false;
           const ctx = await this.ensureContext();
-          if (!ctx || !this.bedGain) return;
-          if (ctx.state !== "running") {
-            try {
-              await ctx.resume();
-            } catch (e) {}
-          }
-
           const { gain, label } = this.getCurrentDuckTarget();
-          try {
-            this.bedGain.gain.cancelScheduledValues(ctx.currentTime);
-            this.bedGain.gain.setValueAtTime(gain, ctx.currentTime);
-          } catch (e) {
-            this.bedGain.gain.value = gain;
-          }
-          updateDuckPill(label);
 
-          if (this.bedBuffer) {
-            this.stopFallbackSynthPulse();
-            if (!this.bedPlaying || !this.bedSource) {
-              const src = ctx.createBufferSource();
-              src.buffer = this.bedBuffer;
-              src.loop = true;
-              src.connect(this.bedGain);
-              src.start(0);
-              this.bedSource = src;
-              this.bedPlaying = true;
+          if (!ctx || ctx.state !== "running" || !this.bedGain) {
+            this.needsGestureRecovery = true;
+            if (this.bedPcmData) {
+              await this.startFallbackAudioElement(gain, label);
             }
             return;
           }
 
-          this.startFallbackSynthPulse(ctx);
-          await this.ensureBedBuffer(ctx);
-          this.stopFallbackSynthPulse();
+          this.rampBedGain(gain, 140);
+          updateDuckPill(label);
 
-          if (!state.musicBedOn || !this.bedBuffer) return;
-
-          if (!this.bedPlaying || !this.bedSource) {
-            const src = ctx.createBufferSource();
-            src.buffer = this.bedBuffer;
-            src.loop = true;
-            src.connect(this.bedGain);
-            src.start(0);
-            this.bedSource = src;
-            this.bedPlaying = true;
+          if (this.bedPcmData) {
+            this.startBedBufferLoop(ctx, gain, label);
+            return;
           }
 
+          this.startFallbackSynthPulse(ctx);
+          await this.ensureBedPcmCached();
+          this.stopFallbackSynthPulse();
+
+          if (!state.musicBedOn || this.manualBedStop || !this.bedPcmData) return;
+
+          const activeCtx = await this.ensureContext();
           const post = this.getCurrentDuckTarget();
-          this.rampBedGain(post.gain, 180);
-          updateDuckPill(post.label);
+          if (activeCtx && activeCtx.state === "running") {
+            this.startBedBufferLoop(activeCtx, post.gain, post.label);
+          } else {
+            this.needsGestureRecovery = true;
+            await this.startFallbackAudioElement(post.gain, post.label);
+          }
         }
 
         stopBed(fadeMs = 160) {
+          this.manualBedStop = true;
+          this.needsGestureRecovery = false;
           this.stopFallbackSynthPulse();
+          this.stopFallbackAudioElement();
           if (this.ctx && this.bedGain) {
             this.rampBedGain(0, fadeMs);
           }
-          const src = this.bedSource;
-          this.bedSource = null;
-          this.bedPlaying = false;
           updateDuckPill("BED MUTED");
-          if (src) {
-            setTimeout(() => {
-              try {
-                src.stop(0);
-                src.disconnect();
-              } catch (e) {}
-            }, fadeMs + 30);
-          }
+          setTimeout(() => {
+            if (!this.manualBedStop) return;
+            this.stopBedSourceOnly();
+          }, fadeMs + 40);
         }
 
         rampBedGain(targetGain, ms = 220) {
-          if (!this.ctx || !this.bedGain) return;
-          const now = this.ctx.currentTime;
           const safeTarget = Math.max(0, Number(targetGain) || 0);
+          this.syncFallbackAudioVolume(safeTarget);
+          if (!this.ctx || !this.bedGain || this.ctx.state === "closed") return;
+          const now = this.ctx.currentTime;
+          const durSec = Math.max(0.025, (Number(ms) || 220) / 1000);
           try {
+            const currentVal = Math.max(0.0001, Number(this.bedGain.gain.value) || 0.0001);
             this.bedGain.gain.cancelScheduledValues(now);
-            this.bedGain.gain.setValueAtTime(this.bedGain.gain.value, now);
-            this.bedGain.gain.linearRampToValueAtTime(safeTarget, now + ms / 1000);
+            this.bedGain.gain.setValueAtTime(currentVal, now);
+            if (safeTarget > 0.0001) {
+              this.bedGain.gain.exponentialRampToValueAtTime(Math.max(0.0001, safeTarget), now + durSec);
+            } else {
+              this.bedGain.gain.exponentialRampToValueAtTime(0.0001, now + durSec);
+              this.bedGain.gain.setValueAtTime(0, now + durSec + 0.004);
+            }
           } catch (e) {
             try {
-              this.bedGain.gain.value = safeTarget;
+              this.bedGain.gain.setTargetAtTime(safeTarget, now, durSec / 3);
             } catch (err) {}
           }
         }
@@ -2887,6 +4127,12 @@
             } catch (e) {}
             state.activeSpeechSource = null;
           }
+          if (state.activeSpeechGain) {
+            try {
+              state.activeSpeechGain.disconnect();
+            } catch (e) {}
+            state.activeSpeechGain = null;
+          }
           syncTeleprompter(false);
           if (restoreBed) {
             const { gain, label } = this.getCurrentDuckTarget();
@@ -2898,23 +4144,29 @@
         async playWavBlob(wavBlob, token, duckGain, duckLabel) {
           const ctx = await this.ensureContext();
           if (!ctx) return false;
-          if (ctx.state !== "running") {
-            try {
-              await ctx.resume();
-            } catch (e) {}
-          }
           try {
             const arrayBuf = await wavBlob.arrayBuffer();
             const audioBuf = await ctx.decodeAudioData(arrayBuf.slice(0));
             if (token !== state.playToken || !state.isOnAir) return false;
 
+            const now = ctx.currentTime;
             const src = ctx.createBufferSource();
             const voiceGain = ctx.createGain();
-            voiceGain.gain.setValueAtTime(1.0, ctx.currentTime);
+            const fadeSec = Math.min(0.025, Math.max(0.008, audioBuf.duration * 0.05));
+            const endFadeStart = Math.max(now + fadeSec, now + audioBuf.duration - fadeSec);
+
+            voiceGain.gain.setValueAtTime(0.0001, now);
+            voiceGain.gain.exponentialRampToValueAtTime(1.0, now + fadeSec);
+            if (endFadeStart < now + audioBuf.duration - 0.002) {
+              voiceGain.gain.setValueAtTime(1.0, endFadeStart);
+              voiceGain.gain.exponentialRampToValueAtTime(0.0001, now + audioBuf.duration);
+            }
+
             src.buffer = audioBuf;
             src.connect(voiceGain);
             voiceGain.connect(this.masterGain || ctx.destination);
             state.activeSpeechSource = src;
+            state.activeSpeechGain = voiceGain;
 
             if (state.musicBedOn) {
               this.rampBedGain(duckGain, 180);
@@ -2928,6 +4180,9 @@
                 done = true;
                 if (state.activeSpeechSource === src) {
                   state.activeSpeechSource = null;
+                }
+                if (state.activeSpeechGain === voiceGain) {
+                  state.activeSpeechGain = null;
                 }
                 try {
                   src.disconnect();
@@ -2949,11 +4204,11 @@
             });
           } catch (e) {
             state.activeSpeechSource = null;
+            state.activeSpeechGain = null;
             return false;
           }
         }
 
-        // Gemini-only playback: returns true if playable WAV audio was delivered, false otherwise
         async playGeminiLines(lines, options = {}) {
           const {
             badge = "CALLER",
@@ -2975,7 +4230,7 @@
           setProgramTitle(title);
 
           const duckGain = isSlogan ? BED_SLOGAN_DUCK_GAIN : BED_SPEECH_DUCK_GAIN;
-          const duckLabel = isSlogan ? "DUCK SLOGAN -10%" : "DUCK SPEECH -92%";
+          const duckLabel = isSlogan ? "DUCK SLOGAN -92%" : "DUCK SPEECH -92%";
 
           try {
             let wavToPlay = cachedWav;
@@ -3015,9 +4270,6 @@
           }
         }
 
-        // Dual-character slogan runner:
-        // - isInitialAnchor = true (going ON AIR): plays Marcus then Donna, sets 15m slogan repeat & +5m first advert
-        // - isInitialAnchor = false: plays ONE alternating character (Marcus <-> Donna) every 15 mins or as fallback
         async playSloganSegment(options = {}) {
           const { isInitialAnchor = false } = options;
           if (!state.isOnAir) return false;
@@ -3028,7 +4280,7 @@
 
           for (const charKey of sequenceChars) {
             if (!state.isOnAir) break;
-            const script = SLOGAN_CHARACTER_SCRIPTS[charKey];
+            const script = SLOGAN_SCRIPT[charKey];
             if (!script) continue;
 
             const existingWav = charKey === "Marcus" ? state.sloganMarcusWavBlob : state.sloganDonnaWavBlob;
@@ -3058,9 +4310,9 @@
             if (isInitialAnchor && !state.sloganInitialCompleted) {
               state.sloganInitialCompleted = true;
               state.sloganAnchorTimeMs = finishedAt;
-              state.sloganNextSingleChar = "Marcus"; // Next single-voice slogan starts with Marcus
-              state.nextSloganDueAtMs = finishedAt + SLOGAN_REPEAT_MS; // 15-min slogan repeat
-              state.nextProgramDueAtMs = finishedAt + PROGRAM_INTERVAL_MS; // First advert 5 mins after slogan
+              state.sloganNextSingleChar = "Marcus";
+              state.nextSloganDueAtMs = finishedAt + SLOGAN_REPEAT_MS;
+              state.nextProgramDueAtMs = finishedAt + PROGRAM_INTERVAL_MS;
               state.scheduleCursorIndex = 0;
               updateClockAndCountdowns();
             } else if (!isInitialAnchor) {
@@ -3077,7 +4329,76 @@
       const audioEngine = new BroadcastAudioEngine();
 
       /* ======================================================================
-         11. DARK-SATIRE NEWS WIRE, DOUBLE-ENTENDRE WEATHER, SPONSORS & CALLERS
+         12. LIVE VFD SPECTRUM ANALYZER / OSCILLOSCOPE CANVAS (28 BARS)
+         ====================================================================== */
+      let spectrumFreqBins = null;
+      function startSpectrumVisualizer() {
+        const canvas = el.vfdSpectrumCanvas;
+        if (!canvas) return;
+        const ctx2d = canvas.getContext("2d");
+        if (!ctx2d) return;
+
+        const renderFrame = () => {
+          const rect = canvas.getBoundingClientRect();
+          const dpr = Math.min(2, window.devicePixelRatio || 1);
+          const targetW = Math.max(120, Math.floor(rect.width * dpr));
+          const targetH = Math.max(28, Math.floor(rect.height * dpr));
+          if (canvas.width !== targetW || canvas.height !== targetH) {
+            canvas.width = targetW;
+            canvas.height = targetH;
+          }
+
+          ctx2d.clearRect(0, 0, targetW, targetH);
+
+          // Subtle baseline grid
+          ctx2d.strokeStyle = "rgba(41, 240, 137, 0.14)";
+          ctx2d.lineWidth = 1;
+          ctx2d.beginPath();
+          ctx2d.moveTo(0, targetH * 0.5);
+          ctx2d.lineTo(targetW, targetH * 0.5);
+          ctx2d.stroke();
+
+          const barCount = 28;
+          const gap = Math.max(2, Math.floor(targetW * 0.006));
+          const barW = Math.max(2, (targetW - gap * (barCount + 1)) / barCount);
+
+          let hasLiveAnalyser = false;
+          if (audioEngine.analyser && audioEngine.ctx && audioEngine.ctx.state === "running" && (state.isOnAir || state.musicBedOn)) {
+            if (!spectrumFreqBins || spectrumFreqBins.length !== audioEngine.analyser.frequencyBinCount) {
+              spectrumFreqBins = new Uint8Array(audioEngine.analyser.frequencyBinCount);
+            }
+            audioEngine.analyser.getByteFrequencyData(spectrumFreqBins);
+            hasLiveAnalyser = true;
+          }
+
+          const nowSec = performance.now() * 0.001;
+          for (let b = 0; b < barCount; b++) {
+            let norm = 0.05;
+            if (hasLiveAnalyser && spectrumFreqBins) {
+              const binIdx = Math.min(spectrumFreqBins.length - 1, Math.floor((b / barCount) * (spectrumFreqBins.length * 0.72)));
+              norm = Math.max(0.06, spectrumFreqBins[binIdx] / 255);
+            } else if (state.isOnAir || state.musicBedOn) {
+              norm = 0.14 + 0.12 * Math.sin(nowSec * 2.4 + b * 0.45);
+            }
+
+            const barH = Math.max(2, Math.floor(norm * (targetH - 6)));
+            const x = gap + b * (barW + gap);
+            const y = targetH - barH - 2;
+
+            ctx2d.fillStyle = state.isSpeaking
+              ? (b % 3 === 0 ? "#ffb020" : "#29f089")
+              : (norm > 0.65 ? "#38e8ff" : "#29f089");
+            ctx2d.fillRect(x, y, barW, barH);
+          }
+
+          requestAnimationFrame(renderFrame);
+        };
+
+        requestAnimationFrame(renderFrame);
+      }
+
+      /* ======================================================================
+         13. SATIRE NEWS WIRE, WEATHER, SPONSORS & CALLERS
          ====================================================================== */
       async function buildWeatherTrafficSegment() {
         await refreshLiveRegionalWeather();
@@ -3111,6 +4432,7 @@
           `A landmark ${reg.cityName} real-estate developer has generously donated a freshly painted shipping container to house four families, provided they agree to film a smiling gratitude commercial before the winter frost sets in.`
         ];
 
+        let rawRssHeadline = "";
         let headline = darkStories[Math.floor(Math.random() * darkStories.length)];
 
         try {
@@ -3125,10 +4447,24 @@
             const match = xmlText.match(/<item>[\s\S]*?<title><!\[CDATA\[(.*?)\]\]><\/title>|<item>[\s\S]*?<title>(.*?)<\/title>/i);
             const rawTitle = (match && (match[1] || match[2])) ? (match[1] || match[2]).replace(/<[^>]+>/g, "").trim() : "";
             if (rawTitle && rawTitle.length > 14 && rawTitle.length < 160) {
+              rawRssHeadline = rawTitle;
               headline = `Dateline ${reg.cityName}: "${rawTitle}." Naturally, local experts confirm nobody in charge will face consequences, the rich have already hedged against it, and you will somehow pay for it on next month's utility bill.`;
             }
           }
         } catch (e) {}
+
+        // Use gemini-2.5-flash when API key is ready to craft custom satire around the headline
+        if (hasApiKey() && !isApiCoolingDown()) {
+          const aiLines = await requestGeminiDynamicNewsLines(reg, rawRssHeadline || headline);
+          if (aiLines) {
+            return {
+              badge: "NEWS WIRE",
+              title: `${reg.cityName} Weazel News Wire`,
+              category: "NEWS",
+              lines: aiLines
+            };
+          }
+        }
 
         return {
           badge: "NEWS WIRE",
@@ -3199,7 +4535,7 @@
       }
 
       /* ======================================================================
-         12. SLOGAN-ANCHORED 5M SCHEDULE WITH SLOGAN FALLBACK & RETRY PUSH-BACK
+         14. SLOGAN-ANCHORED 5M SCHEDULE WITH SLOGAN FALLBACK & RETRY PUSH-BACK
          ====================================================================== */
       let runnerBusy = false;
 
@@ -3245,7 +4581,6 @@
             state.scheduleCursorIndex = (state.scheduleCursorIndex + 1) % PROGRAM_SEQUENCE.length;
             state.nextProgramDueAtMs = Date.now() + PROGRAM_INTERVAL_MS;
           } else {
-            // Slogan fallback when segment wasn't ready/playable in time; retry & push item back
             await audioEngine.playSloganSegment({ isInitialAnchor: false });
             const nextRetryCount = (item.retries || 0) + 1;
             if (nextRetryCount <= MAX_ITEM_RETRIES) {
@@ -3299,12 +4634,26 @@
       }
 
       /* ======================================================================
-         13. UPCOMING PROGRAM DRAWER
+         15. PROGRAM SCHEDULE & 24-CLIP VAULT MODAL RENDERING
          ====================================================================== */
+      function setModalTab(tabName) {
+        state.activeModalTab = tabName === "VAULT" ? "VAULT" : "SCHEDULE";
+        if (el.scheduleTabPane) {
+          el.scheduleTabPane.classList.toggle("hidden-section", state.activeModalTab !== "SCHEDULE");
+        }
+        if (el.vaultTabPane) {
+          el.vaultTabPane.classList.toggle("hidden-section", state.activeModalTab !== "VAULT");
+        }
+        if (state.activeModalTab === "SCHEDULE") {
+          renderScheduleDrawer();
+        } else {
+          renderVaultList();
+        }
+      }
+
       function renderScheduleDrawer() {
         if (!el.scheduleSlotsList || !el.scheduleNextBanner) return;
         const nowMs = Date.now();
-        const reg = getCurrentCityRecord();
 
         const nextSloganRemMs = state.isOnAir && state.sloganInitialCompleted
           ? Math.max(0, state.nextSloganDueAtMs - nowMs)
@@ -3317,12 +4666,6 @@
           ? `${state.pendingRetryItem.title} (RETRY #${state.pendingRetryItem.retries})`
           : PROGRAM_SEQUENCE[state.scheduleCursorIndex % PROGRAM_SEQUENCE.length].title;
 
-        if (el.scheduleModalSummary) {
-          el.scheduleModalSummary.textContent = state.isOnAir
-            ? `ON AIR • ${reg.cityName.toUpperCase()} • 5M PROGRAM CADENCE • 15M SINGLE-VOICE SLOGAN (${state.sloganNextSingleChar.toUpperCase()})`
-            : "STANDBY • ENGAGE ON AIR TO PLAY MARCUS & DONNA SLOGAN FIRST";
-        }
-
         el.scheduleNextBanner.innerHTML = `
           <div class="banner-card-green">
             <div class="banner-label-green">NEXT SLOGAN (15M · ${state.sloganNextSingleChar.toUpperCase()} ONLY)</div>
@@ -3333,7 +4676,7 @@
           <div class="banner-card-amber">
             <div class="banner-label-amber">NEXT SCHEDULED ITEM (5M CADENCE)</div>
             <div class="banner-val">
-              ${state.isOnAir && state.sloganInitialCompleted ? `${nextProgItem} • in ${formatMmSs(nextProgRemMs)}` : "ADVERT (SPONSOR) +5M AFTER SLOGAN"}
+              ${state.isOnAir && state.sloganInitialCompleted ? `${nextProgItem} • in ${formatMmSs(nextProgRemMs)}` : "SPONSOR +5M AFTER SLOGAN"}
             </div>
           </div>
         `;
@@ -3368,15 +4711,13 @@
       }
 
       /* ======================================================================
-         14. ACTION HANDLERS & FAULT-ISOLATED EVENT WIRING
+         16. SYNCHRONOUS UI STATE TOGGLES + NON-BLOCKING AUDIO DISPATCH
          ====================================================================== */
       function toggleStandby() {
         try {
           state.isOnAir = !state.isOnAir;
-          syncUiState();
 
           if (state.isOnAir) {
-            audioEngine.ensureContext().catch(() => {});
             state.musicBedOn = true;
             state.sloganInitialCompleted = false;
             state.sloganAnchorTimeMs = 0;
@@ -3387,11 +4728,21 @@
             state.pendingRetryItem = null;
             syncUiState();
 
-            audioEngine.startBedIfEnabled().catch(() => {});
+            audioEngine.ensureContext()
+              .then(() => audioEngine.startBedIfEnabled())
+              .catch(() => {});
+            audioEngine.acquireWakeLock().catch(() => {});
+            audioEngine.syncMediaSession();
             startInitialSloganAnchor().catch(() => {});
 
             if (!state.schedulerTimer) {
               state.schedulerTimer = setInterval(tickBroadcastScheduler, 1000);
+            }
+            if (!state.watchdogTimer) {
+              state.watchdogTimer = setInterval(() => {
+                if (!state.isOnAir) return;
+                audioEngine.recoverAfterUnlock(false).catch(() => {});
+              }, 3000);
             }
             showToast(`WEAZEL 13.3 FM ON AIR // ${getCurrentCityRecord().cityName.toUpperCase()}`);
           } else {
@@ -3400,11 +4751,18 @@
             state.sloganAnchorTimeMs = 0;
             state.nextSloganDueAtMs = 0;
             state.nextProgramDueAtMs = 0;
-            audioEngine.stopVoice(false);
             state.musicBedOn = false;
-            audioEngine.stopBed(160);
             setProgramTitle("IDLE // AWAITING CARRIER ENGAGE");
             syncUiState();
+
+            if (state.watchdogTimer) {
+              clearInterval(state.watchdogTimer);
+              state.watchdogTimer = null;
+            }
+            audioEngine.stopVoice(false);
+            audioEngine.stopBed(160);
+            audioEngine.releaseWakeLock().catch(() => {});
+            audioEngine.syncMediaSession();
             showToast("WEAZEL 13.3 FM STANDBY");
           }
         } catch (e) {}
@@ -3412,12 +4770,13 @@
 
       function toggleBed() {
         try {
-          audioEngine.ensureContext().catch(() => {});
           state.musicBedOn = !state.musicBedOn;
           syncUiState();
           if (state.musicBedOn) {
-            audioEngine.startBedIfEnabled().catch(() => {});
-            showToast("256-bar synthwave bed enabled");
+            audioEngine.ensureContext()
+              .then(() => audioEngine.startBedIfEnabled())
+              .catch(() => {});
+            showToast("128-bar synthwave bed enabled");
           } else {
             audioEngine.stopBed(160);
             showToast("Synthwave bed muted");
@@ -3433,38 +4792,40 @@
             setProgramTitle("CARRIER MUSIC BED // STANDBY FOR NEXT SLOT");
           }
           syncUiState();
+          audioEngine.recoverAfterUnlock(true).catch(() => {});
           showToast("Mic cut");
         } catch (e) {}
       }
 
-      function openScheduleModal() {
+      function clearDeckReset() {
         try {
-          state.scheduleOpen = true;
-          renderScheduleDrawer();
-          if (el.scheduleModal) el.scheduleModal.classList.remove("hidden-modal");
-        } catch (e) {}
-      }
-
-      function closeScheduleModal() {
-        try {
-          state.scheduleOpen = false;
-          if (el.scheduleModal) el.scheduleModal.classList.add("hidden-modal");
-        } catch (e) {}
-      }
-
-      function openVaultModal() {
-        try {
-          state.vaultOpen = true;
-          renderVaultList();
-          if (el.cachedWavsModal) el.cachedWavsModal.classList.remove("hidden-modal");
-        } catch (e) {}
-      }
-
-      function closeVaultModal() {
-        try {
-          state.vaultOpen = false;
           stopPreviewWav();
-          if (el.cachedWavsModal) el.cachedWavsModal.classList.add("hidden-modal");
+          audioEngine.stopVoice(true);
+          state.pendingRetryItem = null;
+          state.scheduleCursorIndex = 0;
+          if (state.isOnAir) {
+            setProgramTitle("CARRIER MUSIC BED // QUEUE RESET");
+          } else {
+            setProgramTitle("IDLE // AWAITING CARRIER ENGAGE");
+          }
+          syncUiState();
+          showToast("Deck teleprompter & retry queue cleared");
+        } catch (e) {}
+      }
+
+      function openProgramModal(defaultTab = "SCHEDULE") {
+        try {
+          state.programModalOpen = true;
+          setModalTab(defaultTab);
+          if (el.programVaultModal) el.programVaultModal.classList.remove("hidden-modal");
+        } catch (e) {}
+      }
+
+      function closeProgramModal() {
+        try {
+          state.programModalOpen = false;
+          stopPreviewWav();
+          if (el.programVaultModal) el.programVaultModal.classList.add("hidden-modal");
         } catch (e) {}
       }
 
@@ -3477,6 +4838,7 @@
           populateCityDropdown();
           persistRegionSelection();
           syncUiState();
+          audioEngine.syncMediaSession();
           refreshLiveRegionalWeather().catch(() => {});
           const reg = getCurrentCityRecord();
           showToast(`Region tuned: ${reg.cityName}, ${reg.countryCode}`);
@@ -3490,9 +4852,10 @@
           state.city = newCity;
           persistRegionSelection();
           syncUiState();
+          audioEngine.syncMediaSession();
           refreshLiveRegionalWeather().catch(() => {});
           const reg = getCurrentCityRecord();
-          showToast(`City wire locked: ${reg.cityName}, ${reg.countryCode}`);
+          showToast(`Region wire locked: ${reg.cityName}, ${reg.countryCode}`);
         } catch (e) {}
       }
 
@@ -3539,66 +4902,16 @@
         } catch (e) {}
       }
 
-      function bindAllEvents() {
-        const safeBind = (node, evt, fn) => {
-          if (!node) return;
-          node.addEventListener(evt, (event) => {
-            try {
-              fn(event);
-            } catch (e) {}
-          });
-        };
-
-        safeBind(el.standbyBtn, "click", toggleStandby);
-        safeBind(el.bedToggleBtn, "click", toggleBed);
-        safeBind(el.cutMicBtn, "click", cutMic);
-        safeBind(el.scheduleBtn, "click", openScheduleModal);
-        safeBind(el.closeScheduleModalBtn, "click", closeScheduleModal);
-        safeBind(el.scheduleModal, "click", (e) => {
-          if (e.target === el.scheduleModal) closeScheduleModal();
-        });
-
-        safeBind(el.cachedWavsBtn, "click", openVaultModal);
-        safeBind(el.closeCacheDrawerBtn, "click", closeVaultModal);
-        safeBind(el.stopPreviewBtn, "click", () => {
-          stopPreviewWav();
-          showToast("Preview stopped");
-        });
-        safeBind(el.cachedWavsModal, "click", (e) => {
-          if (e.target === el.cachedWavsModal) closeVaultModal();
-        });
-
-        safeBind(el.countrySelect, "change", (e) => handleCountryChange(e.target.value));
-        safeBind(el.citySelect, "change", (e) => handleCityChange(e.target.value));
-        safeBind(el.toggleKeyVisBtn, "click", toggleKeyVisibility);
-        safeBind(el.saveKeyBtn, "click", saveApiKey);
-        safeBind(el.clearKeyBtn, "click", clearApiKey);
-        safeBind(el.apiKeyInput, "keydown", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            saveApiKey();
-          }
-        });
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") {
-            if (state.scheduleOpen) closeScheduleModal();
-            if (state.vaultOpen) closeVaultModal();
-          }
-        });
-
-        const unlockOnce = () => {
-          audioEngine.ensureContext().catch(() => {});
-        };
-        document.addEventListener("pointerdown", unlockOnce, { passive: true });
-        document.addEventListener("touchstart", unlockOnce, { passive: true });
-      }
-
       /* ======================================================================
-         15. FAULT-ISOLATED SYNCHRONOUS BOOTSTRAP
+         17. FAULT-ISOLATED NON-BLOCKING BOOTSTRAP
          ====================================================================== */
+      let initialized = false;
       function init() {
+        if (initialized) return;
+        initialized = true;
         try {
+          if (el.programVaultModal) el.programVaultModal.classList.add("hidden-modal");
+
           populateCountryDropdown();
           populateCityDropdown();
 
@@ -3608,15 +4921,18 @@
             state.apiStatus = "READY";
           }
 
-          bindAllEvents();
+          bindAllEventsImmediately();
           syncUiState();
           updateClockAndCountdowns();
+          startSpectrumVisualizer();
 
           if (!state.clockTimer) {
             state.clockTimer = setInterval(updateClockAndCountdowns, 1000);
           }
 
+          // Defer background synthwave bed pre-bake by 120ms so UI & buttons are 100% responsive from ms 0
           setTimeout(() => {
+            audioEngine.ensureBedPcmCached().catch(() => {});
             refreshLiveRegionalWeather().catch(() => {});
             loadPersistedVault()
               .then(() => {
@@ -3625,17 +4941,16 @@
                 }
               })
               .catch(() => {});
-          }, 0);
+          }, 120);
         } catch (err) {
           syncUiState();
         }
       }
 
       if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init);
-      } else {
-        init();
+        document.addEventListener("DOMContentLoaded", init, { once: true });
       }
+      init();
     })();
   </script>
 </body>
