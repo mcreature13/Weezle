@@ -198,11 +198,11 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 9px;
+      gap: 8px;
       height: 44px;
       min-height: 44px;
-      min-width: 156px;
-      padding: 0 16px;
+      min-width: 178px;
+      padding: 0 14px;
       border-radius: 7px;
       font-family: var(--font-mono);
       font-size: 12px;
@@ -214,7 +214,7 @@
       background: linear-gradient(180deg, #332714 0%, #1a1308 100%);
       color: #fde68a;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 224, 150, 0.25);
-      transition: transform 0.07s ease, background 0.15s ease, border-color 0.15s ease;
+      transition: transform 0.07s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
     }
 
     .standby-rocker:active {
@@ -227,6 +227,51 @@
       border-radius: 50%;
       background: var(--vfd-amber);
       box-shadow: 0 0 8px var(--vfd-amber-glow);
+      flex-shrink: 0;
+    }
+
+    /* Retro lock indicator lamp on the STANDBY rocker */
+    .standby-rocker .retro-lock-lamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      border: 1px solid rgba(255, 176, 32, 0.55);
+      background: rgba(24, 15, 4, 0.92);
+      color: var(--vfd-amber);
+      box-shadow: inset 0 0 6px rgba(255, 176, 32, 0.25);
+      flex-shrink: 0;
+    }
+
+    .standby-rocker .retro-lock-lamp::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--vfd-amber);
+      box-shadow: 0 0 7px var(--vfd-amber);
+    }
+
+    .standby-rocker.key-locked {
+      opacity: 0.72;
+      cursor: not-allowed;
+      border-color: rgba(255, 176, 32, 0.45);
+    }
+
+    .standby-rocker:not(.key-locked) .retro-lock-lamp {
+      border-color: rgba(41, 240, 137, 0.5);
+      background: rgba(5, 24, 15, 0.9);
+      color: var(--vfd-green);
+      box-shadow: inset 0 0 6px rgba(41, 240, 137, 0.2);
+    }
+
+    .standby-rocker:not(.key-locked) .retro-lock-lamp::before {
+      background: var(--vfd-green);
+      box-shadow: 0 0 7px var(--vfd-green);
     }
 
     .standby-rocker.on-air {
@@ -858,11 +903,13 @@
               <button
                 type="button"
                 id="standbyBtn"
-                class="standby-rocker"
+                class="standby-rocker key-locked"
                 aria-pressed="false"
+                aria-disabled="true"
               >
                 <span class="rocker-led" aria-hidden="true"></span>
                 <span id="standbyBtnLabel">STANDBY</span>
+                <span id="standbyLockLamp" class="retro-lock-lamp" aria-hidden="true">LOCKED</span>
               </button>
             </div>
           </div>
@@ -1135,7 +1182,8 @@
       const RATE_LIMIT_COOLDOWN_MS = 120000;
       const ERROR_COOLDOWN_MS = 45000;
       const CONSECUTIVE_ERROR_TRIP_THRESHOLD = 2;
-      const BUTTON_DEBOUNCE_MS = 300;
+      const BUTTON_DEBOUNCE_MS = 180;
+      const GEMINI_TIMEOUT_MS = 12000;    // Strict 12s API timeout
 
       // Bed level & ducking targets: 0.90x during bed/cruise, 0.08x during speech
       const BED_CRUISE_GAIN = 0.90;
@@ -1143,6 +1191,7 @@
       const BED_SPEECH_DUCK_GAIN = 0.08;
 
       const memoryStore = new Map();
+      const buttonLastClickAt = new Map();
 
       function getStore(key) {
         try {
@@ -1171,15 +1220,21 @@
         return getStore(STORAGE_KEY_NAME).trim();
       }
 
+      // STANDBY unlocks as soon as a non-empty Gemini API key is loaded or saved
       function hasApiKey() {
-        return getApiKey().length > 10;
+        return getApiKey().length > 0;
+      }
+
+      function passButtonDebounce(key) {
+        const now = Date.now();
+        const prev = Number(buttonLastClickAt.get(key) || 0);
+        if (now - prev < BUTTON_DEBOUNCE_MS) return false;
+        buttonLastClickAt.set(key, now);
+        return true;
       }
 
       /* ======================================================================
          2. EXHAUSTIVE COUNTRY & COUNTY / STATE / REGION DIRECTORY
-            (All 32 counties of Ireland defaulting to Dublin, all 8 AU states/territories,
-             all 50 US states + DC, all UK nations & counties, all 13 CA provinces/territories,
-             and all 16 NZ regions)
          ====================================================================== */
       function buildCitiesMap(entries, defaultCorridors, rssUrl) {
         const out = {};
@@ -1603,7 +1658,6 @@
         apiStatus: "IDLE",
         apiLastRttMs: null,
         inFlightSynthesis: new Map(),
-        buttonLastClickAt: new Map(),
         schedulerTimer: null,
         clockTimer: null,
         watchdogTimer: null,
@@ -1640,6 +1694,7 @@
         citySelect: document.getElementById("citySelect"),
         standbyBtn: document.getElementById("standbyBtn"),
         standbyBtnLabel: document.getElementById("standbyBtnLabel"),
+        standbyLockLamp: document.getElementById("standbyLockLamp"),
         bedToggleBtn: document.getElementById("bedToggleBtn"),
         bedToggleBtnText: document.getElementById("bedToggleBtnText"),
         cutMicBtn: document.getElementById("cutMicBtn"),
@@ -1666,149 +1721,7 @@
       };
 
       /* ======================================================================
-         5. IMMEDIATE BUTTON & CONTROL BINDING (BOUND FIRST, ZERO BLOCKING)
-         ====================================================================== */
-      function passButtonDebounce(btnKey) {
-        const now = Date.now();
-        const last = state.buttonLastClickAt.get(btnKey) || 0;
-        if (now - last < BUTTON_DEBOUNCE_MS) return false;
-        state.buttonLastClickAt.set(btnKey, now);
-        return true;
-      }
-
-      let eventsBound = false;
-      function bindAllEventsImmediately() {
-        if (eventsBound) return;
-        eventsBound = true;
-
-        const bindClick = (node, key, fn) => {
-          if (!node) return;
-          node.addEventListener("click", (event) => {
-            event.stopPropagation();
-            if (!passButtonDebounce(key)) return;
-            try {
-              fn(event);
-            } catch (e) {}
-          });
-        };
-
-        bindClick(el.standbyBtn, "standbyBtn", toggleStandby);
-        bindClick(el.bedToggleBtn, "bedToggleBtn", toggleBed);
-        bindClick(el.cutMicBtn, "cutMicBtn", cutMic);
-        bindClick(el.programBtn, "programBtn", () => openProgramModal("SCHEDULE"));
-        bindClick(el.clearDeckBtn, "clearDeckBtn", clearDeckReset);
-        bindClick(el.closeProgramModalBtn, "closeProgramModalBtn", closeProgramModal);
-        bindClick(el.tabScheduleBtn, "tabScheduleBtn", () => setModalTab("SCHEDULE"));
-        bindClick(el.tabVaultBtn, "tabVaultBtn", () => setModalTab("VAULT"));
-        bindClick(el.stopPreviewBtn, "stopPreviewBtn", () => {
-          stopPreviewWav();
-          showToast("Preview stopped");
-        });
-        bindClick(el.saveExportVaultBtn, "saveExportVaultBtn", () => {
-          exportVaultOrBedWav().catch(() => {});
-        });
-        bindClick(el.clearAllVaultBtn, "clearAllVaultBtn", () => {
-          clearAllVaultClips().catch(() => {});
-        });
-        bindClick(el.hydrateVaultBtn, "hydrateVaultBtn", () => {
-          loadPersistedVault()
-            .then(() => {
-              if (hasApiKey() && !isApiCoolingDown()) {
-                return bakeBothSloganWavsOnce();
-              }
-            })
-            .then(() => {
-              renderVaultList();
-              showToast("Vault hydrated");
-            })
-            .catch(() => {});
-        });
-        bindClick(el.toggleKeyVisBtn, "toggleKeyVisBtn", toggleKeyVisibility);
-        bindClick(el.saveKeyBtn, "saveKeyBtn", saveApiKey);
-        bindClick(el.clearKeyBtn, "clearKeyBtn", clearApiKey);
-
-        if (el.programVaultModal) {
-          el.programVaultModal.addEventListener("click", (e) => {
-            if (e.target === el.programVaultModal) closeProgramModal();
-          });
-        }
-
-        if (el.countrySelect) {
-          el.countrySelect.addEventListener("change", (e) => handleCountryChange(e.target.value));
-        }
-        if (el.citySelect) {
-          el.citySelect.addEventListener("change", (e) => handleCityChange(e.target.value));
-        }
-        if (el.apiKeyInput) {
-          el.apiKeyInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              if (passButtonDebounce("saveKeyBtn")) saveApiKey();
-            }
-          });
-        }
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape" && state.programModalOpen) {
-            closeProgramModal();
-          }
-        });
-
-        // Screen-lock sharp-tone prevention + seamless post-unlock recovery
-        document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "hidden") {
-            audioEngine.muteBeforeSleep();
-          } else if (document.visibilityState === "visible") {
-            if (state.isOnAir) {
-              audioEngine.acquireWakeLock().catch(() => {});
-            }
-            if (state.isOnAir || state.musicBedOn) {
-              audioEngine.recoverAfterUnlock(false).catch(() => {});
-            }
-          }
-        });
-
-        window.addEventListener("pagehide", () => {
-          audioEngine.muteBeforeSleep();
-        });
-
-        window.addEventListener("focus", () => {
-          if (state.isOnAir) {
-            audioEngine.acquireWakeLock().catch(() => {});
-          }
-          if (state.isOnAir || state.musicBedOn) {
-            audioEngine.recoverAfterUnlock(false).catch(() => {});
-          }
-        });
-
-        window.addEventListener("pageshow", () => {
-          if (state.isOnAir) {
-            audioEngine.acquireWakeLock().catch(() => {});
-          }
-          if (state.isOnAir || state.musicBedOn) {
-            audioEngine.recoverAfterUnlock(false).catch(() => {});
-          }
-        });
-
-        // Trusted-gesture Web Audio restoration (passive & non-blocking; only runs when needed)
-        const handlePostLockGesture = () => {
-          if (!state.isOnAir && !state.musicBedOn) return;
-          const ctxNotRunning = !audioEngine.ctx || audioEngine.ctx.state !== "running";
-          if (audioEngine.needsGestureRecovery || ctxNotRunning) {
-            audioEngine.recoverAfterUnlock(true).catch(() => {});
-          }
-        };
-
-        document.addEventListener("pointerdown", handlePostLockGesture, { passive: true });
-        document.addEventListener("touchstart", handlePostLockGesture, { passive: true });
-        document.addEventListener("click", handlePostLockGesture, { passive: true });
-      }
-
-      // Bind listeners immediately before any async work or audio rendering
-      bindAllEventsImmediately();
-
-      /* ======================================================================
-         6. UI HELPERS, API TELEMETRY & CLOCK
+         5. UI HELPERS, STANDBY LOCK INDICATOR, API TELEMETRY & CLOCK
          ====================================================================== */
       let toastTimeout = null;
       function showToast(msg) {
@@ -1821,6 +1734,25 @@
             if (el.mcaToast) el.mcaToast.classList.remove("show");
           }, 2400);
         } catch (e) {}
+      }
+
+      function syncStandbyLockIndicator() {
+        const unlocked = hasApiKey();
+        if (!unlocked && state.isOnAir) {
+          state.isOnAir = false;
+          state.musicBedOn = false;
+          if (typeof audioEngine !== "undefined" && audioEngine) {
+            audioEngine.stopVoice(false);
+            audioEngine.stopBed(120);
+          }
+        }
+        if (el.standbyBtn) {
+          el.standbyBtn.classList.toggle("key-locked", !unlocked);
+          el.standbyBtn.setAttribute("aria-disabled", unlocked ? "false" : "true");
+        }
+        if (el.standbyLockLamp) {
+          el.standbyLockLamp.textContent = unlocked ? "UNLOCKED" : "LOCKED";
+        }
       }
 
       function formatMmSs(ms) {
@@ -1944,6 +1876,7 @@
       }
 
       function syncUiState() {
+        syncStandbyLockIndicator();
         const reg = getCurrentCityRecord();
         const sloganCount = (state.sloganMarcusWavBlob ? 1 : 0) + (state.sloganDonnaWavBlob ? 1 : 0);
         const retryCount = state.pendingRetryItem ? 1 : 0;
@@ -2017,7 +1950,7 @@
       }
 
       /* ======================================================================
-         7. CONNECTED COUNTRY & CITY DROPDOWNS + LIVE OPEN-METEO WEATHER
+         6. CONNECTED COUNTRY & CITY DROPDOWNS + LIVE OPEN-METEO WEATHER
          ====================================================================== */
       function persistRegionSelection() {
         setStore(LS_LOC_STATE, JSON.stringify({
@@ -2092,11 +2025,8 @@
         } catch (e) {}
       }
 
-      populateCountryDropdown();
-      populateCityDropdown();
-
       /* ======================================================================
-         8. INDEXEDDB CACHED WAV VAULT (UP TO 24 CLIPS, EXCLUDING NEWS/WEATHER)
+         7. INDEXEDDB CACHED WAV VAULT (UP TO 24 CLIPS, EXCLUDING NEWS/WEATHER)
          ====================================================================== */
       let idbPromise = null;
       function openVaultDb() {
@@ -2204,9 +2134,28 @@
             state.vaultClips = list
               .filter((c) => c && c.wavBlob instanceof Blob && c.category !== "NEWS" && c.category !== "WEATHER")
               .slice(0, MAX_VAULT_CLIPS);
+            if (!state.sloganMarcusWavBlob) {
+              const mClip = state.vaultClips.find((c) => c.category === "SLOGAN" && /marcus/i.test(c.title || ""));
+              if (mClip) state.sloganMarcusWavBlob = mClip.wavBlob;
+            }
+            if (!state.sloganDonnaWavBlob) {
+              const dClip = state.vaultClips.find((c) => c.category === "SLOGAN" && /donna/i.test(c.title || ""));
+              if (dClip) state.sloganDonnaWavBlob = dClip.wavBlob;
+            }
           }
         } catch (e) {}
         syncUiState();
+      }
+
+      async function getCachedSloganFallbackWav(preferredSpeaker = "") {
+        if (!state.sloganMarcusWavBlob || !state.sloganDonnaWavBlob) {
+          await loadPersistedVault();
+        }
+        const wantsDonna = /donna/i.test(String(preferredSpeaker || ""));
+        if (wantsDonna) {
+          return state.sloganDonnaWavBlob || state.sloganMarcusWavBlob || null;
+        }
+        return state.sloganMarcusWavBlob || state.sloganDonnaWavBlob || null;
       }
 
       async function exportVaultOrBedWav() {
@@ -2394,7 +2343,7 @@
       }
 
       /* ======================================================================
-         9. GEMINI API (SCRIPT GENERATION + TTS WAV PCM ENCODER)
+         8. GEMINI API (12s TIMEOUT + SCRIPT GENERATION + TTS WAV PCM ENCODER)
          ====================================================================== */
       function base64ToUint8Array(base64) {
         const clean = String(base64 || "").replace(/[^A-Za-z0-9+/=]/g, "");
@@ -2464,7 +2413,7 @@
         if (!apiKey || isApiCoolingDown()) return null;
 
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 9000);
+        const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
         const startedAt = performance.now();
 
         state.apiCallsCount += 1;
@@ -2525,6 +2474,15 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           return null;
         } catch (e) {
           clearTimeout(timer);
+          state.apiLastRttMs = Math.max(1, Math.round(performance.now() - startedAt));
+          state.apiConsecutiveErrors += 1;
+          const isTimeout = e && e.name === "AbortError";
+          if (state.apiConsecutiveErrors >= CONSECUTIVE_ERROR_TRIP_THRESHOLD) {
+            tripApiCooldown(ERROR_COOLDOWN_MS, isTimeout ? "12S TIMEOUT" : "API ERR PAUSE");
+          } else {
+            state.apiStatus = isTimeout ? "12S TIMEOUT" : "API ERR";
+            syncApiTelemetryUi();
+          }
           return null;
         }
       }
@@ -2542,7 +2500,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
         const promptText = `Voice Direction: ${roster.style}\nSpeak this radio line naturally in character without reading stage directions:\n"${lineObj.text}"`;
 
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 16000);
+        const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
         const startedAt = performance.now();
 
         state.apiCallsCount += 1;
@@ -2630,10 +2588,11 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           clearTimeout(timer);
           state.apiLastRttMs = Math.max(1, Math.round(performance.now() - startedAt));
           state.apiConsecutiveErrors += 1;
+          const isTimeout = e && e.name === "AbortError";
           if (state.apiConsecutiveErrors >= CONSECUTIVE_ERROR_TRIP_THRESHOLD) {
-            tripApiCooldown(ERROR_COOLDOWN_MS, "TIMEOUT/ERR");
+            tripApiCooldown(ERROR_COOLDOWN_MS, isTimeout ? "12S TIMEOUT" : "API ERR PAUSE");
           } else {
-            state.apiStatus = "TIMEOUT/ERR";
+            state.apiStatus = isTimeout ? "12S TIMEOUT" : "TIMEOUT/ERR";
             syncApiTelemetryUi();
           }
           return null;
@@ -2714,16 +2673,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       }
 
       /* ======================================================================
-         10. DAFT PUNK / FRENCH TOUCH 128-BAR 48kHz SPACEY SYNTHWAVE BED
-         - Drum Voice Architecture (TR-909 + LinnDrum + Alesis 3630 Bus Pump):
-           * Four-on-the-floor TR-909 kick (220 Hz -> 50 Hz pitch sweep, 3.5 kHz
-             beater click, 118 Hz punch, warm analog saturation, 26% sidechain pump)
-           * Dual-partial TR-909 / LinnDrum snare (185 Hz + 330 Hz shell + dry 80s
-             LinnDrum crack) layered with triple-burst 909/808 handclap on beats 2 & 4
-           * Signature French Touch off-beat open 909 hi-hat on every "&" beat
-             (step % 4 === 2) + crisp 16th-note closed hats + 8-bar 909 tom fills
-         - Runs off the main UI thread inside an inline Web Worker with zero-copy
-           transferable Float32Array buffers (plus setTimeout(..., 16) fallback).
+         9. 128-BAR 48kHz SYNTHWAVE BED (SMOOTH LOW-END WITHOUT BUZZ/CLIPPING)
          ====================================================================== */
       async function buildSynthwaveBedPcmAsync() {
         const sampleRate = BED_SAMPLE_RATE;
@@ -2885,7 +2835,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           noisePool[n] = Math.max(-0.75, Math.min(0.75, nLp3 * 2.4));
         }
 
-        // Crisp high-frequency metallic noise pool for TR-909 / LinnDrum hats, snare wire & claps
         const crispNoisePool = new Float32Array(sampleRate * 2);
         let hpPrev = 0;
         for (let n = 0; n < crispNoisePool.length; n++) {
@@ -2921,7 +2870,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
         const hallIdxs = [0, 0, 0, 0];
         const hallDamps = [0, 0, 0, 0];
 
-        const bassFilter = makeSmoothLp(760, 2600);
+        const bassFilter = makeSmoothLp(460, 1800);
         const padFilterL = makeSmoothLp(1020, 1450);
         const padFilterR = makeSmoothLp(1060, 1450);
         const swellFilterL = makeSmoothLp(980, 1250);
@@ -2934,9 +2883,8 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
         const spaceMudHpL = makeOnePoleHp(290);
         const spaceMudHpR = makeOnePoleHp(290);
 
-        // Alesis 3630-style 26% sidechain bus pump on four-on-the-floor 909 kicks
-        const slewSidechain = makeSlewValue(1.0, 4.8 / sampleRate, 0.74, 1.0);
-        const slewBassFreq = makeSlewValue(55.0, 220.0 / sampleRate, 35.0, 160.0);
+        const slewSidechain = makeSlewValue(1.0, 4.8 / sampleRate, 0.78, 1.0);
+        const slewBassFreq = makeSlewValue(55.0, 200.0 / sampleRate, 36.0, 150.0);
         const slewBassEnv = makeSlewValue(0.75, 4.2 / sampleRate, 0.0, 1.15);
         const slewLeadFreq = makeSlewValue(220.0, 260.0 / sampleRate, 80.0, 900.0);
 
@@ -2983,7 +2931,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             const barIdx = Math.floor(barFloat);
             const barFrac = barFloat - barIdx;
             const barInSection = barIdx % 16;
-            const section = Math.floor(barIdx / 16); // 0..7 across 128 bars
+            const section = Math.floor(barIdx / 16);
 
             const beatFloat = barFrac * 4;
             const beatIdx = Math.floor(beatFloat);
@@ -3001,141 +2949,76 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
 
             const isHalfTimeBreakdown = (section === 2 || section === 6);
             const isMinimalCruise = (section === 4);
-            const isExpandedBridge = (section === 5);
             const isMidnightFinale = (section === 7);
             const isChorusPeak = (section === 1 || section === 3 || section === 5 || section === 7);
 
-            // 1. Daft Punk / TR-909 Four-on-the-Floor Kick (220 Hz -> 50 Hz pitch sweep, 3.5 kHz beater click, 118 Hz chest punch)
+            // 1. Clean, steady synthwave kick without harsh pitch-drop farts or abrupt transient spikes
             let kick = 0;
-            const kickDur = 0.28;
-            const kickOnBeat = isHalfTimeBreakdown
-              ? (beatIdx === 0 || beatIdx === 2)
-              : true; // Signature French house four-on-the-floor pulse
+            const kickDur = 0.25;
+            const kickOnBeat = isHalfTimeBreakdown ? (beatIdx === 0 || beatIdx === 2) : true;
             if (kickOnBeat && beatTime < kickDur) {
-              const kWin = hannMicroWindow(beatTime, kickDur, 0.0025, 0.045);
-              const kSubEnv = Math.exp(-beatTime * 11.8) * kWin;
-              const kPunchEnv = Math.exp(-beatTime * 22.0) * kWin;
-              const kBeaterEnv = Math.exp(-beatTime * 165.0) * kWin;
-              const kFreq = 50 + 170 * Math.exp(-beatTime * 115.0);
+              const kWin = hannMicroWindow(beatTime, kickDur, 0.004, 0.055);
+              const kSubEnv = Math.exp(-beatTime * 12.5) * kWin;
+              const kPunchEnv = Math.exp(-beatTime * 24.0) * kWin;
+              const kFreq = 48 + 44 * Math.exp(-beatTime * 46.0);
               const deepSub = Math.sin(2 * Math.PI * kFreq * beatTime) * kSubEnv * 0.74;
-              const chestPunch = Math.sin(2 * Math.PI * 118 * beatTime) * kPunchEnv * 0.38;
-              const beaterClick = (
-                Math.sin(2 * Math.PI * 3500 * beatTime) * 0.14 +
-                crispNoisePool[(i * 3 + 11) % crispNoisePool.length] * 0.16
-              ) * kBeaterEnv;
-              kick = Math.tanh((deepSub + chestPunch + beaterClick) * 1.25) * 0.48;
+              const chestPunch = Math.sin(2 * Math.PI * 98 * beatTime) * kPunchEnv * 0.20;
+              kick = (deepSub + chestPunch) * 0.39;
             }
 
-            // 2. TR-909 / LinnDrum Dual-Partial Snare + Triple-Burst 909/808 Handclap (Beats 2 & 4)
+            // 2. Smooth, uncluttered backbeat snare on beats 2 & 4 (no triple-clap bursts or harsh transients)
             let snareL = 0;
             let snareR = 0;
-            const snareDur = 0.25;
-            const snareHit = section === 0
-              ? (beatIdx === 3 && barIdx % 2 === 1)
-              : isHalfTimeBreakdown
-                ? (beatIdx === 2)
-                : (beatIdx === 1 || beatIdx === 3);
+            const snareDur = 0.22;
+            const snareHit = (!isHalfTimeBreakdown && section >= 1 && (beatIdx === 1 || beatIdx === 3))
+              || (isHalfTimeBreakdown && beatIdx === 2);
 
             if (snareHit && beatTime < snareDur) {
-              const sWin = hannMicroWindow(beatTime, snareDur, 0.003, 0.042);
-              // Dual-partial 909 body (185 Hz + 330 Hz) with crisp pitch transient
-              const p1 = 185 + 75 * Math.exp(-beatTime * 80.0);
-              const p2 = 330 + 110 * Math.exp(-beatTime * 95.0);
-              const body909 = (
-                Math.sin(2 * Math.PI * p1 * beatTime) * Math.exp(-beatTime * 17.5) * 0.56 +
-                Math.sin(2 * Math.PI * p2 * beatTime) * Math.exp(-beatTime * 24.0) * 0.30
-              ) * sWin;
+              const sWin = hannMicroWindow(beatTime, snareDur, 0.005, 0.05);
+              const sBodyFreq = 180 + 38 * Math.exp(-beatTime * 55.0);
+              const bodyTone = Math.sin(2 * Math.PI * sBodyFreq * beatTime) * Math.exp(-beatTime * 21.0) * sWin * 0.42;
 
-              // Dry, snappy LinnDrum snare wire crack
-              const nIdxL = (i * 2 + 23) % crispNoisePool.length;
-              const nIdxR = (i * 2 + 197) % crispNoisePool.length;
-              const linnCrackEnv = Math.exp(-beatTime * 26.0) * sWin;
-              const linnCrackL = crispNoisePool[nIdxL] * linnCrackEnv * 0.42;
-              const linnCrackR = crispNoisePool[nIdxR] * linnCrackEnv * 0.42;
+              const nIdxL = (i * 2 + 23) % noisePool.length;
+              const nIdxR = (i * 2 + 197) % noisePool.length;
+              const noiseEnv = Math.exp(-beatTime * 24.0) * sWin;
+              const softNoiseL = noisePool[nIdxL] * noiseEnv * 0.24;
+              const softNoiseR = noisePool[nIdxR] * noiseEnv * 0.24;
 
-              // Triple-burst 909/808 handclap (0 ms, 11 ms, 22 ms micro-transients + wide stereo tail)
-              let clapEnv = 0;
-              if (beatTime < 0.011) {
-                clapEnv = Math.exp(-beatTime * 110.0) * 0.85;
-              } else if (beatTime < 0.022) {
-                clapEnv = Math.exp(-(beatTime - 0.011) * 110.0) * 0.92;
-              } else if (beatTime < 0.033) {
-                clapEnv = Math.exp(-(beatTime - 0.022) * 105.0) * 1.0;
-              } else {
-                clapEnv = Math.exp(-(beatTime - 0.033) * 21.0) * 0.78;
-              }
-              const clapL = crispNoisePool[(i * 5 + 41) % crispNoisePool.length] * clapEnv * sWin * 0.34;
-              const clapR = crispNoisePool[(i * 5 + 509) % crispNoisePool.length] * clapEnv * sWin * 0.34;
-
-              snareL = Math.tanh((body909 + linnCrackL + clapL) * 1.15) * 0.40;
-              snareR = Math.tanh((body909 + linnCrackR + clapR) * 1.15) * 0.40;
+              snareL = (bodyTone + softNoiseL) * 0.30;
+              snareR = (bodyTone + softNoiseR) * 0.30;
             }
 
-            // 3. Signature French Touch Off-Beat Open 909 Hi-Hat (step % 4 === 2) + 16th-Note Closed Hats
+            // 3. Light, steady closed 8th/16th hats with smooth decay (no metallic spikes or jarring open-hat jumps)
             let hatL = 0;
             let hatR = 0;
-            const sixteenthFloat = barFrac * 16;
-            const step16 = Math.floor(sixteenthFloat);
-            const step16Time = (sixteenthFloat - step16) * (beatSec * 0.25);
-            const isOffBeatOpenHat = (step16 % 4 === 2);
+            const eighthFloat = barFrac * 8;
+            const step8 = Math.floor(eighthFloat);
+            const step8Time = (eighthFloat - step8) * (beatSec * 0.5);
 
             if (section >= 1 && !isHalfTimeBreakdown) {
-              const pIdxL = (i * 3 + 73 + step16 * 19) % crispNoisePool.length;
-              const pIdxR = (i * 3 + 313 + step16 * 29) % crispNoisePool.length;
-              // Metallic 909 square-inharmonic ring mixed with filtered crisp noise
-              const metal909 = (
-                Math.sin(2 * Math.PI * 5230 * step16Time) * 0.18 +
-                Math.sin(2 * Math.PI * 3810 * step16Time) * 0.16
-              );
-
-              if (isOffBeatOpenHat) {
-                const openDur = 0.21;
-                if (step16Time < openDur) {
-                  const oWin = hannMicroWindow(step16Time, openDur, 0.002, 0.035);
-                  const oEnv = Math.exp(-step16Time * 13.5) * oWin;
-                  const oAmp = isChorusPeak ? 0.135 : 0.115;
-                  hatL = (crispNoisePool[pIdxL] * 0.82 + metal909) * oEnv * oAmp;
-                  hatR = (crispNoisePool[pIdxR] * 0.82 - metal909) * oEnv * oAmp;
-                }
-              } else {
-                const closedDur = 0.065;
-                if (step16Time < closedDur) {
-                  const cWin = hannMicroWindow(step16Time, closedDur, 0.0015, 0.015);
-                  const cEnv = Math.exp(-step16Time * 52.0) * cWin;
-                  const ghostScale = (step16 % 4 === 0) ? 0.042 : 0.064;
-                  hatL = (crispNoisePool[pIdxL] * 0.85 + metal909 * 0.5) * cEnv * ghostScale;
-                  hatR = (crispNoisePool[pIdxR] * 0.85 - metal909 * 0.5) * cEnv * ghostScale;
-                }
+              const hatDur = 0.055;
+              if (step8Time < hatDur) {
+                const hWin = hannMicroWindow(step8Time, hatDur, 0.004, 0.018);
+                const hEnv = Math.exp(-step8Time * 48.0) * hWin;
+                const hIdxL = (i * 2 + 73 + step8 * 17) % noisePool.length;
+                const hIdxR = (i * 2 + 313 + step8 * 23) % noisePool.length;
+                const accent = (step8 % 2 === 1) ? 0.052 : 0.032;
+                hatL = noisePool[hIdxL] * hEnv * accent;
+                hatR = noisePool[hIdxR] * hEnv * accent;
               }
             }
 
-            // 4. 8-Bar TR-909 / LinnDrum Pitched Tom Fills + Section-Start Air Shimmer
+            // 4. Clean section-start swell with no awkward tom rolls or harsh crash noise
             let crash = 0;
-            const crashDur = 1.45;
+            const crashDur = 1.6;
             if ((section === 1 || section === 3 || section === 5 || section === 7) && barInSection === 0 && barTime < crashDur) {
-              const cWin = hannMicroWindow(barTime, crashDur, 0.08, 0.35);
-              const cIdx = (i + 311) % crispNoisePool.length;
-              crash += crispNoisePool[cIdx] * Math.exp(-barTime * 2.4) * cWin * 0.042;
-            }
-            if (section >= 1 && (barIdx % 8 === 7) && beatIdx >= 2) {
-              const fillStep = Math.floor((barFrac - 0.5) * 8); // 0..3 over beats 3 & 4
-              const fillTime = ((barFrac - 0.5) * 8 - fillStep) * (beatSec * 0.5);
-              const tomDur = 0.21;
-              if (fillStep >= 0 && fillStep < 4 && fillTime < tomDur) {
-                const tomStarts = [260, 212, 174, 138];
-                const tomEnds = [132, 108, 88, 70];
-                const tWin = hannMicroWindow(fillTime, tomDur, 0.003, 0.04);
-                const tFreq = tomEnds[fillStep] + (tomStarts[fillStep] - tomEnds[fillStep]) * Math.exp(-fillTime * 28.0);
-                const tomSnap = crispNoisePool[(i * 2 + 89) % crispNoisePool.length] * Math.exp(-fillTime * 65.0) * 0.25;
-                const tomTone = (Math.sin(2 * Math.PI * tFreq * fillTime) + tomSnap) * Math.exp(-fillTime * 14.5) * tWin;
-                crash += Math.tanh(tomTone * 1.2) * 0.28;
-              }
+              const cWin = hannMicroWindow(barTime, crashDur, 0.14, 0.45);
+              const cIdx = (i + 311) % noisePool.length;
+              crash = noisePool[cIdx] * Math.exp(-barTime * 2.1) * cWin * 0.025;
             }
 
-            // 5. Punchy, defined analog bass with crisp attack pluck & 110–220 Hz harmonic clarity
-            const targetBassFreq = (isHalfTimeBreakdown || halfBarIdx === 0)
-              ? chord.bass
-              : chord.root;
+            // 5. Smooth, clean analog sub-sine + triangle bass (no buzz or overdrive artifacts)
+            const targetBassFreq = (isHalfTimeBreakdown || halfBarIdx === 0) ? chord.bass : chord.root;
             const bassFreq = slewBassFreq(targetBassFreq);
             const rawBassEnv = isHalfTimeBreakdown
               ? (0.52 + 0.48 * Math.exp(-barFrac * 2.4))
@@ -3146,19 +3029,18 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             const pBassMain = bassOscPhaseAcc(bassFreq);
             const pBassTri = bassTriPhaseAcc(bassFreq * 2.0);
 
-            const subWeight = Math.sin(2 * Math.PI * pSub) * 0.44;
+            const subWeight = Math.sin(2 * Math.PI * pSub) * 0.56;
             const bassOsc =
-              Math.sin(2 * Math.PI * pBassMain) * 0.36 +
-              warmSawFromPhase(pBassMain, 0.38) * 0.34 +
-              softTriFromPhase(pBassTri) * 0.30;
-            const bassCut = 560 + 480 * Math.exp(-halfBarTime * 4.8) + (isChorusPeak ? 160 : 0);
+              Math.sin(2 * Math.PI * pBassMain) * 0.46 +
+              softTriFromPhase(pBassMain) * 0.34 +
+              softTriFromPhase(pBassTri) * 0.20;
+            const bassCut = 420 + 280 * Math.exp(-halfBarTime * 4.8) + (isChorusPeak ? 90 : 0);
             const bassFiltered = bassFilter.process(bassOsc * bassEnv, bassCut);
-            // Alesis 3630 French Touch sidechain pump triggered on every 909 kick
-            const targetSidechain = kickOnBeat ? Math.min(1.0, 0.74 + beatTime * 1.45) : 1.0;
+            const targetSidechain = kickOnBeat ? Math.min(1.0, 0.78 + beatTime * 1.45) : 1.0;
             const sidechain = slewSidechain(targetSidechain);
-            const bass = (subWeight * (isHalfTimeBreakdown ? 0.76 : 0.62) + bassFiltered * 0.74) * (0.48 * sidechain);
+            const bass = (subWeight * (isHalfTimeBreakdown ? 0.72 : 0.60) + bassFiltered * 0.68) * (0.44 * sidechain);
 
-            // 6. Warm, silky detuned unison pad + high-passed stereo space chorus (~18% lower headroom)
+            // 6. Warm detuned unison pad + high-passed stereo space chorus
             let padRawL = 0;
             let padRawR = 0;
             const sweepLfo = 0.5 + 0.5 * Math.sin(2 * Math.PI * (1 / (barSec * 12)) * t);
@@ -3179,14 +3061,14 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
               const pR2 = acc.r2(fR2);
 
               const vL = (
-                warmSawFromPhase(pL1, 0.24) * 0.22 +
+                warmSawFromPhase(pL1, 0.22) * 0.20 +
                 softTriFromPhase(pL2) * 0.48 +
-                Math.sin(2 * Math.PI * pL1) * 0.30
+                Math.sin(2 * Math.PI * pL1) * 0.32
               );
               const vR = (
-                warmSawFromPhase(pR1, 0.24) * 0.22 +
+                warmSawFromPhase(pR1, 0.22) * 0.20 +
                 softTriFromPhase(pR2) * 0.48 +
-                Math.sin(2 * Math.PI * pR1) * 0.30
+                Math.sin(2 * Math.PI * pR1) * 0.32
               );
               padRawL += vL * 0.25;
               padRawR += vR * 0.25;
@@ -3203,8 +3085,8 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             chorusLpL += 0.16 * (chorTapL - chorusLpL);
             chorusLpR += 0.16 * (chorTapR - chorusLpR);
 
-            chorusDelayL[chorusIdx] = Math.tanh((padRawL + chorusLpR * 0.20) * 0.95);
-            chorusDelayR[chorusIdx] = Math.tanh((padRawR + chorusLpL * 0.20) * 0.95);
+            chorusDelayL[chorusIdx] = Math.tanh((padRawL + chorusLpR * 0.20) * 0.92);
+            chorusDelayR[chorusIdx] = Math.tanh((padRawR + chorusLpL * 0.20) * 0.92);
             chorusIdx = (chorusIdx + 1) % chorusDelayL.length;
 
             const padLevel = isMinimalCruise ? 0.155 : 0.188;
@@ -3213,7 +3095,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             const padL = padFilterL.process(padMixL, padCutoff) * sidechain * padLevel;
             const padR = padFilterR.process(padMixR, padCutoff) * sidechain * padLevel;
 
-            // 7. Warm half-note harmonic chord swells (~18% lower headroom so drums sit forward)
+            // 7. Warm half-note harmonic chord swells
             let swellL = 0;
             let swellR = 0;
             if (section >= 1 && !isHalfTimeBreakdown && !isMinimalCruise) {
@@ -3246,7 +3128,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
               swellR += peakBlend * barSwell * 0.046;
             }
 
-            // 8. Lush extended 5-note synth chords on breakdowns & cruise sections (~18% lower headroom)
+            // 8. Lush extended 5-note synth chords on breakdowns & cruise sections
             let bellL = 0;
             let bellR = 0;
             if ((isHalfTimeBreakdown || section === 3 || section === 4 || section === 6) && halfBarTime < halfBarSec) {
@@ -3268,7 +3150,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
               bellR = smoothChordR * 0.118;
             }
 
-            // 9. Continuous-phase warm midnight synth lead with slew-limited pitch
+            // 9. Continuous-phase warm midnight synth lead
             let leadL = 0;
             let leadR = 0;
             if (isMidnightFinale) {
@@ -3286,15 +3168,15 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             }
 
             // 10. High-passed stereo space delay + warm damped 4-tap algorithmic hall tail
-            const sendL = swellL * 0.28 + leadL * 0.28 + bellL * 0.26 + padL * 0.16 + snareL * 0.06;
-            const sendR = swellR * 0.28 + leadR * 0.28 + bellR * 0.26 + padR * 0.16 + snareR * 0.06;
+            const sendL = swellL * 0.28 + leadL * 0.28 + bellL * 0.26 + padL * 0.16 + snareL * 0.03;
+            const sendR = swellR * 0.28 + leadR * 0.28 + bellR * 0.26 + padR * 0.16 + snareR * 0.03;
 
             const echoOutL = echoBufL[echoIdxL];
             const echoOutR = echoBufR[echoIdxR];
             echoLpL += 0.15 * (echoOutL - echoLpL);
             echoLpR += 0.15 * (echoOutR - echoLpR);
-            echoBufL[echoIdxL] = Math.max(-0.86, Math.min(0.86, Math.tanh((sendL + echoLpR * 0.34) * 0.94)));
-            echoBufR[echoIdxR] = Math.max(-0.86, Math.min(0.86, Math.tanh((sendR + echoLpL * 0.34) * 0.94)));
+            echoBufL[echoIdxL] = Math.max(-0.86, Math.min(0.86, Math.tanh((sendL + echoLpR * 0.34) * 0.92)));
+            echoBufR[echoIdxR] = Math.max(-0.86, Math.min(0.86, Math.tanh((sendR + echoLpL * 0.34) * 0.92)));
             echoIdxL = (echoIdxL + 1) % echoLenL;
             echoIdxR = (echoIdxR + 1) % echoLenR;
 
@@ -3311,7 +3193,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
               const nextTap = (tap + 1) % 4;
               const fbFeed = Math.max(-0.72, Math.min(0.72, hallDamps[nextTap] * 0.40));
               const tapPan = (tap % 2 === 0) ? 0.72 : 0.28;
-              buf[hIdx] = Math.max(-0.86, Math.min(0.86, Math.tanh((monoSend * (0.36 + tap * 0.04) + fbFeed) * 0.94)));
+              buf[hIdx] = Math.max(-0.86, Math.min(0.86, Math.tanh((monoSend * (0.36 + tap * 0.04) + fbFeed) * 0.92)));
               hallIdxs[tap] = (hIdx + 1) % buf.length;
 
               hallSumL += dampedTap * tapPan;
@@ -3328,8 +3210,8 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
 
             const cleanL = dcBlockL(rawSumL);
             const cleanR = dcBlockR(rawSumR);
-            const warmL = Math.tanh(cleanL * 0.94) * 0.92;
-            const warmR = Math.tanh(cleanR * 0.94) * 0.92;
+            const warmL = Math.max(-0.92, Math.min(0.92, cleanL * 0.88));
+            const warmR = Math.max(-0.92, Math.min(0.92, cleanR * 0.88));
 
             outLp1L += outLpCoeff * (warmL - outLp1L);
             outLp1R += outLpCoeff * (warmR - outLp1R);
@@ -3347,7 +3229,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           await yieldSlice();
         }
 
-        // Chunked 3-sample median despiker + loudness normalization + 40ms cosine loop fades
         const rms = Math.sqrt(sumSq / Math.max(1, totalSamples));
         const targetRms = 0.178;
         const rmsGain = rms > 0.0001 ? Math.min(1.38, Math.max(0.55, targetRms / rms)) : 1.0;
@@ -3392,7 +3273,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
         };
       }
 
-      // Background Web Worker wrapper so 100% of 128-bar DSP synthesis runs off the main UI thread
       function renderSynthwaveBedInWorkerAsync() {
         return new Promise((resolve) => {
           try {
@@ -3450,7 +3330,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       }
 
       /* ======================================================================
-         11. WEB AUDIO ENGINE, MASTERING EQ CHAIN, SPECTRUM & LOCK RECOVERY
+         10. WEB AUDIO ENGINE, MASTERING EQ CHAIN, SPECTRUM & ROUTE RECOVERY
          ====================================================================== */
       class BroadcastAudioEngine {
         constructor() {
@@ -3459,12 +3339,14 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           this.analyser = null;
           this.bedFilterInput = null;
           this.bedGain = null;
-          this.bedPcmData = null;         // Cached { left, right, sampleRate, durationSec }
+          this.bedPcmData = null;
           this.bedAudioBuffer = null;
           this.bedSourceNode = null;
           this.bedWavBlob = null;
           this.bedWavUrl = null;
           this.fallbackAudioEl = null;
+          this.gestureWarmupAudioEl = null;
+          this.gestureWarmupAudioUrl = null;
           this.needsGestureRecovery = false;
           this.bedBuildingPromise = null;
           this.bedStartCtxTime = 0;
@@ -3485,6 +3367,92 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           try {
             if (typeof navigator !== "undefined" && "audioSession" in navigator && navigator.audioSession) {
               navigator.audioSession.type = "playback";
+            }
+          } catch (e) {}
+        }
+
+        buildTinySilentWavUrl() {
+          if (this.gestureWarmupAudioUrl) return this.gestureWarmupAudioUrl;
+          try {
+            // 1-second 22.05kHz 16-bit mono PCM WAV for iOS Safari gesture unlock & media session priming
+            const sampleRate = 22050;
+            const numSamples = sampleRate;
+            const dataSize = numSamples * 2;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+            const writeStr = (off, str) => {
+              for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i));
+            };
+            writeStr(0, "RIFF");
+            view.setUint32(4, 36 + dataSize, true);
+            writeStr(8, "WAVE");
+            writeStr(12, "fmt ");
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeStr(36, "data");
+            view.setUint32(40, dataSize, true);
+            const blob = new Blob([buffer], { type: "audio/wav" });
+            this.gestureWarmupAudioUrl = URL.createObjectURL(blob);
+            return this.gestureWarmupAudioUrl;
+          } catch (e) {
+            return null;
+          }
+        }
+
+        // Synchronous user-gesture unlock & warmup for iOS Safari Web Audio + HTMLAudioElement
+        unlockFromGestureSync() {
+          this.configureAudioSessionOnce();
+          try {
+            if (typeof navigator !== "undefined" && "audioSession" in navigator && navigator.audioSession) {
+              navigator.audioSession.type = "playback";
+            }
+          } catch (e) {}
+
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            try {
+              if (!this.ctx || this.ctx.state === "closed" || this.ctx.state === "interrupted") {
+                this.ctx = new AudioCtx();
+                this.isPrimed = false;
+                this.buildAudioGraph(this.ctx);
+              }
+              if (this.ctx.state === "suspended") {
+                this.ctx.resume().catch(() => {});
+              }
+              if (this.ctx.state === "running") {
+                this.primeSilentBuffer(this.ctx);
+              }
+            } catch (e) {}
+          }
+
+          // Synchronously warm an HTMLAudioElement on user tap so iOS Safari routes media to phone speaker
+          try {
+            const warmupUrl = this.bedWavUrl || this.buildTinySilentWavUrl();
+            if (warmupUrl) {
+              if (!this.gestureWarmupAudioEl) {
+                const elAudio = document.createElement("audio");
+                elAudio.preload = "auto";
+                elAudio.loop = true;
+                elAudio.setAttribute("playsinline", "");
+                elAudio.setAttribute("webkit-playsinline", "");
+                this.gestureWarmupAudioEl = elAudio;
+              }
+              if (this.gestureWarmupAudioEl.src !== warmupUrl) {
+                this.gestureWarmupAudioEl.src = warmupUrl;
+              }
+              const targetVol = (state.musicBedOn || state.isOnAir)
+                ? Math.max(0.05, this.getCurrentDuckTarget().gain)
+                : 0.01;
+              this.gestureWarmupAudioEl.volume = Math.min(1, targetVol);
+              const playPromise = this.gestureWarmupAudioEl.play();
+              if (playPromise && typeof playPromise.catch === "function") {
+                playPromise.catch(() => {});
+              }
             }
           } catch (e) {}
         }
@@ -3584,14 +3552,22 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           }
         }
 
+        // Keep fallback <audio> stopped when AudioContext is active so iOS does not hold conflicting routes
         stopFallbackAudioElement() {
-          if (!this.fallbackAudioEl) return;
-          try {
-            if (!this.fallbackAudioEl.paused && this.bedPcmData) {
-              this.bedOffsetSec = (this.fallbackAudioEl.currentTime || 0) % Math.max(0.1, this.bedPcmData.durationSec);
-            }
-            this.fallbackAudioEl.pause();
-          } catch (e) {}
+          if (this.fallbackAudioEl) {
+            try {
+              if (!this.fallbackAudioEl.paused && this.bedPcmData) {
+                this.bedOffsetSec = (this.fallbackAudioEl.currentTime || 0) % Math.max(0.1, this.bedPcmData.durationSec);
+              }
+              this.fallbackAudioEl.pause();
+              this.fallbackAudioEl.currentTime = 0;
+            } catch (e) {}
+          }
+          if (this.gestureWarmupAudioEl) {
+            try {
+              this.gestureWarmupAudioEl.pause();
+            } catch (e) {}
+          }
         }
 
         async acquireWakeLock() {
@@ -3669,12 +3645,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           this.bedGain.gain.setValueAtTime(0.0001, ctx.currentTime);
           this.bedGain.connect(this.masterGain);
 
-          // Mastering & anti-crackle EQ chain:
-          // 1) 30 Hz sub-sonic high-pass so fundamental bass & 909 kick remain full and punchy
-          // 2) 125 Hz warm bass/kick punch shelf (+3.4 dB, Q 1.2) for crisp low-end definition
-          // 3) 245 Hz low-mid mud-scoop (-2.8 dB, Q 1.2) to prevent boxiness
-          // 4) 2400 Hz synth-masking dip (-3.0 dB, Q 1.3) so drums sit forward without harshness
-          // 5) 6800 Hz warm analog low-pass ceiling (Q 0.55) for smooth non-fatiguing highs
           const subTightHp = ctx.createBiquadFilter();
           subTightHp.type = "highpass";
           subTightHp.frequency.setValueAtTime(30, ctx.currentTime);
@@ -3713,9 +3683,9 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
 
           ctx.onstatechange = () => {
             if (this.ctx !== ctx) return;
+            // Do not auto-resume or touch audio on background state changes; wait for explicit playback action
             if ((ctx.state === "suspended" || ctx.state === "interrupted") && (state.isOnAir || state.musicBedOn)) {
               this.needsGestureRecovery = true;
-              this.recoverAfterUnlock(false).catch(() => {});
             }
           };
         }
@@ -3732,7 +3702,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           } catch (e) {}
         }
 
-        // Smoothly ramp bedGain/voiceGain down to 0.0001 over 18ms and save bedOffsetSec before sleep
         muteBeforeSleep() {
           if (this.bedPlaying && this.ctx && this.bedPcmData) {
             const elapsed = Math.max(0, this.ctx.currentTime - this.bedStartCtxTime);
@@ -3741,7 +3710,8 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           if (state.isOnAir || state.musicBedOn) {
             this.needsGestureRecovery = true;
           }
-          if (!this.ctx || this.ctx.state === "closed") return;
+          // Only adjust an already-running AudioContext without creating or calling .play() on any <audio> element
+          if (!this.ctx || this.ctx.state !== "running") return;
           const now = this.ctx.currentTime;
           const rampEnd = now + 0.018;
           try {
@@ -3764,6 +3734,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           const oldCtx = this.ctx;
           this.stopBedSourceOnly();
           this.stopFallbackSynthPulse();
+          this.stopFallbackAudioElement();
           this.ctx = null;
           this.masterGain = null;
           this.analyser = null;
@@ -3821,6 +3792,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           }
 
           if (this.ctx && this.ctx.state === "running") {
+            this.stopFallbackAudioElement();
             this.primeSilentBuffer(this.ctx);
           }
           return this.ctx;
@@ -3853,7 +3825,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
               pcm = await buildSynthwaveBedPcmAsync();
             }
             this.bedPcmData = pcm;
-            // Build compact 16-bit PCM WAV Blob for <audio> lock-screen fallback
             this.encodeStereoWavBlobAsync(pcm)
               .then((blob) => {
                 if (!blob) return;
@@ -3990,7 +3961,9 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
 
         getCurrentDuckTarget() {
           if (!state.musicBedOn) return { gain: 0, label: "BED MUTED" };
-          if (state.isSpeaking) {
+          // Only duck when a presenter source is actively playing (not during fetch/decode/standby)
+          const presenterActuallyPlaying = Boolean(state.isSpeaking && state.activeSpeechSource);
+          if (presenterActuallyPlaying) {
             return state.activeIsSlogan
               ? { gain: BED_SLOGAN_DUCK_GAIN, label: "DUCK SLOGAN -92%" }
               : { gain: BED_SPEECH_DUCK_GAIN, label: "DUCK SPEECH -92%" };
@@ -3999,39 +3972,63 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
         }
 
         async recoverAfterUnlock(fromGesture = false) {
+          if (!state.isOnAir && !state.musicBedOn) return;
           if (this.recoveringLock) return;
           this.recoveringLock = true;
           try {
+            if (fromGesture) {
+              this.unlockFromGestureSync();
+            }
             let ctx = await this.ensureContext();
-            if ((!ctx || ctx.state !== "running") && fromGesture) {
+            if (fromGesture && (!ctx || ctx.state !== "running")) {
+              ctx = await this.rebuildFreshContext();
+            } else if (ctx && ctx.state !== "running") {
               ctx = await this.rebuildFreshContext();
             }
-
             const target = this.getCurrentDuckTarget();
 
-            if (ctx && ctx.state === "running") {
-              this.needsGestureRecovery = false;
-              this.stopFallbackAudioElement();
-
-              if (state.activeSpeechGain) {
-                try {
-                  state.activeSpeechGain.gain.setTargetAtTime(1.0, ctx.currentTime, 0.03);
-                } catch (e) {}
-              }
-
-              if (state.musicBedOn && !this.manualBedStop) {
-                if (!this.bedPlaying || !this.bedSourceNode || fromGesture) {
-                  await this.startBedIfEnabled();
-                } else {
-                  this.rampBedGain(target.gain, 180);
-                  updateDuckPill(target.label);
+            if (!ctx || ctx.state !== "running") {
+              // Dedicated phone-speaker recovery when Web Audio stays suspended/interrupted on iOS
+              if (state.musicBedOn) {
+                const usedFallback = await this.startFallbackAudioElement(
+                  Math.max(0.25, target.gain),
+                  `${target.label} · SPK`
+                );
+                if (!usedFallback && this.gestureWarmupAudioEl) {
+                  try {
+                    this.gestureWarmupAudioEl.volume = Math.max(0.25, target.gain);
+                    await this.gestureWarmupAudioEl.play();
+                    updateDuckPill(`${target.label} · SPK`);
+                  } catch (e) {}
                 }
               }
-            } else if (state.musicBedOn && !this.manualBedStop) {
-              // Mobile Safari non-gesture visibilitychange fallback: engage HTMLAudioElement WAV loop
-              this.needsGestureRecovery = true;
-              this.stopBedSourceOnly();
-              await this.startFallbackAudioElement(target.gain, target.label);
+              return;
+            }
+
+            if (state.musicBedOn) {
+              if (this.bedPcmData) {
+                if (!this.bedPlaying || !this.bedSourceNode || fromGesture) {
+                  this.startBedBufferLoop(ctx, target.gain, target.label);
+                } else {
+                  this.rampBedGain(target.gain, 160);
+                  updateDuckPill(target.label);
+                }
+              } else {
+                this.startFallbackSynthPulse(ctx);
+                this.rampBedGain(target.gain, 180);
+                updateDuckPill(target.label);
+                this.ensureBedPcmCached()
+                  .then(() => {
+                    if (state.musicBedOn && this.bedPcmData && this.ctx && this.ctx.state === "running") {
+                      const latest = this.getCurrentDuckTarget();
+                      this.startBedBufferLoop(this.ctx, latest.gain, latest.label);
+                    }
+                  })
+                  .catch(() => {});
+              }
+            } else {
+              this.rampBedGain(0, 120);
+              updateDuckPill("BED MUTED");
             }
           } finally {
             this.recoveringLock = false;
@@ -4039,79 +4036,83 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
         }
 
         async startBedIfEnabled() {
-          if (!state.musicBedOn) return;
           this.manualBedStop = false;
-          const ctx = await this.ensureContext();
-          const { gain, label } = this.getCurrentDuckTarget();
+          if (!state.musicBedOn) {
+            this.rampBedGain(0, 120);
+            updateDuckPill("BED MUTED");
+            return;
+          }
 
-          if (!ctx || ctx.state !== "running" || !this.bedGain) {
-            this.needsGestureRecovery = true;
+          this.unlockFromGestureSync();
+          let ctx = await this.ensureContext();
+          if (!ctx || ctx.state !== "running") {
+            ctx = await this.rebuildFreshContext();
+          }
+          const target = this.getCurrentDuckTarget();
+
+          if (!ctx || ctx.state !== "running") {
             if (this.bedPcmData) {
-              await this.startFallbackAudioElement(gain, label);
+              await this.startFallbackAudioElement(Math.max(0.25, target.gain), `${target.label} · SPK`);
+            } else if (this.gestureWarmupAudioEl) {
+              try {
+                this.gestureWarmupAudioEl.volume = Math.max(0.25, target.gain);
+                await this.gestureWarmupAudioEl.play();
+                updateDuckPill(`${target.label} · SPK`);
+              } catch (e) {}
             }
             return;
           }
 
-          this.rampBedGain(gain, 140);
-          updateDuckPill(label);
-
           if (this.bedPcmData) {
-            this.startBedBufferLoop(ctx, gain, label);
+            this.startBedBufferLoop(ctx, target.gain, target.label);
             return;
           }
 
+          // Instant zero-wait groove pulse while full 128-bar stereo bed renders asynchronously
           this.startFallbackSynthPulse(ctx);
-          await this.ensureBedPcmCached();
-          this.stopFallbackSynthPulse();
+          this.rampBedGain(target.gain, 180);
+          updateDuckPill(target.label);
 
-          if (!state.musicBedOn || this.manualBedStop || !this.bedPcmData) return;
-
-          const activeCtx = await this.ensureContext();
-          const post = this.getCurrentDuckTarget();
-          if (activeCtx && activeCtx.state === "running") {
-            this.startBedBufferLoop(activeCtx, post.gain, post.label);
-          } else {
-            this.needsGestureRecovery = true;
-            await this.startFallbackAudioElement(post.gain, post.label);
-          }
+          this.ensureBedPcmCached()
+            .then(() => {
+              if (this.manualBedStop || !state.musicBedOn || !this.bedPcmData) return;
+              if (this.ctx && this.ctx.state === "running") {
+                const latest = this.getCurrentDuckTarget();
+                this.startBedBufferLoop(this.ctx, latest.gain, latest.label);
+              }
+            })
+            .catch(() => {});
         }
 
         stopBed(fadeMs = 160) {
           this.manualBedStop = true;
-          this.needsGestureRecovery = false;
           this.stopFallbackSynthPulse();
           this.stopFallbackAudioElement();
-          if (this.ctx && this.bedGain) {
-            this.rampBedGain(0, fadeMs);
+          if (this.gestureWarmupAudioEl) {
+            try {
+              this.gestureWarmupAudioEl.pause();
+              this.gestureWarmupAudioEl.currentTime = 0;
+            } catch (e) {}
           }
+          this.rampBedGain(0, fadeMs);
           updateDuckPill("BED MUTED");
-          setTimeout(() => {
-            if (!this.manualBedStop) return;
-            this.stopBedSourceOnly();
-          }, fadeMs + 40);
+          this.stopBedSourceOnly();
         }
 
-        rampBedGain(targetGain, ms = 220) {
-          const safeTarget = Math.max(0, Number(targetGain) || 0);
-          this.syncFallbackAudioVolume(safeTarget);
-          if (!this.ctx || !this.bedGain || this.ctx.state === "closed") return;
+        rampBedGain(targetGain, fadeMs = 200) {
+          const clampedTarget = Math.max(0, Math.min(1, Number(targetGain) || 0));
+          this.syncFallbackAudioVolume(clampedTarget);
+          if (!this.ctx || !this.bedGain) return;
           const now = this.ctx.currentTime;
-          const durSec = Math.max(0.025, (Number(ms) || 220) / 1000);
+          const safeFloor = 0.0001;
+          const goal = Math.max(safeFloor, clampedTarget);
+          const sec = Math.max(0.02, fadeMs / 1000);
           try {
-            const currentVal = Math.max(0.0001, Number(this.bedGain.gain.value) || 0.0001);
+            const cur = Math.max(safeFloor, Number(this.bedGain.gain.value) || safeFloor);
             this.bedGain.gain.cancelScheduledValues(now);
-            this.bedGain.gain.setValueAtTime(currentVal, now);
-            if (safeTarget > 0.0001) {
-              this.bedGain.gain.exponentialRampToValueAtTime(Math.max(0.0001, safeTarget), now + durSec);
-            } else {
-              this.bedGain.gain.exponentialRampToValueAtTime(0.0001, now + durSec);
-              this.bedGain.gain.setValueAtTime(0, now + durSec + 0.004);
-            }
-          } catch (e) {
-            try {
-              this.bedGain.gain.setTargetAtTime(safeTarget, now, durSec / 3);
-            } catch (err) {}
-          }
+            this.bedGain.gain.setValueAtTime(cur, now);
+            this.bedGain.gain.exponentialRampToValueAtTime(goal, now + sec);
+          } catch (e) {}
         }
 
         stopVoice(restoreBed = true) {
@@ -4135,99 +4136,126 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           }
           syncTeleprompter(false);
           if (restoreBed) {
-            const { gain, label } = this.getCurrentDuckTarget();
-            this.rampBedGain(gain, 260);
-            updateDuckPill(label);
+            const target = this.getCurrentDuckTarget();
+            this.rampBedGain(target.gain, 240);
+            updateDuckPill(target.label);
           }
         }
 
         async playWavBlob(wavBlob, token, duckGain, duckLabel) {
-          const ctx = await this.ensureContext();
-          if (!ctx) return false;
+          if (!(wavBlob instanceof Blob) || wavBlob.size < 46) return false;
+          let ctx = await this.ensureContext();
+          if (ctx && ctx.state !== "running") {
+            ctx = await this.rebuildFreshContext();
+          }
+          if (!ctx || token !== state.playToken || !state.isOnAir) return false;
+
           try {
             const arrayBuf = await wavBlob.arrayBuffer();
+            if (token !== state.playToken || !state.isOnAir) return false;
+
             const audioBuf = await ctx.decodeAudioData(arrayBuf.slice(0));
             if (token !== state.playToken || !state.isOnAir) return false;
 
-            const now = ctx.currentTime;
             const src = ctx.createBufferSource();
-            const voiceGain = ctx.createGain();
-            const fadeSec = Math.min(0.025, Math.max(0.008, audioBuf.duration * 0.05));
-            const endFadeStart = Math.max(now + fadeSec, now + audioBuf.duration - fadeSec);
-
-            voiceGain.gain.setValueAtTime(0.0001, now);
-            voiceGain.gain.exponentialRampToValueAtTime(1.0, now + fadeSec);
-            if (endFadeStart < now + audioBuf.duration - 0.002) {
-              voiceGain.gain.setValueAtTime(1.0, endFadeStart);
-              voiceGain.gain.exponentialRampToValueAtTime(0.0001, now + audioBuf.duration);
-            }
-
+            const speechGain = ctx.createGain();
+            speechGain.gain.setValueAtTime(1.08, ctx.currentTime);
             src.buffer = audioBuf;
-            src.connect(voiceGain);
-            voiceGain.connect(this.masterGain || ctx.destination);
-            state.activeSpeechSource = src;
-            state.activeSpeechGain = voiceGain;
+            src.connect(speechGain);
+            speechGain.connect(this.masterGain || ctx.destination);
 
-            if (state.musicBedOn) {
-              this.rampBedGain(duckGain, 180);
-              updateDuckPill(duckLabel);
-            }
+            state.activeSpeechSource = src;
+            state.activeSpeechGain = speechGain;
 
             return await new Promise((resolve) => {
-              let done = false;
-              const finish = (ok) => {
-                if (done) return;
-                done = true;
+              let settled = false;
+              const finish = (playedOk) => {
+                if (settled) return;
+                settled = true;
                 if (state.activeSpeechSource === src) {
                   state.activeSpeechSource = null;
-                }
-                if (state.activeSpeechGain === voiceGain) {
                   state.activeSpeechGain = null;
                 }
-                try {
-                  src.disconnect();
-                  voiceGain.disconnect();
-                } catch (e) {}
-                resolve(ok);
+                try { src.disconnect(); } catch (e) {}
+                try { speechGain.disconnect(); } catch (e) {}
+                // Restore bed gain immediately when speech finishes or stops
+                const post = this.getCurrentDuckTarget();
+                this.rampBedGain(post.gain, 260);
+                updateDuckPill(post.label);
+                resolve(playedOk);
               };
 
               src.onended = () => finish(true);
-              src.start(0);
-
-              const maxMs = Math.max(4000, Math.ceil(audioBuf.duration * 1000) + 2500);
-              setTimeout(() => {
-                try {
-                  src.stop(0);
-                } catch (e) {}
-                finish(true);
-              }, maxMs);
+              try {
+                // Duck music bed strictly when presenter WAV playback actually begins
+                if (state.musicBedOn && token === state.playToken && state.isOnAir) {
+                  this.rampBedGain(duckGain, 120);
+                  updateDuckPill(duckLabel);
+                }
+                src.start(0);
+              } catch (e) {
+                finish(false);
+              }
             });
           } catch (e) {
-            state.activeSpeechSource = null;
-            state.activeSpeechGain = null;
+            if (state.activeSpeechSource) {
+              try { state.activeSpeechSource.disconnect(); } catch (err) {}
+              state.activeSpeechSource = null;
+            }
+            if (state.activeSpeechGain) {
+              try { state.activeSpeechGain.disconnect(); } catch (err) {}
+              state.activeSpeechGain = null;
+            }
+            const post = this.getCurrentDuckTarget();
+            this.rampBedGain(post.gain, 240);
+            updateDuckPill(post.label);
             return false;
           }
         }
 
+        async playCachedSloganBackup(preferredSpeaker, token) {
+          if (token !== state.playToken || !state.isOnAir) return false;
+          const backupWav = await getCachedSloganFallbackWav(preferredSpeaker);
+          if (!(backupWav instanceof Blob) || backupWav.size < 46) return false;
+          if (token !== state.playToken || !state.isOnAir) return false;
+
+          const isDonnaBackup = /donna/i.test(String(preferredSpeaker || ""));
+          const fallbackScript = isDonnaBackup ? SLOGAN_SCRIPT.Donna : SLOGAN_SCRIPT.Marcus;
+          state.activeIsSlogan = true;
+          setProgramTitle(`${fallbackScript.title} (CACHED BACKUP)`);
+          syncTeleprompter(true, "STATION SLOGAN", fallbackScript.speaker, fallbackScript.text);
+
+          return await this.playWavBlob(
+            backupWav,
+            token,
+            BED_SLOGAN_DUCK_GAIN,
+            "DUCK SLOGAN -92%"
+          );
+        }
+
         async playGeminiLines(lines, options = {}) {
           const {
-            badge = "CALLER",
-            title = "Studio Segment",
-            category = "CALLER",
+            badge = "ON AIR",
+            title = "Broadcast Segment",
+            category = "GENERAL",
             isSlogan = false,
             cachedWav = null,
-            saveToVault = true,
+            saveToVault = false,
             dedupKey = ""
           } = options;
-
-          if (!state.isOnAir) return false;
-          stopPreviewWav();
 
           const token = ++state.playToken;
           state.isSpeaking = true;
           state.activeIsSlogan = isSlogan;
           state.activeRunnerType = isSlogan ? "SLOGAN" : "PROGRAM";
           setProgramTitle(title);
+
+          // Keep music bed unducked at full cruise level while fetching/baking/decoding audio
+          const unduckedTarget = state.musicBedOn
+            ? { gain: BED_CRUISE_GAIN, label: "BED CRUISE" }
+            : { gain: 0, label: "BED MUTED" };
+          this.rampBedGain(unduckedTarget.gain, 140);
+          updateDuckPill(unduckedTarget.label);
 
           const duckGain = isSlogan ? BED_SLOGAN_DUCK_GAIN : BED_SPEECH_DUCK_GAIN;
           const duckLabel = isSlogan ? "DUCK SLOGAN -92%" : "DUCK SPEECH -92%";
@@ -4245,12 +4273,19 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             }
 
             if (token !== state.playToken || !state.isOnAir) return false;
-            if (!wavToPlay) return false;
+            if (!wavToPlay) {
+              const preferredSpeaker = (lines && lines[0] && lines[0].speaker) || "";
+              return await this.playCachedSloganBackup(preferredSpeaker, token);
+            }
 
             const fullScript = lines.map((l) => `${l.speaker.replace(/^Caller.*/, "Caller")}: ${l.text}`).join(" ");
             syncTeleprompter(true, badge, title, fullScript);
 
             const ok = await this.playWavBlob(wavToPlay, token, duckGain, duckLabel);
+            if (!ok && token === state.playToken && state.isOnAir) {
+              const preferredSpeaker = (lines && lines[0] && lines[0].speaker) || "";
+              return await this.playCachedSloganBackup(preferredSpeaker, token);
+            }
             return Boolean(ok && token === state.playToken && state.isOnAir);
           } finally {
             if (token === state.playToken) {
@@ -4329,7 +4364,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       const audioEngine = new BroadcastAudioEngine();
 
       /* ======================================================================
-         12. LIVE VFD SPECTRUM ANALYZER / OSCILLOSCOPE CANVAS (28 BARS)
+         11. LIVE VFD SPECTRUM ANALYZER / OSCILLOSCOPE CANVAS (28 BARS)
          ====================================================================== */
       let spectrumFreqBins = null;
       function startSpectrumVisualizer() {
@@ -4350,7 +4385,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
 
           ctx2d.clearRect(0, 0, targetW, targetH);
 
-          // Subtle baseline grid
           ctx2d.strokeStyle = "rgba(41, 240, 137, 0.14)";
           ctx2d.lineWidth = 1;
           ctx2d.beginPath();
@@ -4398,7 +4432,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       }
 
       /* ======================================================================
-         13. SATIRE NEWS WIRE, WEATHER, SPONSORS & CALLERS
+         12. SATIRE NEWS WIRE, WEATHER, SPONSORS & CALLERS
          ====================================================================== */
       async function buildWeatherTrafficSegment() {
         await refreshLiveRegionalWeather();
@@ -4437,7 +4471,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
 
         try {
           const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 4500);
+          const timer = setTimeout(() => controller.abort(), 5000);
           const rssProxy = `https://api.allorigins.win/get?url=${encodeURIComponent(reg.rss)}`;
           const res = await fetch(rssProxy, { signal: controller.signal });
           clearTimeout(timer);
@@ -4453,7 +4487,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           }
         } catch (e) {}
 
-        // Use gemini-2.5-flash when API key is ready to craft custom satire around the headline
         if (hasApiKey() && !isApiCoolingDown()) {
           const aiLines = await requestGeminiDynamicNewsLines(reg, rawRssHeadline || headline);
           if (aiLines) {
@@ -4535,7 +4568,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       }
 
       /* ======================================================================
-         14. SLOGAN-ANCHORED 5M SCHEDULE WITH SLOGAN FALLBACK & RETRY PUSH-BACK
+         13. SLOGAN-ANCHORED 5M SCHEDULE WITH SLOGAN FALLBACK & RETRY PUSH-BACK
          ====================================================================== */
       let runnerBusy = false;
 
@@ -4634,7 +4667,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       }
 
       /* ======================================================================
-         15. PROGRAM SCHEDULE & 24-CLIP VAULT MODAL RENDERING
+         14. PROGRAM SCHEDULE & 24-CLIP VAULT MODAL RENDERING
          ====================================================================== */
       function setModalTab(tabName) {
         state.activeModalTab = tabName === "VAULT" ? "VAULT" : "SCHEDULE";
@@ -4711,10 +4744,16 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       }
 
       /* ======================================================================
-         16. SYNCHRONOUS UI STATE TOGGLES + NON-BLOCKING AUDIO DISPATCH
+         15. SYNCHRONOUS UI STATE TOGGLES + NON-BLOCKING AUDIO DISPATCH
          ====================================================================== */
       function toggleStandby() {
         try {
+          if (!state.isOnAir && !hasApiKey()) {
+            syncStandbyLockIndicator();
+            showToast("Standby locked: save a Gemini API key first");
+            return;
+          }
+
           state.isOnAir = !state.isOnAir;
 
           if (state.isOnAir) {
@@ -4728,6 +4767,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             state.pendingRetryItem = null;
             syncUiState();
 
+            audioEngine.unlockFromGestureSync();
             audioEngine.ensureContext()
               .then(() => audioEngine.startBedIfEnabled())
               .catch(() => {});
@@ -4738,12 +4778,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             if (!state.schedulerTimer) {
               state.schedulerTimer = setInterval(tickBroadcastScheduler, 1000);
             }
-            if (!state.watchdogTimer) {
-              state.watchdogTimer = setInterval(() => {
-                if (!state.isOnAir) return;
-                audioEngine.recoverAfterUnlock(false).catch(() => {});
-              }, 3000);
-            }
+            // Do not run background audio recovery timers that touch Web Audio / <audio> outside explicit playback actions
             showToast(`WEAZEL 13.3 FM ON AIR // ${getCurrentCityRecord().cityName.toUpperCase()}`);
           } else {
             state.pendingRetryItem = null;
@@ -4773,6 +4808,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           state.musicBedOn = !state.musicBedOn;
           syncUiState();
           if (state.musicBedOn) {
+            audioEngine.unlockFromGestureSync();
             audioEngine.ensureContext()
               .then(() => audioEngine.startBedIfEnabled())
               .catch(() => {});
@@ -4787,6 +4823,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       function cutMic() {
         try {
           stopPreviewWav();
+          audioEngine.unlockFromGestureSync();
           audioEngine.stopVoice(true);
           if (state.isOnAir) {
             setProgramTitle("CARRIER MUSIC BED // STANDBY FOR NEXT SLOT");
@@ -4872,8 +4909,8 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
 
       function saveApiKey() {
         try {
-          if (!el.apiKeyInput) return;
-          const val = el.apiKeyInput.value.trim();
+          const inputNode = el.apiKeyInput || document.getElementById("apiKeyInput");
+          const val = inputNode ? String(inputNode.value || "").trim() : "";
           if (!val) {
             showToast("Enter a Gemini API key first");
             return;
@@ -4883,7 +4920,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           state.apiConsecutiveErrors = 0;
           state.apiStatus = "READY";
           syncUiState();
-          showToast("Gemini API key saved");
+          showToast("Gemini API key saved — STANDBY unlocked");
           if (!state.sloganMarcusWavBlob || !state.sloganDonnaWavBlob) {
             bakeBothSloganWavsOnce().catch(() => {});
           }
@@ -4893,13 +4930,125 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
       function clearApiKey() {
         try {
           delStore(STORAGE_KEY_NAME);
-          if (el.apiKeyInput) el.apiKeyInput.value = "";
+          const inputNode = el.apiKeyInput || document.getElementById("apiKeyInput");
+          if (inputNode) inputNode.value = "";
           state.apiCooldownUntilMs = 0;
           state.apiConsecutiveErrors = 0;
           state.apiStatus = "IDLE";
           syncUiState();
-          showToast("Gemini API key cleared");
+          showToast("Gemini API key cleared — STANDBY locked");
         } catch (e) {}
+      }
+
+      /* ======================================================================
+         16. DIRECT EVENT BINDING (BOUND IMMEDIATELY WITH ZERO BLOCKING)
+         ====================================================================== */
+      let eventsBound = false;
+      function bindAllEventsImmediately() {
+        if (eventsBound) return;
+        eventsBound = true;
+
+        const bindClick = (node, key, fn) => {
+          if (!node) return;
+          node.addEventListener("click", (event) => {
+            if (event && typeof event.stopPropagation === "function") {
+              event.stopPropagation();
+            }
+            if (!passButtonDebounce(key)) return;
+            try {
+              fn(event);
+            } catch (e) {}
+          });
+        };
+
+        bindClick(el.standbyBtn, "standbyBtn", toggleStandby);
+        bindClick(el.bedToggleBtn, "bedToggleBtn", toggleBed);
+        bindClick(el.cutMicBtn, "cutMicBtn", cutMic);
+        bindClick(el.programBtn, "programBtn", () => openProgramModal("SCHEDULE"));
+        bindClick(el.clearDeckBtn, "clearDeckBtn", clearDeckReset);
+        bindClick(el.closeProgramModalBtn, "closeProgramModalBtn", closeProgramModal);
+        bindClick(el.tabScheduleBtn, "tabScheduleBtn", () => setModalTab("SCHEDULE"));
+        bindClick(el.tabVaultBtn, "tabVaultBtn", () => setModalTab("VAULT"));
+        bindClick(el.stopPreviewBtn, "stopPreviewBtn", () => {
+          stopPreviewWav();
+          showToast("Preview stopped");
+        });
+        bindClick(el.saveExportVaultBtn, "saveExportVaultBtn", () => {
+          exportVaultOrBedWav().catch(() => {});
+        });
+        bindClick(el.clearAllVaultBtn, "clearAllVaultBtn", () => {
+          clearAllVaultClips().catch(() => {});
+        });
+        bindClick(el.hydrateVaultBtn, "hydrateVaultBtn", () => {
+          loadPersistedVault()
+            .then(() => {
+              if (hasApiKey() && !isApiCoolingDown()) {
+                return bakeBothSloganWavsOnce();
+              }
+            })
+            .then(() => {
+              renderVaultList();
+              showToast("Vault hydrated");
+            })
+            .catch(() => {});
+        });
+        bindClick(el.toggleKeyVisBtn, "toggleKeyVisBtn", toggleKeyVisibility);
+        bindClick(el.saveKeyBtn, "saveKeyBtn", saveApiKey);
+        bindClick(el.clearKeyBtn, "clearKeyBtn", clearApiKey);
+
+        if (el.programVaultModal) {
+          el.programVaultModal.addEventListener("click", (e) => {
+            if (e.target === el.programVaultModal) closeProgramModal();
+          });
+        }
+
+        if (el.countrySelect) {
+          el.countrySelect.addEventListener("change", (e) => handleCountryChange(e.target.value));
+        }
+        if (el.citySelect) {
+          el.citySelect.addEventListener("change", (e) => handleCityChange(e.target.value));
+        }
+        if (el.apiKeyInput) {
+          el.apiKeyInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (passButtonDebounce("saveKeyBtn")) saveApiKey();
+            }
+          });
+        }
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && state.programModalOpen) {
+            closeProgramModal();
+          }
+        });
+
+        // Screen-lock wake lock & non-audio sleep handling only (never unlock or call .play() on visibility/focus/pagehide)
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            audioEngine.muteBeforeSleep();
+          } else if (document.visibilityState === "visible" && state.isOnAir) {
+            audioEngine.acquireWakeLock().catch(() => {});
+          }
+        });
+
+        window.addEventListener("pagehide", () => {
+          audioEngine.muteBeforeSleep();
+        });
+
+        window.addEventListener("focus", () => {
+          if (state.isOnAir) {
+            audioEngine.acquireWakeLock().catch(() => {});
+          }
+        });
+
+        window.addEventListener("pageshow", () => {
+          if (state.isOnAir) {
+            audioEngine.acquireWakeLock().catch(() => {});
+          }
+        });
+
+        // General document pointer/touch/click listeners intentionally omitted so touching anywhere in the app does not claim audio focus or pause Apple Music
       }
 
       /* ======================================================================
@@ -4922,6 +5071,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
           }
 
           bindAllEventsImmediately();
+          syncStandbyLockIndicator();
           syncUiState();
           updateClockAndCountdowns();
           startSpectrumVisualizer();
@@ -4930,7 +5080,6 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
             state.clockTimer = setInterval(updateClockAndCountdowns, 1000);
           }
 
-          // Defer background synthwave bed pre-bake by 120ms so UI & buttons are 100% responsive from ms 0
           setTimeout(() => {
             audioEngine.ensureBedPcmCached().catch(() => {});
             refreshLiveRegionalWeather().catch(() => {});
@@ -4943,6 +5092,7 @@ Return ONLY valid JSON array of 2 objects: [{"speaker":"Marcus","text":"..."},{"
               .catch(() => {});
           }, 120);
         } catch (err) {
+          bindAllEventsImmediately();
           syncUiState();
         }
       }
